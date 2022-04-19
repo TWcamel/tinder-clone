@@ -1,8 +1,7 @@
 # Tinder-clone
 
 ## ABOUT
-
-This is a full-stack Tinder clone, implementing by [Tinder system design](https://www.youtube.com/watch?v=nBdTBDJNOh8). Much thanks [Tech Dummies Narendra L](https://www.youtube.com/channel/UCn1XnDWhsLS5URXTi5wtFTA) to shed a light on it.
+This is a full-stack Tinder clone, implementing by [Tinder system design](https://www.youtube.com/watch?v=nBdTBDJNOh8). Much thanks to [Tech Dummies Narendra L](https://www.youtube.com/channel/UCn1XnDWhsLS5URXTi5wtFTA) shed a light on it.
 
 ### Functions
 
@@ -24,5 +23,3 @@ This is a full-stack Tinder clone, implementing by [Tinder system design](https:
 - AWS (EC2/S3/RDS/ELB/Auto scaling)
 
 # Reference
-
-
