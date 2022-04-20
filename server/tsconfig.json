@@ -4,11 +4,10 @@
     "module": "commonjs",
     "lib": ["es6"],
     "allowJs": true,
-    "outDir": "build",
-    "rootDir": "src",
-    "strict": true,
-    "noImplicitAny": true,
-    "esModuleInterop": true,
-    "resolveJsonModule": true
-  }
+    "sourceMap": true,
+    "outDir": "./dist",
+    "strict": true
+  },
+  "include": ["./src/**/*.js", "./src/**/*"],
+  "exclude": ["node_modules", "**/*.spec.ts"]
 }
