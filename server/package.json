@@ -11,8 +11,11 @@
     "typescript": "^4.6.3"
   },
   "scripts": {
-    "build": "rimraf ./build && tsc",
-    "start:dev": "nodemon",
-    "start": "yarn run build && node build/index.js"
+    "predebug": "rimraf dist/*",
+    "prebuild": "rimraf dist/*",
+    "prod": "node dist/main",
+    "debug": "nest start --debug 0.0.0.0:9229 --watch",
+    "build": "rimraf ./dist && nest build",
+    "start": "yarn run build && node dist/main"
   }
 }
