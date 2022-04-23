@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/TWcamel/tinder-clone/issues"
   },
-  "homepage": "https://github.com/TWcamel/tinder-clone#readme"
+  "homepage": "https://github.com/TWcamel/tinder-clone#readme",
+  "dependencies": {
+    "rxjs": "^7.5.5"
+  }
 }

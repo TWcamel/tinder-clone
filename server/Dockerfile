@@ -1,4 +1,4 @@
-FROM node:latest AS dev
+FROM node:latest AS development 
 
 WORKDIR /app
 
@@ -7,7 +7,7 @@ RUN apt update\
 
 COPY package*.json ./
 
-RUN yarn add tsc-watch -g\
+RUN yarn global add @nestjs/cli \
   && yarn install
 
 COPY . .
@@ -21,7 +21,7 @@ ENV NODE_ENV=${NODE_ENV}
 
 WORKDIR /app
 
-COPY --from=dev /app .
+COPY --from=development /app .
 
 EXPOSE 8080
 

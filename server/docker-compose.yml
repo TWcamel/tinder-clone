@@ -1,18 +1,17 @@
-version: 3.9
+version: '3.9'
 services:
-  build: Dockerfile
-  context: .
-  target: dev
-  volumnes:
-    - .:/app
-    - .:/app/node_modules
-  command: yarn run debug
-  environment:
-    DATABASE_URL: 
-    NODE_ENV: 
-    JWT_SECRET: 
-    PORT: 3000
-  ports:
-    - 8080:3000
-    # debug port
-    - 9229:9229
+    api:
+        build:
+            dockerfile: Dockerfile
+            context: .
+            target: development
+        volumes:
+            - .:/app
+        command: yarn run debug
+        environment:
+            NODE_ENV: development
+            PORT: 3000
+        ports:
+            - 8080:3000
+            - 9229:9229
+        restart: always
