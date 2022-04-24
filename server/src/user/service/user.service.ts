@@ -44,7 +44,7 @@ export class UserService {
         }
     }
 
-    async login(
+    async jwtLogin(
         loginUserDto: LoginUserDto,
         @Res() response: Response,
     ): Promise<Response> {
