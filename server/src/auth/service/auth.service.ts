@@ -38,5 +38,4 @@ export class AuthService {
     async getCookieForLogout(): Promise<string> {
         return `Authentication=; HttpOnly; Path=/; Max-Age=0`;
     }
-
 }
