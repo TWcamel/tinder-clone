@@ -2,7 +2,10 @@
 
 ## Function
 
--   [x] Login + Oauth
+-   [x] Login
+    -   [x] JWT
+    -   [x] facebook Oauth
+    -   [x] google Oauth
 -   [ ] Swipe
 -   [ ] Match
 -   [ ] Chat
