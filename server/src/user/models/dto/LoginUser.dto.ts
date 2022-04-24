@@ -6,4 +6,8 @@ export class LoginUserDto {
     email: string;
 
     password: string;
+
+    facebookId: string;
+
+    googleId: string;
 }

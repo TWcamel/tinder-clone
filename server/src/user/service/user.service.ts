@@ -126,19 +126,41 @@ export class UserService {
     }
 
     private async mailExists(email: string): Promise<boolean> {
-        const user = await this.userModel.findOne({ email }).exec();
-        return user ? true : false;
+        const user = await this.userModel.findOne({ email: email }).exec();
+        return user === null ? false : true;
+    }
+
+    private async updateUserAuthId(
+        _email: string,
+        _authId: string,
+        _authType: string,
+    ): Promise<UserI> {
+        const authId =
+            _authType === 'google'
+                ? { googleId: _authId }
+                : { facebookId: _authId };
+        const user = this.userModel
+            .findOneAndUpdate({ email: _email }, authId, { new: true })
+            .exec();
+        return user;
     }
 
     private async findOrCreate(@Req() req: Request): Promise<UserI> | null {
         const { user }: any = req.user;
-        const _res: UserI = await this.userModel
-            .findOne({ email: user.email })
-            .exec();
-        if (!_res) {
-            const newUser: any = await new this.userModel(user).save();
-            return newUser;
+        const { email, googleId, facebookId }: any = user;
+
+        const isEmailExists: boolean = await this.mailExists(email);
+
+        if (!isEmailExists) {
+            await new this.userModel({ email }).save();
         }
-        return _res;
+
+        const newUser: any = await this.updateUserAuthId(
+            email,
+            googleId || facebookId,
+            googleId ? 'google' : 'facebook',
+        );
+
+        return newUser;
     }
 }

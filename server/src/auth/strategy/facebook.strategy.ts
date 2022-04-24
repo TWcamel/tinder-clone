@@ -11,7 +11,7 @@ export class FacebookStrategy extends PassportStrategy(Strategy, 'facebook') {
             clientSecret: configService.get('FACEBOOK_APP_SECRET'),
             callbackURL: configService.get('FACEBOOK_CALLBACK_URL'),
             scope: 'email',
-            profileFields: ['emails', 'name', 'displayName', 'photos'],
+            profileFields: ['id', 'emails', 'name', 'displayName', 'photos'],
         });
     }
 
@@ -21,8 +21,9 @@ export class FacebookStrategy extends PassportStrategy(Strategy, 'facebook') {
         profile: Profile,
         done: (err: any, user: any, info?: any) => void,
     ): Promise<any> {
-        const { name, emails, photos } = profile;
+        const { id, name, emails, photos } = profile;
         const user = {
+            facebookId: id,
             email: emails[0].value,
             firstName: name.givenName,
             lastName: name.familyName,
