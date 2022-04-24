@@ -6,7 +6,14 @@ import { ConfigModule } from '@nestjs/config';
 @Module({
     imports: [
         ConfigModule.forRoot({ isGlobal: true }),
-        MongooseModule.forRoot(process.env.MONGO_URL),
+        MongooseModule.forRoot(process.env.MONGO_URL, {
+            retryAttempts: 5,
+            retryDelay: 1000,
+            maxPoolSize: 200,
+            connectionFactory: (connection: any) => {
+                return connection;
+            },
+        }),
         UserModule,
     ],
 })
