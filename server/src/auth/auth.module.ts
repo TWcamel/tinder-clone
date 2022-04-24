@@ -1,10 +1,12 @@
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
-import { JwtAuthGuard } from './guards/jwt.guard';
-import { FacebookAuthGuard } from './guards/facebook.guard';
-import { AuthService } from './service/auth.service';
 import { JwtStrategy } from './strategy/jwt.strategy';
+import { JwtAuthGuard } from './guards/jwt.guard';
 import { FacebookStrategy } from './strategy/facebook.strategy';
+import { FacebookAuthGuard } from './guards/facebook.guard';
+import { GoogleStrategy } from './strategy/google.strategy';
+import { GoogleAuthGuard } from './guards/google.guard';
+import { AuthService } from './service/auth.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
@@ -26,6 +28,8 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
         JwtAuthGuard,
         FacebookStrategy,
         FacebookAuthGuard,
+        GoogleStrategy,
+        GoogleAuthGuard,
     ],
     exports: [AuthService],
 })

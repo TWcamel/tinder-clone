@@ -17,6 +17,7 @@ import { LoginUserDto } from '../models/dto/LoginUser.dto';
 import { UserI } from '../models/user.interface';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
 import { FacebookAuthGuard } from 'src/auth/guards/facebook.guard';
+import { GoogleAuthGuard } from 'src/auth/guards/google.guard';
 import { Response, Request } from 'express';
 
 @Controller('user')
@@ -47,8 +48,22 @@ export class UserController {
     @Get('login/facebook/redirect')
     @UseGuards(FacebookAuthGuard)
     @HttpCode(200)
-    async facebookLoginRedirect(@Req() req: Request): Promise<any> {
-        return { ok: true, statusCode: HttpStatus.OK, data: req.user };
+    async facebookLoginRedirect(@Req() req: Request): Promise<object> {
+        return this.userService.authenticate(req);
+    }
+
+    @Get('login/google')
+    @UseGuards(GoogleAuthGuard)
+    @HttpCode(200)
+    async googleLogin(): Promise<HttpStatus> {
+        return HttpStatus.OK;
+    }
+
+    @Get('login/google/redirect')
+    @UseGuards(GoogleAuthGuard)
+    @HttpCode(200)
+    async googleLoginRedirect(@Req() req: Request): Promise<object> {
+        return this.userService.authenticate(req);
     }
 
     @Delete('logout')

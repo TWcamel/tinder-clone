@@ -1,8 +1,10 @@
 import { Request } from 'express';
 import { UserI } from 'src/user/models/user.interface';
 
-interface RequestWithUserI extends Request {
-    user: UserI;
+export interface RequestWithUserI extends Request {
+    email: string;
+    firstName: string;
+    lastName: string;
+    avatar: string;
+    password?: string;
 }
-
-export default RequestWithUserI;

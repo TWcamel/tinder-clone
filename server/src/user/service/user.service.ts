@@ -1,12 +1,18 @@
 import { Model } from 'mongoose';
-import { Injectable, HttpException, HttpStatus, Res } from '@nestjs/common';
+import {
+    Injectable,
+    HttpException,
+    HttpStatus,
+    Res,
+    Req,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { User, UserDocument } from '../models/user.schemas';
 import { CreateUserDto } from '../models/dto/CreateUser.dto';
 import { AuthService } from 'src/auth/service/auth.service';
 import { LoginUserDto } from '../models/dto/LoginUser.dto';
 import { UserI } from '../models/user.interface';
-import { Response } from 'express';
+import { Response, Request } from 'express';
 
 @Injectable()
 export class UserService {
@@ -71,6 +77,18 @@ export class UserService {
         }
     }
 
+    async authenticate(@Req() req: Request): Promise<object> {
+        if (!req.user) {
+            return {
+                error: true,
+                statusCode: HttpStatus.UNAUTHORIZED,
+                data: 'User not found',
+            };
+        }
+        await this.findOrCreate(req);
+        return { ok: true, statusCode: HttpStatus.OK, data: req.user };
+    }
+
     async logout(@Res() response: Response): Promise<Response> {
         const cookie: string = await this.authService.getCookieForLogout();
         response.setHeader('Set-Cookie', cookie);
@@ -110,5 +128,17 @@ export class UserService {
     private async mailExists(email: string): Promise<boolean> {
         const user = await this.userModel.findOne({ email }).exec();
         return user ? true : false;
+    }
+
+    private async findOrCreate(@Req() req: Request): Promise<UserI> | null {
+        const { user }: any = req.user;
+        const _res: UserI = await this.userModel
+            .findOne({ email: user.email })
+            .exec();
+        if (!_res) {
+            const newUser: any = await new this.userModel(user).save();
+            return newUser;
+        }
+        return _res;
     }
 }
