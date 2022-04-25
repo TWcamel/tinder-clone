@@ -17,15 +17,4 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     async validate(payload: any): Promise<any> {
         return { ...payload.user };
     }
-
-    private static extractJwtFromRequest(req: Request): string | null {
-        if (
-            req.cookies &&
-            'token' in req.cookies &&
-            req.cookies.user_token.length > 0
-        ) {
-            return req.cookies.user_token;
-        }
-        return null;
-    }
 }

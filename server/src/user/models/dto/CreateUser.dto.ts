@@ -8,4 +8,6 @@ export class CreateUserDto extends LoginUserDto {
     facebookId: string;
 
     googleId: string;
+
+    membershipType: string;
 }

@@ -14,6 +14,7 @@ import { LoginUserDto } from '../models/dto/LoginUser.dto';
 import { UserI } from '../models/user.interface';
 import { UserMembershipI } from '../models/user-membership.interface';
 import { Response, Request } from 'express';
+import { RequestWithUserI } from 'src/auth/interfaces/requestWithUser.interface';
 
 @Injectable()
 export class UserService {
@@ -100,6 +101,8 @@ export class UserService {
             ),
         );
 
+        await this.findOrCreate(req);
+
         return res.send({
             ok: true,
             statusCode: HttpStatus.OK,
@@ -184,16 +187,16 @@ export class UserService {
     }
 
     async changeMembership(
+        @Req() req: Request,
         _user: UserMembershipI,
         membershipType: string,
     ): Promise<UserMembershipI> {
         const { email }: any = _user;
         const user = this.findOneByEmail(email);
 
-        if (user && membershipType) {
+        if (user && membershipType && (await this.matchUserEmail(req, email))) {
             const membershipUser = {
-                ...user,
-                membership: membershipType === 'upgade' ? 'VIP' : 'FREE',
+                membershipType: membershipType === 'upgrade' ? 'VIP' : 'FREE',
             };
             const newMembershipUser: UserMembershipI =
                 await this.userModel.findOneAndUpdate(
@@ -205,9 +208,21 @@ export class UserService {
             return newMembershipUser;
         } else {
             throw new HttpException(
-                'You badass cannot try to modify input email',
-                HttpStatus.NOT_FOUND,
+                'Please check your input email and check you are logged in',
+                HttpStatus.NOT_ACCEPTABLE,
             );
         }
+    }
+
+    async matchUserEmail(@Req() req: Request, _email: string): Promise<boolean> {
+        const token: string = await this.authService.extractJwtFromRequest(req);
+
+        const { userId } = await this.authService.decodeJwt(token);
+
+        const { email }: UserI = await this.userModel
+            .findOne({ _id: userId })
+            .exec();
+
+        return email === _email ? true : false;
     }
 }

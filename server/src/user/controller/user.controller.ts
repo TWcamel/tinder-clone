@@ -9,6 +9,7 @@ import {
     HttpCode,
     Res,
     Req,
+    Query,
     HttpStatus,
 } from '@nestjs/common';
 import { UserService } from '../service/user.service';
@@ -78,10 +79,13 @@ export class UserController {
 
     @Post('upgrade')
     @HttpCode(200)
+    @UseGuards(JwtAuthGuard)
     async upgradeMembership(
-        @Body() upgradeUserDto: GrantMembershipUserDto,
+        @Req() req: Request,
+        @Query() upgradeUserDto: GrantMembershipUserDto,
     ): Promise<UserMembershipI> {
         return await this.userService.changeMembership(
+            req,
             upgradeUserDto,
             'upgrade',
         );
@@ -89,10 +93,13 @@ export class UserController {
 
     @Post('downgrade')
     @HttpCode(200)
+    @UseGuards(JwtAuthGuard)
     async downgradeMembership(
-        @Body() downgradeUserDto: GrantMembershipUserDto,
+        @Req() req: Request,
+        @Query() downgradeUserDto: GrantMembershipUserDto,
     ): Promise<UserMembershipI> {
         return await this.userService.changeMembership(
+            req,
             downgradeUserDto,
             'downgrade',
         );
