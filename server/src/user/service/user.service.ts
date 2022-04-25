@@ -158,7 +158,7 @@ export class UserService {
         const { email }: any = _user;
         const user = this.findOneByEmail(email);
 
-        if (user && membershipType && (await this.matchUserEmail(req, email))) {
+        if (user && membershipType && (await this.matchReqEmail(req, email))) {
             const membershipUser = {
                 membershipType: membershipType === 'upgrade' ? 'VIP' : 'FREE',
             };
@@ -178,7 +178,7 @@ export class UserService {
         }
     }
 
-    async matchUserEmail(
+    async matchReqEmail(
         @Req() req: Request,
         _email: string,
     ): Promise<boolean> {

@@ -6,7 +6,7 @@
     -   [x] JWT
     -   [x] facebook Oauth
     -   [x] google Oauth
--   [ ] VIP membership
+-   [x] VIP membership
 -   [ ] Chat
 -   [ ] Swipe
 -   [ ] Match
