@@ -12,6 +12,7 @@ import { CreateUserDto } from '../models/dto/CreateUser.dto';
 import { AuthService } from 'src/auth/service/auth.service';
 import { LoginUserDto } from '../models/dto/LoginUser.dto';
 import { UserI } from '../models/user.interface';
+import { UserMembershipI } from '../models/user-membership.interface';
 import { Response, Request } from 'express';
 
 @Injectable()
@@ -50,9 +51,9 @@ export class UserService {
         }
     }
 
-    async jwtLogin(
+    async login(
         loginUserDto: LoginUserDto,
-        @Res() response: Response,
+        @Res() res: Response,
     ): Promise<Response> {
         const user: UserI = await this.findUserByEmail(loginUserDto.email);
         if (user) {
@@ -63,9 +64,9 @@ export class UserService {
             if (isPasswordValid) {
                 const cookie: string =
                     await this.authService.getCookieWithJwtToken(user.id);
-                response.setHeader('Set-Cookie', cookie);
+                res.setHeader('Set-Cookie', cookie);
                 user.password = undefined;
-                return response.send({ ok: true, data: user });
+                return res.send({ ok: true, data: user });
             } else {
                 throw new HttpException(
                     'Invalid password',
@@ -77,7 +78,10 @@ export class UserService {
         }
     }
 
-    async authenticate(@Req() req: Request): Promise<object> {
+    async authenticate(
+        @Req() req: Request,
+        @Res() res: Response,
+    ): Promise<object> {
         if (!req.user) {
             return {
                 error: true,
@@ -85,14 +89,29 @@ export class UserService {
                 data: 'User not found',
             };
         }
-        await this.findOrCreate(req);
-        return { ok: true, statusCode: HttpStatus.OK, data: req.user };
+
+        const payload: any = req.user;
+        const { facebookId, googleId } = payload.user;
+
+        res.setHeader(
+            'Set-Cookie',
+            await this.authService.getCookieWithJwtToken(
+                googleId || facebookId,
+            ),
+        );
+
+        return res.send({
+            ok: true,
+            statusCode: HttpStatus.OK,
+            data: req.user,
+        });
     }
 
-    async logout(@Res() response: Response): Promise<Response> {
+    async logout(@Res() res: Response): Promise<Response> {
         const cookie: string = await this.authService.getCookieForLogout();
-        response.setHeader('Set-Cookie', cookie);
-        return response.send({ ok: true, message: 'Logout successful' });
+        await this.authService.clearSessionCookies(res);
+        res.setHeader('Set-Cookie', cookie);
+        return res.send({ ok: true, message: 'Logout successful' });
     }
 
     async findAll(): Promise<User[]> {
@@ -104,7 +123,7 @@ export class UserService {
     }
 
     async findOneByEmail(email: string): Promise<User> {
-        return this.userModel.findOne({ email }).exec();
+        return this.userModel.findOne({ email: email }).exec();
     }
 
     async delete(id: string) {
@@ -162,5 +181,33 @@ export class UserService {
         );
 
         return newUser;
+    }
+
+    async changeMembership(
+        _user: UserMembershipI,
+        membershipType: string,
+    ): Promise<UserMembershipI> {
+        const { email }: any = _user;
+        const user = this.findOneByEmail(email);
+
+        if (user && membershipType) {
+            const membershipUser = {
+                ...user,
+                membership: membershipType === 'upgade' ? 'VIP' : 'FREE',
+            };
+            const newMembershipUser: UserMembershipI =
+                await this.userModel.findOneAndUpdate(
+                    { email },
+                    membershipUser,
+                    { new: true },
+                );
+
+            return newMembershipUser;
+        } else {
+            throw new HttpException(
+                'You badass cannot try to modify input email',
+                HttpStatus.NOT_FOUND,
+            );
+        }
     }
 }

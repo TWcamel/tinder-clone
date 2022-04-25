@@ -14,7 +14,9 @@ import {
 import { UserService } from '../service/user.service';
 import { CreateUserDto } from '../models/dto/CreateUser.dto';
 import { LoginUserDto } from '../models/dto/LoginUser.dto';
+import { GrantMembershipUserDto } from '../models/dto/GrantMembershipUser.dto';
 import { UserI } from '../models/user.interface';
+import { UserMembershipI } from '../models/user-membership.interface';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
 import { FacebookAuthGuard } from 'src/auth/guards/facebook.guard';
 import { GoogleAuthGuard } from 'src/auth/guards/google.guard';
@@ -25,51 +27,75 @@ export class UserController {
     constructor(private readonly userService: UserService) {}
 
     @Post()
+    @HttpCode(200)
     async create(@Body() createUserDto: CreateUserDto): Promise<UserI> {
         return await this.userService.create(createUserDto);
     }
 
     @Post('login')
     @HttpCode(200)
-    async jwtLogin(
+    async login(
         @Body() loginUserDto: LoginUserDto,
-        @Res() response: Response,
+        @Res() res: Response,
     ): Promise<Response> {
-        return this.userService.jwtLogin(loginUserDto, response);
+        return this.userService.login(loginUserDto, res);
     }
 
     @Get('login/facebook')
     @UseGuards(FacebookAuthGuard)
-    @HttpCode(200)
     async facebookLogin(): Promise<HttpStatus> {
         return HttpStatus.OK;
     }
 
     @Get('login/facebook/redirect')
     @UseGuards(FacebookAuthGuard)
-    @HttpCode(200)
-    async facebookLoginRedirect(@Req() req: Request): Promise<object> {
-        return this.userService.authenticate(req);
+    async facebookLoginRedirect(
+        @Req() req: Request,
+        @Res() res: Response,
+    ): Promise<object> {
+        return this.userService.authenticate(req, res);
     }
 
     @Get('login/google')
     @UseGuards(GoogleAuthGuard)
-    @HttpCode(200)
     async googleLogin(): Promise<HttpStatus> {
         return HttpStatus.OK;
     }
 
     @Get('login/google/redirect')
     @UseGuards(GoogleAuthGuard)
-    @HttpCode(200)
-    async googleLoginRedirect(@Req() req: Request): Promise<object> {
-        return this.userService.authenticate(req);
+    async googleLoginRedirect(
+        @Req() req: Request,
+        @Res() res: Response,
+    ): Promise<object> {
+        return this.userService.authenticate(req, res);
     }
 
     @Delete('logout')
+    async logout(@Res() res: Response): Promise<Response> {
+        return this.userService.logout(res);
+    }
+
+    @Post('upgrade')
     @HttpCode(200)
-    async logout(@Res() response: Response): Promise<Response> {
-        return this.userService.logout(response);
+    async upgradeMembership(
+        @Body() upgradeUserDto: GrantMembershipUserDto,
+    ): Promise<UserMembershipI> {
+        return await this.userService.changeMembership(
+            upgradeUserDto,
+            'upgrade',
+        );
+    }
+
+    @Post('downgrade')
+    @HttpCode(200)
+    async downgradeMembership(
+        @Body() downgradeUserDto: GrantMembershipUserDto,
+    ): Promise<UserMembershipI> {
+        return await this.userService.changeMembership(
+            downgradeUserDto,
+            'downgrade',
+        );
     }
 
     @UseGuards(JwtAuthGuard)
