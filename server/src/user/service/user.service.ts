@@ -14,7 +14,6 @@ import { LoginUserDto } from '../models/dto/LoginUser.dto';
 import { UserI } from '../models/user.interface';
 import { UserMembershipI } from '../models/user-membership.interface';
 import { Response, Request } from 'express';
-import { RequestWithUserI } from 'src/auth/interfaces/requestWithUser.interface';
 
 @Injectable()
 export class UserService {
