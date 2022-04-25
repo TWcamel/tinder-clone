@@ -117,41 +117,6 @@ export class UserService {
         return res.send({ ok: true, message: 'Logout successful' });
     }
 
-    async findAll(): Promise<User[]> {
-        return this.userModel.find().exec();
-    }
-
-    async findOne(id: string): Promise<User> {
-        return this.userModel.findOne({ _id: id }).exec();
-    }
-
-    async findOneByEmail(email: string): Promise<User> {
-        return this.userModel.findOne({ email: email }).exec();
-    }
-
-    async delete(id: string) {
-        const deletedUser = await this.userModel
-            .findByIdAndRemove({ _id: id })
-            .exec();
-        return deletedUser;
-    }
-
-    private async validatePassword(
-        password: string,
-        storedPassword: string,
-    ): Promise<boolean> {
-        return this.authService.comparePasswords(password, storedPassword);
-    }
-
-    private async findUserByEmail(email: string): Promise<UserI> {
-        return this.userModel.findOne({ email }).exec();
-    }
-
-    private async mailExists(email: string): Promise<boolean> {
-        const user = await this.userModel.findOne({ email: email }).exec();
-        return user === null ? false : true;
-    }
-
     private async updateUserAuthId(
         _email: string,
         _authId: string,
@@ -214,7 +179,10 @@ export class UserService {
         }
     }
 
-    async matchUserEmail(@Req() req: Request, _email: string): Promise<boolean> {
+    async matchUserEmail(
+        @Req() req: Request,
+        _email: string,
+    ): Promise<boolean> {
         const token: string = await this.authService.extractJwtFromRequest(req);
 
         const { userId } = await this.authService.decodeJwt(token);
@@ -224,5 +192,40 @@ export class UserService {
             .exec();
 
         return email === _email ? true : false;
+    }
+
+    async findAll(): Promise<User[]> {
+        return this.userModel.find().exec();
+    }
+
+    async findOne(id: string): Promise<User> {
+        return this.userModel.findOne({ _id: id }).exec();
+    }
+
+    async findOneByEmail(email: string): Promise<User> {
+        return this.userModel.findOne({ email: email }).exec();
+    }
+
+    async delete(id: string) {
+        const deletedUser = await this.userModel
+            .findByIdAndRemove({ _id: id })
+            .exec();
+        return deletedUser;
+    }
+
+    private async validatePassword(
+        password: string,
+        storedPassword: string,
+    ): Promise<boolean> {
+        return this.authService.comparePasswords(password, storedPassword);
+    }
+
+    private async findUserByEmail(email: string): Promise<UserI> {
+        return this.userModel.findOne({ email }).exec();
+    }
+
+    private async mailExists(email: string): Promise<boolean> {
+        const user = await this.userModel.findOne({ email: email }).exec();
+        return user === null ? false : true;
     }
 }
