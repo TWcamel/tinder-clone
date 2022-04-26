@@ -178,10 +178,7 @@ export class UserService {
         }
     }
 
-    async matchReqEmail(
-        @Req() req: Request,
-        _email: string,
-    ): Promise<boolean> {
+    async matchReqEmail(@Req() req: Request, _email: string): Promise<boolean> {
         const token: string = await this.authService.extractJwtFromRequest(req);
 
         const { userId } = await this.authService.decodeJwt(token);
