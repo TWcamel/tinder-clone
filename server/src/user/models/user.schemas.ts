@@ -13,12 +13,15 @@ export class User {
 
     @Prop()
     password: string;
-    
+
     @Prop()
     googleId: string;
 
     @Prop()
     facebookId: string;
+
+    @Prop()
+    membershipType: string;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

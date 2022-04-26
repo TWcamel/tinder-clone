@@ -2,25 +2,27 @@
 
 ## Function
 
--   [x] Login
+-   [x] Login and logout
     -   [x] JWT
     -   [x] facebook Oauth
     -   [x] google Oauth
+-   [x] VIP membership
+-   [ ] Chat
 -   [ ] Swipe
 -   [ ] Match
--   [ ] Chat
 -   [ ] Push Notification
 -   [ ] Passport
--   [ ] Super like
+-   [ ] Super like (send crush)
 -   [ ] (Additional) Photo verification
 
 ## Unitest
 
--   [ ] Login + Oauth
+-   [ ] Login and logout
+-   [ ] VIP membership
+-   [ ] Chat
 -   [ ] Swipe
 -   [ ] Match
--   [ ] Chat
 -   [ ] Push Notification
 -   [ ] Passport
--   [ ] Super like
+-   [ ] Super like (send crush)
 -   [ ] (Additional) Photo verification
