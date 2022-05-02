@@ -24,8 +24,16 @@ export class UserService {
 
     async create(createUserDto: CreateUserDto): Promise<User> {
         const { email } = createUserDto;
+
         const isEmailExists: boolean = await this.mailExists(email);
-        if (!isEmailExists) {
+        if (isEmailExists) {
+            throw new HttpException(
+                'Email already exists',
+                HttpStatus.CONFLICT,
+            );
+        }
+
+        try {
             const hashedPassword: string = await this.authService.hashPassword(
                 createUserDto.password,
             );
@@ -43,10 +51,10 @@ export class UserService {
                     HttpStatus.INTERNAL_SERVER_ERROR,
                 );
             }
-        } else {
+        } catch (error) {
             throw new HttpException(
-                'Email already exists',
-                HttpStatus.CONFLICT,
+                'Service unavailable',
+                HttpStatus.INTERNAL_SERVER_ERROR,
             );
         }
     }
@@ -54,7 +62,7 @@ export class UserService {
     async login(
         loginUserDto: LoginUserDto,
         @Res() res: Response,
-    ): Promise<Response> {
+    ): Promise<UserI> {
         const user: UserI = await this.findUserByEmail(loginUserDto.email);
         if (user) {
             const isPasswordValid: boolean = await this.validatePassword(
@@ -66,7 +74,7 @@ export class UserService {
                     await this.authService.getCookieWithJwtToken(user.id);
                 res.setHeader('Set-Cookie', cookie);
                 user.password = undefined;
-                return res.send({ ok: true, data: user });
+                return user;
             } else {
                 throw new HttpException(
                     'Invalid password',
@@ -109,11 +117,11 @@ export class UserService {
         });
     }
 
-    async logout(@Res() res: Response): Promise<Response> {
+    async logout(@Res() res: Response): Promise<string> {
         const cookie: string = await this.authService.getCookieForLogout();
         await this.authService.clearSessionCookies(res);
         res.setHeader('Set-Cookie', cookie);
-        return res.send({ ok: true, message: 'Logout successful' });
+        return 'Logout successful';
     }
 
     private async updateUserAuthId(
