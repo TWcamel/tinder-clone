@@ -3,6 +3,7 @@ import {
     Controller,
     Delete,
     Get,
+    Patch,
     Param,
     Post,
     UseGuards,
@@ -13,6 +14,7 @@ import {
     HttpStatus,
 } from '@nestjs/common';
 import { UserService } from '../service/user.service';
+import { AuthService } from 'src/auth/service/auth.service';
 import { CreateUserDto } from '../models/dto/CreateUser.dto';
 import { LoginUserDto } from '../models/dto/LoginUser.dto';
 import { GrantMembershipUserDto } from '../models/dto/GrantMembershipUser.dto';
@@ -25,7 +27,10 @@ import { Response, Request } from 'express';
 
 @Controller('user')
 export class UserController {
-    constructor(private readonly userService: UserService) {}
+    constructor(
+        private readonly userService: UserService,
+        private authService: AuthService,
+    ) {}
 
     @Post()
     @HttpCode(200)
@@ -42,17 +47,24 @@ export class UserController {
         } catch (error) {
             res.send({
                 error: true,
-                message: error,
+                message: error.response,
             });
         }
     }
 
-    @Post('login')
-    @HttpCode(200)
+    @Patch('login')
     async login(
         @Body() loginUserDto: LoginUserDto,
         @Res() res: Response,
+        @Req() req: Request,
     ): Promise<Response> {
+        const accessToken: string | null = req.headers?.authorization;
+        if (await this.authService.verifyJwt(accessToken)) {
+            return res.send({
+                ok: true,
+                data: "You're already logged in",
+            });
+        }
         try {
             const user: UserI = await this.userService.login(loginUserDto, res);
             return res.send({
@@ -62,7 +74,7 @@ export class UserController {
         } catch (error) {
             return res.send({
                 error: true,
-                message: error,
+                message: error.response,
             });
         }
     }
@@ -85,7 +97,7 @@ export class UserController {
         } catch (error) {
             return {
                 error: true,
-                message: error,
+                message: error.response,
             };
         }
     }
@@ -108,7 +120,7 @@ export class UserController {
         } catch (error) {
             return {
                 error: true,
-                message: error,
+                message: error.response,
             };
         }
     }
@@ -124,7 +136,7 @@ export class UserController {
         } catch (error) {
             return res.send({
                 error: true,
-                message: error,
+                message: error.response,
             });
         }
     }
@@ -151,7 +163,7 @@ export class UserController {
         } catch (error) {
             return res.send({
                 error: true,
-                message: error,
+                message: error.response,
             });
         }
     }
@@ -178,13 +190,13 @@ export class UserController {
         } catch (error) {
             return res.send({
                 error: true,
-                message: error,
+                message: error.response,
             });
         }
     }
 
     @UseGuards(JwtAuthGuard)
-    @Get()
+    @Get('findall')
     async findAll(@Res() res: Response): Promise<Response> {
         try {
             const userList: UserI[] = await this.userService.findAll();
@@ -195,7 +207,7 @@ export class UserController {
         } catch (error) {
             return res.send({
                 error: true,
-                message: error,
+                message: error.response,
             });
         }
     }
@@ -215,7 +227,7 @@ export class UserController {
         } catch (error) {
             return res.send({
                 error: true,
-                message: error,
+                message: error.response,
             });
         }
     }

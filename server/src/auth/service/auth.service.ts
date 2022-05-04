@@ -32,13 +32,11 @@ export class AuthService {
     async getCookieWithJwtToken(userId: number): Promise<string> {
         const payload: TokenI = { userId: userId };
         const token = this.jwtService.sign(payload);
-        return `Authentication=${token}; HttpOnly; Path=/; Max-Age=${this.configService.get(
-            'JWT_EXPIRATION_TIME',
-        )}`;
+        return token;
     }
 
     async getCookieForLogout(): Promise<string> {
-        return `Authentication=; HttpOnly; Path=/; Max-Age=0`;
+        return `service_token=; HttpOnly; Path=/; Max-Age=0`;
     }
 
     async clearSessionCookies(@Res() res: Response): Promise<void> {
@@ -48,6 +46,11 @@ export class AuthService {
 
     async getAuthPayload(token: string): Promise<object> {
         return this.jwtService.verify(token);
+    }
+
+    async verifyJwt(accessToken: string): Promise<any> {
+        accessToken = accessToken.replace('Bearer ', '');
+        return this.jwtService.verify(accessToken) === null ? false : true;
     }
 
     async decodeJwt(token: string): Promise<any> {

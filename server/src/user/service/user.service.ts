@@ -14,12 +14,14 @@ import { LoginUserDto } from '../models/dto/LoginUser.dto';
 import { UserI } from '../models/user.interface';
 import { UserMembershipI } from '../models/user-membership.interface';
 import { Response, Request } from 'express';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class UserService {
     constructor(
         @InjectModel(User.name) private userModel: Model<UserDocument>,
         private authService: AuthService,
+        private readonly configService: ConfigService,
     ) {}
 
     async create(createUserDto: CreateUserDto): Promise<User> {
@@ -61,7 +63,7 @@ export class UserService {
 
     async login(
         loginUserDto: LoginUserDto,
-        @Res() res: Response,
+        @Res({ passthrough: true }) res: Response,
     ): Promise<UserI> {
         const user: UserI = await this.findUserByEmail(loginUserDto.email);
         if (user) {
@@ -70,10 +72,14 @@ export class UserService {
                 user.password,
             );
             if (isPasswordValid) {
-                const cookie: string =
+                const token: string =
                     await this.authService.getCookieWithJwtToken(user.id);
-                res.setHeader('Set-Cookie', cookie);
                 user.password = undefined;
+                res.cookie('service_token', token, {
+                    httpOnly: false,
+                    maxAge: 1000 * 60 * 60 * 24 * 7,
+                    domain: this.configService.get('FRONTEND_DOMAIN'),
+                });
                 return user;
             } else {
                 throw new HttpException(
@@ -100,7 +106,6 @@ export class UserService {
 
         const payload: any = req.user;
         const { facebookId, googleId } = payload.user;
-
         res.setHeader(
             'Set-Cookie',
             await this.authService.getCookieWithJwtToken(
@@ -108,11 +113,8 @@ export class UserService {
             ),
         );
 
-        await this.findOrCreate(req);
-
         return res.send({
             ok: true,
-            statusCode: HttpStatus.OK,
             data: req.user,
         });
     }
@@ -120,7 +122,6 @@ export class UserService {
     async logout(@Res() res: Response): Promise<string> {
         const cookie: string = await this.authService.getCookieForLogout();
         await this.authService.clearSessionCookies(res);
-        res.setHeader('Set-Cookie', cookie);
         return 'Logout successful';
     }
 

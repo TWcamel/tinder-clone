@@ -9,7 +9,7 @@ import { ConfigModule } from '@nestjs/config';
         MongooseModule.forRoot(process.env.MONGO_URL, {
             retryAttempts: 5,
             retryDelay: 1000,
-            maxPoolSize: 500,
+            maxPoolSize: 350,
             connectionFactory: (connection: any) => {
                 return connection;
             },

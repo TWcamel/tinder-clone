@@ -5,4 +5,5 @@ export interface UserI {
     password?: string;
     facebookId?: string;
     googleId?: string;
+    token?: string;
 }
