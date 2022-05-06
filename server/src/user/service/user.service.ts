@@ -106,12 +106,18 @@ export class UserService {
 
         const payload: any = req.user;
         const { facebookId, googleId } = payload.user;
-        res.setHeader(
-            'Set-Cookie',
-            await this.authService.getCookieWithJwtToken(
-                googleId || facebookId,
-            ),
+
+        this.findOrCreate(req);
+
+        const token = await this.authService.getCookieWithJwtToken(
+            googleId || facebookId,
         );
+
+        res.cookie('service_token', token, {
+            httpOnly: false,
+            maxAge: 1000 * 60 * 60 * 24 * 7,
+            domain: this.configService.get('FRONTEND_DOMAIN'),
+        });
 
         return res.send({
             ok: true,
@@ -123,6 +129,32 @@ export class UserService {
         const cookie: string = await this.authService.getCookieForLogout();
         await this.authService.clearSessionCookies(res);
         return 'Logout successful';
+    }
+
+    private async findOrCreate(@Req() req: Request): Promise<UserI> | null {
+        const { user }: any = req.user;
+        const { email, googleId, facebookId, firstName }: any = user;
+
+        const isEmailExists: boolean = await this.mailExists(email);
+
+        let newUser:UserI = null
+
+        if (!isEmailExists) {
+            newUser= await new this.userModel({
+                email,
+                googleId,
+                facebookId,
+                name: firstName,
+            }).save();
+        } else {
+            newUser = await this.updateUserAuthId(
+                email,
+                googleId || facebookId,
+                googleId ? 'google' : 'facebook',
+            );
+        }
+
+        return newUser;
     }
 
     private async updateUserAuthId(
@@ -138,25 +170,6 @@ export class UserService {
             .findOneAndUpdate({ email: _email }, authId, { new: true })
             .exec();
         return user;
-    }
-
-    private async findOrCreate(@Req() req: Request): Promise<UserI> | null {
-        const { user }: any = req.user;
-        const { email, googleId, facebookId }: any = user;
-
-        const isEmailExists: boolean = await this.mailExists(email);
-
-        if (!isEmailExists) {
-            await new this.userModel({ email }).save();
-        }
-
-        const newUser: any = await this.updateUserAuthId(
-            email,
-            googleId || facebookId,
-            googleId ? 'google' : 'facebook',
-        );
-
-        return newUser;
     }
 
     async changeMembership(

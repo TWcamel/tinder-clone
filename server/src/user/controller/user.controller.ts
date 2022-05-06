@@ -85,7 +85,6 @@ export class UserController {
     @Get('login/facebook')
     @UseGuards(FacebookAuthGuard)
     async facebookLogin(): Promise<HttpStatus> {
-        console.log('facebook login');
         return HttpStatus.OK;
     }
 
@@ -95,7 +94,6 @@ export class UserController {
         @Req() req: Request,
         @Res() res: Response,
     ): Promise<object> {
-        console.log('facebook login redirect');
         try {
             const auth: object = await this.userService.authenticate(req, res);
             return auth;
@@ -110,7 +108,6 @@ export class UserController {
     @Get('login/google')
     @UseGuards(GoogleAuthGuard)
     async googleLogin(): Promise<HttpStatus> {
-        console.log('google login');
         return HttpStatus.OK;
     }
 
@@ -120,7 +117,6 @@ export class UserController {
         @Req() req: Request,
         @Res() res: Response,
     ): Promise<object> {
-        console.log('google login redirect');
         try {
             const auth: object = await this.userService.authenticate(req, res);
             return auth;

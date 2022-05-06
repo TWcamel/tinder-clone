@@ -10,7 +10,8 @@ export const Login: React.FC = () => {
 
     useEffect(() => {
         (async () => {
-            if (await checkLogin()) userRegister();
+            if (!(await checkLogin())) userRegister();
+            console.log('Login: ', isLoggedIn);
         })();
     }, []);
 
@@ -50,7 +51,6 @@ export const Login: React.FC = () => {
     const userRegister = async () => {
         const email = emailRef.current!.value;
         const password = passwordRef.current!.value;
-        const api = `${RequestApi.backendBaseUrl()}/api/user`;
         const name = nameRef.current!.value;
         nameRef.current!.parentElement!.hidden = false;
         signBtnRef.current!.hidden = false;
