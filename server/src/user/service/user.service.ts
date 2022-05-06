@@ -126,9 +126,9 @@ export class UserService {
     }
 
     async logout(@Res() res: Response): Promise<string> {
-        const cookie: string = await this.authService.getCookieForLogout();
+        const ok: HttpStatus = await this.authService.getCookieForLogout(res);
         await this.authService.clearSessionCookies(res);
-        return 'Logout successful';
+        return ok === HttpStatus.OK ? 'Logout successful' : 'Logout failed';
     }
 
     private async findOrCreate(@Req() req: Request): Promise<UserI> | null {
@@ -137,10 +137,10 @@ export class UserService {
 
         const isEmailExists: boolean = await this.mailExists(email);
 
-        let newUser:UserI = null
+        let newUser: UserI = null;
 
         if (!isEmailExists) {
-            newUser= await new this.userModel({
+            newUser = await new this.userModel({
                 email,
                 googleId,
                 facebookId,

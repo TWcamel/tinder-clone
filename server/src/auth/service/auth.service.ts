@@ -1,4 +1,4 @@
-import { Injectable, Res, Req } from '@nestjs/common';
+import { Injectable, Res, Req, HttpStatus } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserI } from 'src/user/models/user.interface';
 import { TokenI } from '../interfaces/token.interface';
@@ -35,8 +35,13 @@ export class AuthService {
         return token;
     }
 
-    async getCookieForLogout(): Promise<string> {
-        return `service_token=; HttpOnly; Path=/; Max-Age=0`;
+    async getCookieForLogout(@Res() res: Response): Promise<HttpStatus> {
+        await res.cookie('service_token', '', {
+            expires: new Date(0),
+            httpOnly: false,
+            secure: false,
+        });
+        return HttpStatus.OK;
     }
 
     async clearSessionCookies(@Res() res: Response): Promise<void> {
