@@ -59,13 +59,16 @@ export class UserController {
         @Req() req: Request,
     ): Promise<Response> {
         const accessToken: string | null = req.headers?.authorization;
-        if (await this.authService.verifyJwt(accessToken)) {
-            return res.send({
-                ok: true,
-                data: "You're already logged in",
-            });
-        }
         try {
+            if (
+                accessToken &&
+                (await this.authService.verifyJwt(accessToken))
+            ) {
+                return res.send({
+                    ok: true,
+                    data: "You're already logged in",
+                });
+            }
             const user: UserI = await this.userService.login(loginUserDto, res);
             return res.send({
                 ok: true,
@@ -74,7 +77,7 @@ export class UserController {
         } catch (error) {
             return res.send({
                 error: true,
-                message: error.response,
+                message: error,
             });
         }
     }
@@ -82,6 +85,7 @@ export class UserController {
     @Get('login/facebook')
     @UseGuards(FacebookAuthGuard)
     async facebookLogin(): Promise<HttpStatus> {
+        console.log('facebook login');
         return HttpStatus.OK;
     }
 
@@ -91,6 +95,7 @@ export class UserController {
         @Req() req: Request,
         @Res() res: Response,
     ): Promise<object> {
+        console.log('facebook login redirect');
         try {
             const auth: object = await this.userService.authenticate(req, res);
             return auth;
@@ -105,6 +110,7 @@ export class UserController {
     @Get('login/google')
     @UseGuards(GoogleAuthGuard)
     async googleLogin(): Promise<HttpStatus> {
+        console.log('google login');
         return HttpStatus.OK;
     }
 
@@ -114,6 +120,7 @@ export class UserController {
         @Req() req: Request,
         @Res() res: Response,
     ): Promise<object> {
+        console.log('google login redirect');
         try {
             const auth: object = await this.userService.authenticate(req, res);
             return auth;
