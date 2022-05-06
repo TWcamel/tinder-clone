@@ -8,7 +8,6 @@ import { GoogleLogin } from './GoogleLogin';
 export const Login: React.FC = () => {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-    //TODO: FB and Google login
     useEffect(() => {
         (async () => {
             if (await checkLogin()) userRegister();
