@@ -14,7 +14,7 @@ export class AuthService {
         private readonly configService: ConfigService,
     ) {}
 
-    async generateJwt(user: UserI): Promise<string> {
+    async generateJwt(user: UserI): Promise<any> {
         return await this.jwtService.signAsync({ user });
     }
 
@@ -49,13 +49,11 @@ export class AuthService {
         res.clearCookie('sid', { path: '/' });
     }
 
-    async getAuthPayload(token: string): Promise<object> {
-        return this.jwtService.verify(token);
-    }
-
     async verifyJwt(accessToken: string): Promise<any> {
         accessToken = accessToken.replace('Bearer ', '');
-        return this.jwtService.verify(accessToken) === null ? false : true;
+        return (await this.jwtService.verify(accessToken)) === null
+            ? false
+            : this.decodeJwt(accessToken);
     }
 
     async decodeJwt(token: string): Promise<any> {

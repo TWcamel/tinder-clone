@@ -1,7 +1,7 @@
 import React from 'react';
 import { Tab, Nav, Button } from 'react-bootstrap';
 
-export const SideBar = (props: {}) => {
+export const Sidebar: React.FC = (props: {}) => {
     return (
         <div className='d-flex flex-column'>
             <Tab.Container

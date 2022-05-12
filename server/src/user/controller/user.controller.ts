@@ -39,7 +39,10 @@ export class UserController {
         @Res() res: Response,
     ): Promise<Response> {
         try {
-            const user: UserI = await this.userService.create(createUserDto);
+            const user: UserI = await this.userService.create(
+                res,
+                createUserDto,
+            );
             return res.send({
                 ok: true,
                 data: user,
@@ -59,26 +62,39 @@ export class UserController {
         @Req() req: Request,
     ): Promise<Response> {
         const accessToken: string | null = req.headers?.authorization;
-        try {
-            if (
-                accessToken &&
-                (await this.authService.verifyJwt(accessToken))
-            ) {
+        if (
+            req.headers?.authorization !== undefined &&
+            accessToken.replace('Bearer ', '').length > 0
+        ) {
+            try {
+                const _payload = await this.userService.loginWithJwt(req, res);
+                console.log(_payload);
                 return res.send({
                     ok: true,
-                    data: "You're already logged in",
+                    data: _payload,
+                });
+            } catch (error) {
+                return res.send({
+                    error: true,
+                    message: error,
                 });
             }
-            const user: UserI = await this.userService.login(loginUserDto, res);
-            return res.send({
-                ok: true,
-                data: user,
-            });
-        } catch (error) {
-            return res.send({
-                error: true,
-                message: error,
-            });
+        } else {
+            try {
+                const user: UserI = await this.userService.login(
+                    loginUserDto,
+                    res,
+                );
+                return res.send({
+                    ok: true,
+                    data: user,
+                });
+            } catch (error) {
+                return res.send({
+                    error: true,
+                    message: error,
+                });
+            }
         }
     }
 

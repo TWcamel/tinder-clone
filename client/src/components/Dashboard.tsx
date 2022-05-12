@@ -1,11 +1,13 @@
 import React from 'react';
-import { SideBar } from './SideBar';
+import { Sidebar } from './Sidebar/Sidebar';
+import { Conversations } from './conversations/Conversations';
 
 export const Dashboard: React.FC = () => {
     return (
-        <div>
+        <div className='d-flex' style={{ height: '100vh' }}>
             <h1>Dashboard</h1>
-            <SideBar />
+            <Sidebar />
+            {/* <Conversations /> */}
         </div>
     );
 };

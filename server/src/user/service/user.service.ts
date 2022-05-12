@@ -24,7 +24,10 @@ export class UserService {
         private readonly configService: ConfigService,
     ) {}
 
-    async create(createUserDto: CreateUserDto): Promise<User> {
+    async create(
+        @Res() res: Response,
+        createUserDto: CreateUserDto,
+    ): Promise<User> {
         const { email } = createUserDto;
 
         const isEmailExists: boolean = await this.mailExists(email);
@@ -46,6 +49,15 @@ export class UserService {
             const savedUser = new this.userModel(hashedCreateUserDto).save();
             if (savedUser) {
                 createUserDto.password = undefined;
+                const token: string = await this.authService.generateJwt(
+                    createUserDto,
+                );
+                res.cookie('service_token', token, {
+                    httpOnly: false,
+                    maxAge: 1000 * 60 * 60 * 24 * 7,
+                    domain: this.configService.get('FRONTEND_DOMAIN'),
+                });
+
                 return createUserDto;
             } else {
                 throw new HttpException(
@@ -72,8 +84,10 @@ export class UserService {
                 user.password,
             );
             if (isPasswordValid) {
-                const token: string =
-                    await this.authService.getCookieWithJwtToken(user.id);
+                const payload = { name: user.name, email: user.email };
+                const token: string = await this.authService.generateJwt(
+                    payload,
+                );
                 user.password = undefined;
                 res.cookie('service_token', token, {
                     httpOnly: false,
@@ -90,6 +104,17 @@ export class UserService {
         } else {
             throw new HttpException('User not found', HttpStatus.NOT_FOUND);
         }
+    }
+
+    async loginWithJwt(
+        @Req() req: Request,
+        @Res() res: Response,
+    ): Promise<any> {
+        const accessToken: string | null = req.headers?.authorization;
+        const payload = await this.authService.verifyJwt(accessToken);
+        return accessToken && payload
+            ? { name: payload.user.name, email: payload.user.email }
+            : null;
     }
 
     async authenticate(

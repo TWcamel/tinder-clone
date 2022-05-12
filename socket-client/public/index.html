@@ -14,6 +14,10 @@
         socket.emit('identity', 0, (response) =>
           console.log('Identity:', response)
         );
+
+        socket.emit('hello', 'world', (response) =>
+          console.log('Hello:', response)
+        );
         socket.emit('message', 'Hello World', (response) =>
           console.log('Message:', response)
         );
@@ -21,6 +25,10 @@
 
       socket.on('hello', (arg, callback) => {
         console.log(arg); // "world"
+        callback('Hello back!');
+      });
+      socket.on('message', (arg, callback) => {
+        console.log(arg); // "Hello World"
         callback('got it !');
       });
       socket.on('events', function (data) {

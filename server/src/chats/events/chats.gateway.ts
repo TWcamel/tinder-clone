@@ -27,6 +27,7 @@ export class ChatsGateway {
 
     @SubscribeMessage('hello')
     async identity(@MessageBody() data: any): Promise<number> {
+        console.log(data);
         this.server.on('connection', (socket) => {
             console.log('connected');
             socket.on('say to someone', (id, msg) => {

@@ -3,16 +3,19 @@ import { Container, Form, Button } from 'react-bootstrap';
 import { AuthService } from '../../services/authService';
 import { FbLogin } from './FbLogin';
 import { GoogleLogin } from './GoogleLogin';
+import { v4 as uuidV4 } from 'uuid';
+import useLocalStorage from '../../hooks/useLocalStorage';
 
-export const Login: React.FC<{ setToken: (token: string) => void }> = ({
-    setToken,
-}) => {
+export const Login: React.FC<{
+    onUserIdSubmit: (userId: string) => void;
+    onUserNameSubmit: (userName: string) => void;
+}> = ({ onUserIdSubmit, onUserNameSubmit }) => {
+    //TODO: make register independent from login component
     const [isLoggedIn, setIsLoggedIn] = useState(false);
 
     useEffect(() => {
         (async () => {
-            if (!(await checkLogin())) userRegister();
-            else setToken('YouGotTheToken');
+            await checkLogin();
         })();
     }, []);
 
@@ -35,8 +38,13 @@ export const Login: React.FC<{ setToken: (token: string) => void }> = ({
     const checkLogin = async (): Promise<any> => {
         const token = document.cookie.split('=')[1];
         const res = await AuthService.verify(token);
-        res.ok ? setIsLoggedIn(true) : setIsLoggedIn(false);
-        return res.ok ? true : false;
+        if (res.ok) {
+            onUserIdSubmit(uuidV4(res.data.email));
+            onUserNameSubmit(res.data.name);
+            return true;
+        }
+        userRegister();
+        return false;
     };
 
     const userLogin = async () => {
@@ -45,6 +53,7 @@ export const Login: React.FC<{ setToken: (token: string) => void }> = ({
 
         if (email && password && email.length > 0 && password.length > 0) {
             const res = await AuthService.login(email, password);
+            console.log(res)
             res ? setIsLoggedIn(true) : setIsLoggedIn(false);
         }
     };

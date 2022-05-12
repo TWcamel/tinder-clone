@@ -23,6 +23,7 @@ export const Api: IApi = {
         axios.post(`${Api.backendUrl}/${url}`, data, {
             headers: {
                 'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*',
                 ...headers,
             },
             withCredentials: true,
@@ -33,7 +34,11 @@ export const Api: IApi = {
         }),
     patch: async (url: string, data: any, headers?: any) =>
         axios.patch(`${Api.backendUrl}/${url}`, data, {
-            headers: { 'Content-Type': 'application/json', ...headers },
+            headers: {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*',
+                ...headers,
+            },
             withCredentials: true,
         }),
 };
