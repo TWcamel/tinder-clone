@@ -11,7 +11,8 @@ export const Login: React.FC<{
     onUserNameSubmit: (userName: string) => void;
 }> = ({ onUserIdSubmit, onUserNameSubmit }) => {
     //TODO: make register independent from login component
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [isLoggedIn, setIsLoggedIn]: [boolean, Function] =
+        React.useState(false);
 
     useEffect(() => {
         (async () => {
@@ -53,7 +54,7 @@ export const Login: React.FC<{
 
         if (email && password && email.length > 0 && password.length > 0) {
             const res = await AuthService.login(email, password);
-            console.log(res)
+            console.log(res);
             res ? setIsLoggedIn(true) : setIsLoggedIn(false);
         }
     };

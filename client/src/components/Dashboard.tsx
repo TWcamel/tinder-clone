@@ -1,13 +1,19 @@
 import React from 'react';
-import { Sidebar } from './Sidebar/Sidebar';
-import { Conversations } from './conversations/Conversations';
+import Sidebar from './Sidebar/';
+import OpenConversation from './conversations/open';
+import { useConversations } from './conversations/provider';
 
-export const Dashboard: React.FC = () => {
+const Dashboard: React.FC<{ id: any; name: any }> = ({ id, name }) => {
+    const { selectedConversation }: { selectedConversation: [{}] } =
+        useConversations();
     return (
-        <div className='d-flex' style={{ height: '100vh' }}>
-            <h1>Dashboard</h1>
-            <Sidebar />
-            {/* <Conversations /> */}
-        </div>
+        <>
+            <div className='d-flex' style={{ height: '100vh' }}>
+                <Sidebar id={id} name={name} />
+                {selectedConversation && <OpenConversation />}
+            </div>
+        </>
     );
 };
+
+export default Dashboard;
