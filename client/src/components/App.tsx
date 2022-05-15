@@ -6,17 +6,20 @@ import Dashboard from './Dashboard';
 import useLocalStorage from '../hooks/useLocalStorage';
 import { MatchesProvider } from './matches/provider';
 import { ConversationsProvider } from './conversations/provider';
+import { SocketProvider } from './socket/provider';
 
 const App = () => {
     const [userId, setUserId] = useLocalStorage('userId');
     const [userName, setUserName] = useLocalStorage('userName');
 
     const dashboard = (
-        <MatchesProvider>
-            <ConversationsProvider id={userId}>
-                <Dashboard id={userId} name={userName} />
-            </ConversationsProvider>
-        </MatchesProvider>
+        <SocketProvider id={userId}>
+            <MatchesProvider>
+                <ConversationsProvider id={userId}>
+                    <Dashboard id={userId} name={userName} />
+                </ConversationsProvider>
+            </MatchesProvider>
+        </SocketProvider>
     );
 
     return (

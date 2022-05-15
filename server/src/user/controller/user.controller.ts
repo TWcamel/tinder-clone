@@ -68,7 +68,6 @@ export class UserController {
         ) {
             try {
                 const _payload = await this.userService.loginWithJwt(req, res);
-                console.log(_payload);
                 return res.send({
                     ok: true,
                     data: _payload,

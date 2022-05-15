@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { Config } from '../config/config';
+import Config from '../config/config';
 
 interface IApi {
     get: (url: string) => Promise<any>;

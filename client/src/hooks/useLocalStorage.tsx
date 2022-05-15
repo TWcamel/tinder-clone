@@ -2,12 +2,6 @@ import { useEffect, useState } from 'react';
 
 const PREFIX = 'tinder-clone-';
 
-const setKeyIfNotExists: (key: string, value: any) => void = (key, value) => {
-    if (localStorage.getItem(key) === null) {
-        localStorage.setItem(key, value);
-    }
-};
-
 const updateLocalStorage: (key: string, value: any) => void = (key, value) => {
     localStorage.setItem(key, value);
 };
@@ -36,3 +30,11 @@ const useLocalStorage = (
 };
 
 export default useLocalStorage;
+
+const setKeyIfNotExists: (key: string, value: any) => void = (key, value) => {
+    if (localStorage.getItem(key) === null) {
+        localStorage.setItem(key, value);
+    }
+};
+
+
