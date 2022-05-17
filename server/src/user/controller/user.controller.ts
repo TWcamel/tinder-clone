@@ -230,14 +230,13 @@ export class UserController {
         }
     }
 
-    @UseGuards(JwtAuthGuard)
-    @Get(':id')
+    @Get('find')
     async findOne(
-        @Param('id') id: string,
+        @Query() query: { email: string },
         @Res() res: Response,
     ): Promise<Response> {
         try {
-            const user: UserI = await this.userService.findOne(id);
+            const user: UserI = await this.userService.findOne(query.email);
             return res.send({
                 ok: true,
                 data: user,

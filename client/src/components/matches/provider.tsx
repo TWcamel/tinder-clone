@@ -1,14 +1,15 @@
-import React, { useContext } from 'react';
+import React, { useState, useContext } from 'react';
 import useLocalStorage from '../../hooks/useLocalStorage';
 
 const MatchesContext: React.Context<any> = React.createContext({});
 
 export const useMatches: Function = () => useContext(MatchesContext);
 
-export const MatchesProvider: React.FC<{ children: any }> = ({
+export const MatchesProvider: React.FC<{ children: React.ReactNode }> = ({
     children,
 }): any => {
     const [matches, setMatches] = useLocalStorage('matches', []);
+    const [selectedMatchedIndex, setSelectedMatchedIndex] = useState(0);
 
     const createMatch: Function = (id: string, name: string) => {
         setMatches((prevMatches: any) => {
@@ -16,8 +17,21 @@ export const MatchesProvider: React.FC<{ children: any }> = ({
         });
     };
 
+    const formattedMatches = matches.map((match: any, index: number) => {
+        return {
+            ...match,
+            isSelected: index === selectedMatchedIndex,
+        };
+    });
+
+    const value = {
+        matches: formattedMatches,
+        selectMatchIndex: setSelectedMatchedIndex,
+        createMatch,
+    };
+
     return (
-        <MatchesContext.Provider value={{ matches, createMatch }}>
+        <MatchesContext.Provider value={value}>
             {children}
         </MatchesContext.Provider>
     );

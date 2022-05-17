@@ -1,4 +1,4 @@
-const arrayEquailty = (a: any[], b: any[]) => {
+const arrayEqualty = (a: any[], b: any[]) => {
     if (a.length !== b.length) {
         return false;
     }
@@ -13,4 +13,4 @@ const arrayEquailty = (a: any[], b: any[]) => {
     return true;
 };
 
-export { arrayEquailty };
+export { arrayEqualty };

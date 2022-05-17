@@ -2,10 +2,6 @@ import { useEffect, useState } from 'react';
 
 const PREFIX = 'tinder-clone-';
 
-const updateLocalStorage: (key: string, value: any) => void = (key, value) => {
-    localStorage.setItem(key, value);
-};
-
 const useLocalStorage = (
     key: string,
     initialValue?: Function | [] | string,
@@ -13,7 +9,7 @@ const useLocalStorage = (
     const prefixedKey = PREFIX + key;
 
     const [value, setValue] = useState(() => {
-        const jsonValue: string | null = localStorage.getItem(prefixedKey);
+        const jsonValue: any = localStorage.getItem(prefixedKey);
         if (jsonValue !== null && jsonValue !== 'undefined') {
             return JSON.parse(jsonValue);
         }
@@ -37,4 +33,6 @@ const setKeyIfNotExists: (key: string, value: any) => void = (key, value) => {
     }
 };
 
-
+const updateLocalStorage: (key: string, value: any) => void = (key, value) => {
+    localStorage.setItem(key, value);
+};

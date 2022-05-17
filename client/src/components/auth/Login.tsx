@@ -40,7 +40,7 @@ export const Login: React.FC<{
         const token = document.cookie.split('=')[1];
         const res = await AuthService.verify(token);
         if (res.ok) {
-            onUserIdSubmit(uuidV4(res.data.email));
+            onUserIdSubmit(res.data.email);
             onUserNameSubmit(res.data.name);
             return true;
         }

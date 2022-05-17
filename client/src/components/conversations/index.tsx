@@ -4,24 +4,20 @@ import { Button, ListGroup, Form } from 'react-bootstrap';
 import { useConversations } from './provider';
 
 export const Conversations: React.FC = () => {
-    const handleClick = (
-        e:
-            | React.FormEvent<HTMLFormElement>
-            | React.MouseEvent<HTMLButtonElement>,
-    ) => {
-        e.preventDefault();
-        console.log('handling onclick event...');
-    };
-
     const { conversations, selectConversationIndex } = useConversations();
-
     return (
         <>
             <ListGroup variant='flush'>
                 {conversations.map(
                     (
                         conversation: {
-                            recipient: string;
+                            sender: string;
+                            recipients: [
+                                {
+                                    id: string;
+                                    name: string;
+                                },
+                            ];
                             mesaages: [{}];
                             selected: boolean;
                         },
@@ -34,7 +30,9 @@ export const Conversations: React.FC = () => {
                                 onClick={() => selectConversationIndex(idx)}
                                 active={conversation.selected}
                             >
-                                {conversation.recipient}
+                                {conversation.recipients
+                                    .map((r) => r.id)
+                                    .join(', ')}
                             </ListGroup.Item>
                         );
                     },

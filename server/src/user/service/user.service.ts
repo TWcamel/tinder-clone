@@ -241,8 +241,10 @@ export class UserService {
         return this.userModel.find().exec();
     }
 
-    async findOne(id: string): Promise<User> {
-        return this.userModel.findOne({ _id: id }).exec();
+    async findOne(email: string): Promise<any | HttpException> {
+        const user: any = await this.userModel.findOne({ email }).exec();
+        if (user) return { email: user.email, name: user.name };
+        else throw new HttpException('Email not exists', HttpStatus.NOT_FOUND);
     }
 
     async findOneByEmail(email: string): Promise<User> {

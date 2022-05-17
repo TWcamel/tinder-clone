@@ -2,16 +2,29 @@ import React from 'react';
 import { ListGroup } from 'react-bootstrap';
 import { useMatches } from './provider';
 
+interface IMatch {
+    id: string;
+    name: string;
+    isSelected: boolean;
+}
+
 const Matches: React.FC = () => {
-    const { matches } = useMatches();
+    const { matches, selectMatchIndex } = useMatches();
+
+    // const handleClick = (match: any) => {};
 
     return (
         <>
             <ListGroup variant='flush'>
-                {matches.map((match: { id: string; name: string }) => {
+                {matches.map((match: IMatch, idx: number) => {
                     return (
-                        <ListGroup.Item key={match.id}>
-                            {match.name}
+                        <ListGroup.Item
+                            onClick={() => selectMatchIndex(idx)}
+                            action
+                            key={match.id}
+                            active={match.isSelected}
+                        >
+                            {match.id} - {match.name}
                         </ListGroup.Item>
                     );
                 })}

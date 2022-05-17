@@ -2,16 +2,40 @@ import React, { useContext, useState, useEffect, useCallback } from 'react';
 import useLocalStorage from '../../hooks/useLocalStorage';
 import { useMatches } from '../matches/provider';
 import { useSocket } from '../socket/provider';
+import { arrayEqualty } from '../../utils/array';
+
+interface IMatch {
+    id: string;
+    name: string;
+}
+
+interface IMessages {
+    text: string;
+    sender: string;
+    senderName: string;
+    fromMe: boolean;
+}
+
+interface IConversation {
+    recipients: [IMatch];
+    messages: IMessages[];
+}
+
+interface INewConversation {
+    recipients: [IMatch];
+    text: string;
+    sender: string;
+}
 
 const ConversationsContext = React.createContext({});
 
 export const useConversations: Function = () =>
     useContext(ConversationsContext);
 
-export const ConversationsProvider: React.FC<{ id: string; children: any }> = ({
-    id,
-    children,
-}) => {
+export const ConversationsProvider: React.FC<{
+    id: string;
+    children: React.ReactNode;
+}> = ({ id, children }) => {
     const [conversations, setConversations] = useLocalStorage(
         'conversations',
         [],
@@ -21,59 +45,42 @@ export const ConversationsProvider: React.FC<{ id: string; children: any }> = ({
     const { matches } = useMatches();
     const socket = useSocket();
 
-    const createConversation = (recipient: string) => {
-        setConversations(
-            (prevConversations: [{ recipient: string; messages: [] }]) => {
-                return [...prevConversations, { recipient, messages: [] }];
-            },
-        );
+    const createConversation = (recipients: [IMatch]) => {
+        setConversations((prevConversations: [IConversation]) => {
+            return [...prevConversations, { recipients, messages: [] }];
+        });
     };
 
     const addMessageToConversation: Function = useCallback(
-        ({
-            _recipient,
-            _message,
-            _sender,
-        }: {
-            _recipient: string;
-            _message: string;
-            _sender: string;
-        }) => {
-            setConversations(
-                (prevConversations: [{ recipient: string; messages: [] }]) => {
-                    let madeChange = false;
-                    const _newMessgae = { _sender, _message };
+        ({ recipients, text, sender }: INewConversation) => {
+            setConversations((prevConversations: [IConversation]) => {
+                let madeChanges = false;
+                const newMessage = { sender, text };
+                const newConversations = prevConversations.map(
+                    (conversation: IConversation) => {
+                        if (arrayEqualty(conversation.recipients, recipients)) {
+                            madeChanges = true;
+                            return {
+                                ...conversation,
+                                messages: [
+                                    ...conversation.messages,
+                                    newMessage,
+                                ],
+                            };
+                        }
 
-                    const newConversations = conversations.map(
-                        (conversation: {
-                            recipient: string;
-                            messages: [];
-                            sender?: string;
-                        }) => {
-                            if (conversation.recipient === _recipient) {
-                                madeChange = true;
-                                return {
-                                    ...conversation,
-                                    messages: [
-                                        ...conversation.messages,
-                                        _newMessgae,
-                                    ],
-                                };
-                            }
-                            return conversation;
-                        },
-                    );
+                        return conversation;
+                    },
+                );
 
-                    if (madeChange) {
-                        return newConversations;
-                    } else {
-                        return [
-                            ...prevConversations,
-                            { _recipient, messages: [_newMessgae] },
-                        ];
-                    }
-                },
-            );
+                if (!madeChanges) {
+                    return [
+                        ...prevConversations,
+                        { recipients, messages: [newMessage] },
+                    ];
+                }
+                return newConversations;
+            });
         },
         [setConversations],
     );
@@ -81,52 +88,37 @@ export const ConversationsProvider: React.FC<{ id: string; children: any }> = ({
     useEffect(() => {
         if (socket == null) return;
         const res = socket.on('receive-message', addMessageToConversation);
+        console.log(res);
         return () => socket.off('receive-message');
     }, [socket, addMessageToConversation]);
 
-    const sendMessage: Function = (recipient: string, message: string) => {
-        // socket.emit('send-message', { recipient, message });
-        addMessageToConversation({ recipient, message, sender: id });
+    const sendMessage: Function = (recipients: [IMatch], text: string) => {
+        socket.emit('send-message', { recipients, text });
+        addMessageToConversation({ recipients, text, sender: id });
     };
 
     const formattedConversations = conversations.map(
-        (
-            conversation: {
-                recipient: string;
-                id: string;
-                name: string;
-                messages: [
-                    {
-                        sender: string;
-                        message: string;
-                    },
-                ];
-            },
-            idx: number,
-        ) => {
-            const recipient = matches.find((match: { id: string }) => {
-                return match.id === conversation.recipient;
+        (conversation: IConversation, index: number) => {
+            const recipients = conversation.recipients.map((recipient: any) => {
+                const match = matches.find((match: IMatch) => {
+                    return match.id === recipient;
+                });
+                const name = (match && match.name) || recipient;
+                return { id: recipient, name };
             });
-            const name: string = recipient && conversation.name;
 
-            const newRecipient = { id: recipient, name };
+            const messages = conversation.messages.map((message) => {
+                const match = matches.find((match: IMatch) => {
+                    return match.id === message.sender;
+                });
+                const name = (match && match.name) || message.sender;
+                const fromMe = id === message.sender;
+                return { ...message, senderName: name, fromMe };
+            });
 
-            const selected = idx === selectedConversationIndex;
+            const selected = index === selectedConversationIndex;
 
-            const newMessage = conversation.messages.map(
-                (m: { sender: string; message: string }) => {
-                    const match = matches.find((match: { id: string }) => {
-                        return match.id === m.sender;
-                    });
-                    const name = (match && match.name) || m.sender;
-
-                    const fromMe = id === m.sender;
-
-                    return { ...m, senderName: name, fromMe };
-                },
-            );
-
-            return { ...conversation, newMessage, newRecipient, selected };
+            return { ...conversation, messages, recipients, selected };
         },
     );
 

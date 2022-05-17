@@ -11,12 +11,10 @@ export const AuthService = {
 
     loginWithFacebook: async () => {
         const res = await Api.get('user/login/facebook');
-        console.log(res);
     },
 
     loginWithGoogle: async () => {
         const res = await Api.get('user/login/google');
-        console.log(res);
     },
 
     register: async (name: string, email: string, password: string) => {
