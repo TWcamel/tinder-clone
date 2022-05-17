@@ -2,6 +2,7 @@ import React, { useRef } from 'react';
 import { Modal, Form, Button } from 'react-bootstrap';
 import { useMatches } from '../matches/provider';
 import userService from '../../services/userService';
+import useLocalStorage from '../../hooks/useLocalStorage';
 import axios from 'axios';
 
 interface IUser {
@@ -10,6 +11,7 @@ interface IUser {
 }
 
 const MatchesModal: React.FC<any> = ({ closeModal }: { closeModal: any }) => {
+    const [currentUserEmail] = useLocalStorage('userId');
     const idRef = React.useRef<HTMLInputElement>(null);
 
     const { createMatch } = useMatches();
@@ -19,13 +21,19 @@ const MatchesModal: React.FC<any> = ({ closeModal }: { closeModal: any }) => {
 
         const userId = idRef.current?.value;
 
-        (async () => {
-            const _user: IUser = await getUserName(userId);
-            if (_user.email === userId) {
-                createMatch(_user.email, _user.name);
-                closeModal();
-            }
-        })();
+        if (userId !== null) {
+            (async () => {
+                const _user: IUser = await getUserName(userId);
+                if (
+                    _user?.email &&
+                    _user.email === userId &&
+                    _user.email !== currentUserEmail
+                ) {
+                    createMatch(_user.email, _user.name, currentUserEmail);
+                    closeModal();
+                } else alert('input is not valid');
+            })();
+        }
     };
 
     return (
@@ -47,7 +55,6 @@ const MatchesModal: React.FC<any> = ({ closeModal }: { closeModal: any }) => {
 export default MatchesModal;
 
 const getUserName = async (userId: any): Promise<IUser> => {
-    if (!userId) return { email: '', name: '' };
     const user = await userService.getUserName(userId);
     return user;
 };

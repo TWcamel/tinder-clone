@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button } from 'react-bootstrap';
-import { AuthService } from '../../services/authService';
+import AuthService from '../../services/authService';
 
 export const GoogleLogin: React.FC = () => {
     const handleClick = (

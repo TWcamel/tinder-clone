@@ -1,6 +1,6 @@
 import { Api } from './api';
 
-export const AuthService = {
+const AuthService = {
     login: async (email: string, password: string) => {
         const res = await Api.patch('user/login', {
             email: email,
@@ -49,4 +49,18 @@ export const AuthService = {
         document.cookie =
             'service_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; ';
     },
+
+    getBearerToken: () => {
+        const cookies = document.cookie.split(';');
+        const bearerToken = cookies.find((cookie) =>
+            cookie.trim().startsWith('service_token='),
+        );
+        if (bearerToken) {
+            return bearerToken.split('=')[1];
+        } else {
+            return '';
+        }
+    },
 };
+
+export default AuthService;

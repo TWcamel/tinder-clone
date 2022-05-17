@@ -88,12 +88,12 @@ export const ConversationsProvider: React.FC<{
     useEffect(() => {
         if (socket == null) return;
         const res = socket.on('receive-message', addMessageToConversation);
-        console.log(res);
+        // console.log(res);
         return () => socket.off('receive-message');
     }, [socket, addMessageToConversation]);
 
     const sendMessage: Function = (recipients: [IMatch], text: string) => {
-        socket.emit('send-message', { recipients, text });
+        socket.emit('send-message', { recipients, text,  });
         addMessageToConversation({ recipients, text, sender: id });
     };
 

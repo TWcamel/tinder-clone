@@ -1,3 +1,4 @@
+import { UseGuards } from '@nestjs/common';
 import {
     MessageBody,
     SubscribeMessage,
@@ -9,6 +10,7 @@ import {
 import { from, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Server, Socket } from 'socket.io';
+import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
 
 interface RecipientI {
     id: string;
@@ -36,10 +38,15 @@ export class ChatsGateway {
         @MessageBody() msgBody: { recipients: object[]; text: string },
         @ConnectedSocket() client: Socket,
     ): Promise<void> {
+        // TODO: auth verrification before sending messages
+        console.log(client.handshake.headers);
         const clientId: any = await getClientId(client);
         const recipients: any = msgBody.recipients;
+        console.log(recipients);
         recipients.forEach(async (recipient: RecipientI) => {
-            const newRecipients = recipients.filter((r) => r !== recipient);
+            const newRecipients = recipients.filter(
+                (r: string) => r !== recipient.id,
+            );
             newRecipients.push(clientId);
             const returnMessage: ChatMessageI = {
                 text: msgBody.text,

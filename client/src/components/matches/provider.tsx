@@ -1,5 +1,7 @@
 import React, { useState, useContext } from 'react';
+import Matches from '.';
 import useLocalStorage from '../../hooks/useLocalStorage';
+import MatchesService from '../../services/matchesService';
 
 const MatchesContext: React.Context<any> = React.createContext({});
 
@@ -11,10 +13,22 @@ export const MatchesProvider: React.FC<{ children: React.ReactNode }> = ({
     const [matches, setMatches] = useLocalStorage('matches', []);
     const [selectedMatchedIndex, setSelectedMatchedIndex] = useState(0);
 
-    const createMatch: Function = (id: string, name: string) => {
-        setMatches((prevMatches: any) => {
-            return [...prevMatches, { id, name }];
-        });
+    const createMatch: Function = (
+        id: string,
+        name: string,
+        currentUserEmail: string,
+    ) => {
+        (async () => {
+            const match = await MatchesService.createMatchPair(
+                currentUserEmail,
+                id,
+            );
+            if (match.ok)
+                setMatches((prevMatches: any) => {
+                    return [...prevMatches, { id, name }];
+                });
+            else alert('Match pair have been created!');
+        })();
     };
 
     const formattedMatches = matches.map((match: any, index: number) => {

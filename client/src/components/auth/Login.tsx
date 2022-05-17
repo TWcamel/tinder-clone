@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Form, Button } from 'react-bootstrap';
-import { AuthService } from '../../services/authService';
+import AuthService from '../../services/authService';
 import { FbLogin } from './FbLogin';
 import { GoogleLogin } from './GoogleLogin';
 import { v4 as uuidV4 } from 'uuid';

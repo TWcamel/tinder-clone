@@ -11,8 +11,6 @@ interface IMatch {
 const Matches: React.FC = () => {
     const { matches, selectMatchIndex } = useMatches();
 
-    // const handleClick = (match: any) => {};
-
     return (
         <>
             <ListGroup variant='flush'>

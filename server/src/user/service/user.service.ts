@@ -258,18 +258,18 @@ export class UserService {
         return deletedUser;
     }
 
-    private async validatePassword(
+    async validatePassword(
         password: string,
         storedPassword: string,
     ): Promise<boolean> {
         return this.authService.comparePasswords(password, storedPassword);
     }
 
-    private async findUserByEmail(email: string): Promise<UserI> {
+    async findUserByEmail(email: string): Promise<UserI> {
         return this.userModel.findOne({ email }).exec();
     }
 
-    private async mailExists(email: string): Promise<boolean> {
+    async mailExists(email: string): Promise<boolean> {
         const user = await this.userModel.findOne({ email: email }).exec();
         return user === null ? false : true;
     }
