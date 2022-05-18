@@ -1,4 +1,4 @@
-import { UseGuards } from '@nestjs/common';
+import { UseGuards, Logger } from '@nestjs/common';
 import {
     MessageBody,
     SubscribeMessage,
@@ -6,6 +6,9 @@ import {
     WebSocketServer,
     WsResponse,
     ConnectedSocket,
+    OnGatewayInit,
+    OnGatewayConnection,
+    OnGatewayDisconnect,
 } from '@nestjs/websockets';
 import { from, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -28,15 +31,34 @@ interface ChatMessageI {
         origin: '*',
     },
 })
-export class ChatsGateway {
+export class ChatsGateway
+    implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
+{
     @WebSocketServer()
     private server: Server;
     private socket: Socket;
+    private readonly logger = new Logger(ChatsGateway.name);
+
+    afterInit(server: Server): void {
+        console.log(
+            'Init gateway, the server can has max listeners up to: ',
+            server.getMaxListeners(),
+        );
+    }
+
+    @UseGuards(JwtAuthGuard)
+    handleConnection(@ConnectedSocket() client: Socket): void {
+        console.log('Client connected', client.id);
+    }
+
+    handleDisconnect(@ConnectedSocket() client: Socket): void {
+        console.log('Client disconnected', client.id);
+    }
 
     @SubscribeMessage('send-message')
     async sendMessage(
-        @MessageBody() msgBody: { recipients: object[]; text: string },
         @ConnectedSocket() client: Socket,
+        @MessageBody() msgBody: { recipients: object[]; text: string },
     ): Promise<void> {
         // TODO: auth verrification before sending messages
         console.log(client.handshake.headers);

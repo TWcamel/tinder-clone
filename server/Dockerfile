@@ -1,31 +1,25 @@
-FROM node:latest AS development 
+FROM node:lts AS prod 
 
+RUN mkdir -p /app/server
 WORKDIR /app
 
-RUN apt update\ 
-  && apt install -y yarn
+RUN apt update\
+  && apt install yarn -y
 
-COPY package*.json ./
+COPY . /app
 
-RUN yarn global add @nestjs/cli \
-  && yarn install
+RUN yarn global add @nestjs/cli -y\
+  && yarn install -y
 
-COPY . .
+# Set Timezone to CST
+ENV TZ=Asia/Taipei
+
+RUN ln -snf /usr/share/zoneinfo/TZ\
+  /etc/localtime\
+  && echo $TZ > /etc/Timezone
 
 RUN yarn build
 
-FROM node:latest AS prod
+EXPOSE 3000
 
-ARG NODE_ENV=production
-ENV NODE_ENV=${NODE_ENV}
-
-WORKDIR /app
-
-COPY --from=development /app .
-
-EXPOSE 8080
-
-CMD ["yarn", "start"]
-
-
-
+ENTRYPOINT ["sh", "-c", "cd /app && yarn start"]

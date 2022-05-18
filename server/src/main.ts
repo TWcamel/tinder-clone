@@ -1,14 +1,14 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import * as cookieParser from 'cookie-parser';
-import { RedisIoAdapter } from './chats/adapters/redis-io.adapter';
+// import { RedisIoAdapter } from './chats/adapters/redis-io.adapter';
 
 const bootstrap = async () => {
     const app = await NestFactory.create(AppModule);
 
-    const redisIoAdapter = new RedisIoAdapter(app);
-    await redisIoAdapter.connectToRedis();
-    app.useWebSocketAdapter(redisIoAdapter);
+    // const redisIoAdapter = new RedisIoAdapter(app);
+    // await redisIoAdapter.connectToRedis();
+    // app.useWebSocketAdapter(redisIoAdapter);
 
     app.setGlobalPrefix('api');
     app.use(cookieParser());
