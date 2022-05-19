@@ -3,14 +3,11 @@ const arrayEqualty = (a: any[], b: any[]) => {
         return false;
     }
 
-    a.sort();
-    b.sort();
+    a.sort() && b.sort();
 
-    a.every((item, index) => {
+    return a.every((item, index) => {
         return item === b[index];
     });
-
-    return true;
 };
 
 export { arrayEqualty };

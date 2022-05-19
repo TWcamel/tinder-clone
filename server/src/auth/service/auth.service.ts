@@ -15,7 +15,10 @@ export class AuthService {
     ) {}
 
     async generateJwt(user: UserI): Promise<any> {
-        return await this.jwtService.signAsync({ user });
+        return await this.jwtService.signAsync(
+            { user },
+            { expiresIn: this.configService.get('JWT_EXPIRATION_TIME') },
+        );
     }
 
     async hashPassword(password: string): Promise<string> {
@@ -29,17 +32,20 @@ export class AuthService {
         return bcrypt.compare(password, storedPasswordHash);
     }
 
-    async getCookieWithJwtToken(userId: number): Promise<string> {
-        const payload: TokenI = { userId: userId };
-        const token = this.jwtService.sign(payload);
-        return token;
-    }
-
     async getCookieForLogout(@Res() res: Response): Promise<HttpStatus> {
         await res.cookie('service_token', '', {
             expires: new Date(0),
             httpOnly: false,
             secure: false,
+        });
+        return HttpStatus.OK;
+    }
+
+    async setCookieJwt(@Res() res: Response, token: any): Promise<HttpStatus> {
+        res.cookie('service_token', token, {
+            httpOnly: false,
+            maxAge: 30 * 24 * 60 * 60 * 1000,
+            domain: this.configService.get('FRONTEND_DOMAIN'),
         });
         return HttpStatus.OK;
     }

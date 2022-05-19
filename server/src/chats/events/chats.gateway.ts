@@ -48,7 +48,7 @@ export class ChatsGateway
 
     @UseGuards(JwtAuthGuard)
     handleConnection(@ConnectedSocket() client: Socket): void {
-        console.log('Client connected', client.id);
+        console.log('Client connected', client.handshake.query.id);
     }
 
     handleDisconnect(@ConnectedSocket() client: Socket): void {
@@ -61,7 +61,6 @@ export class ChatsGateway
         @MessageBody() msgBody: { recipients: object[]; text: string },
     ): Promise<void> {
         // TODO: auth verrification before sending messages
-        console.log(client.handshake.headers);
         const clientId: any = await getClientId(client);
         const recipients: any = msgBody.recipients;
         console.log(recipients);

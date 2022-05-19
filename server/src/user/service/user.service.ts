@@ -129,20 +129,11 @@ export class UserService {
             };
         }
 
-        const payload: any = req.user;
-        const { facebookId, googleId } = payload.user;
+        const user = await this.findOrCreate(req);
 
-        this.findOrCreate(req);
+        const token = await this.authService.generateJwt(user);
 
-        const token = await this.authService.getCookieWithJwtToken(
-            googleId || facebookId,
-        );
-
-        res.cookie('service_token', token, {
-            httpOnly: false,
-            maxAge: 1000 * 60 * 60 * 24 * 7,
-            domain: this.configService.get('FRONTEND_DOMAIN'),
-        });
+        await this.authService.setCookieJwt(res, token);
 
         return res.send({
             ok: true,

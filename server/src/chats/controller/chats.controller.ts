@@ -17,6 +17,7 @@ import { ChatsService } from '../service/chats.service';
 import { AuthService } from 'src/auth/service/auth.service';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
 import { Response, Request } from 'express';
+import { ChatI, ReceivedMessageI } from '../models/chats.interface';
 
 @Controller('chats')
 export class ChatsController {
@@ -25,18 +26,29 @@ export class ChatsController {
         private authService: AuthService,
     ) {}
 
+    @Post()
+    @HttpCode(200)
     @UseGuards(JwtAuthGuard)
-    @Get('findall')
-    async createMatch(@Res() res: Response): Promise<Response> {
+    async updateOrCreateChat(
+        @Res() res: Response,
+        @Req() req: Request,
+    ): Promise<Response<ChatI>> {
+        const { sender, reciever, message }: ReceivedMessageI = req.body;
         try {
-            return res.send({
-                ok: true,
-                data: {},
+            const chat = await this.chatsService.updateOrCreateChat({
+                sender,
+                reciever,
+                message,
             });
+            if (chat)
+                return res.send({
+                    ok: true,
+                    data: { chat },
+                });
         } catch (error) {
             return res.send({
                 error: true,
-                message: error.response,
+                message: error.response || error._message,
             });
         }
     }

@@ -38,7 +38,7 @@ export class MatchesController {
         } catch (error) {
             return res.send({
                 error: true,
-                message: error.response,
+                message: error.response || error._message,
             });
         }
     }

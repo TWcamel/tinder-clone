@@ -4,6 +4,8 @@ import { UserModule } from './user/user.module';
 import { ConfigModule } from '@nestjs/config';
 import { ChatsModule } from './chats/chats.module';
 import { MatchesModule } from './matches/matches.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 @Module({
     imports: [
@@ -15,6 +17,9 @@ import { MatchesModule } from './matches/matches.module';
             connectionFactory: (connection: any) => {
                 return connection;
             },
+        }),
+        ServeStaticModule.forRoot({
+            rootPath: join(__dirname, '../../', 'client/build'),
         }),
         MatchesModule,
         UserModule,

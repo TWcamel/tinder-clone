@@ -12,6 +12,11 @@ import { CreateMatchesDto } from '../models/dto/CreateMatches.dto';
 import { UserService } from 'src/user/service/user.service';
 import { v5 as uuidv5 } from 'uuid';
 import { ConfigService } from '@nestjs/config';
+import {
+    MatchI,
+    FindMatchedI,
+    GetIdMatchedI,
+} from '../models/matches.interface';
 
 @Injectable()
 export class MatchesService {
@@ -21,10 +26,12 @@ export class MatchesService {
         private readonly configService: ConfigService,
     ) {}
 
+    // TODO: fix this one
+    // ERROR: this one is a like function, not not a match function
     async createMatchPair({
         email,
         matchedEmail,
-    }: CreateMatchesDto): Promise<object> {
+    }: CreateMatchesDto): Promise<MatchI> {
         const isUserEmailExists: boolean = await this.userService.mailExists(
             email,
         );
@@ -35,28 +42,49 @@ export class MatchesService {
             !(isUserEmailExists && isRecipientEmailExists) ||
             email === matchedEmail
         )
-            throw new HttpException(
-                'Provided email is not valid or you trying to selfmatching',
-                HttpStatus.NOT_FOUND,
+            return Promise.reject(
+                new HttpException(
+                    'Provided email is not valid or you trying to selfmatching',
+                    HttpStatus.NOT_FOUND,
+                ),
             );
         else {
-            try {
-                const matchId: string = uuidv5(
-                    `${email}${matchedEmail}`.toLowerCase(),
-                    this.configService.get<string>('UUID_NAMESPACE'),
-                ).toString();
-                const matchedPair = new this.matchesModel({
-                    id: matchId,
-                    email,
-                    matchedEmail,
-                }).save();
-                if (matchedPair) return matchedPair;
-            } catch (error) {
-                throw new HttpException(
-                    'Error creating match pair',
-                    HttpStatus.INTERNAL_SERVER_ERROR,
-                );
-            }
+            const matchId: string = await this.getMatchId({
+                email,
+                matchedEmail,
+            });
+            const matchedPair = new this.matchesModel({
+                id: matchId,
+                email,
+                matchedEmail,
+            }).save();
+            return matchedPair
+                ? matchedPair
+                : Promise.reject(
+                      new HttpException(
+                          'Error creating match pair',
+                          HttpStatus.INTERNAL_SERVER_ERROR,
+                      ),
+                  );
         }
+    }
+
+    async findMatchedPair({ id }: FindMatchedI): Promise<MatchI> {
+        const matchedPair: any = this.matchesModel.findOne({ id }).exec();
+        return matchedPair
+            ? matchedPair
+            : Promise.reject(
+                  new HttpException(
+                      'No match pair found',
+                      HttpStatus.NOT_FOUND,
+                  ),
+              );
+    }
+
+    async getMatchId({ email, matchedEmail }: GetIdMatchedI): Promise<string> {
+        return uuidv5(
+            `${email}${matchedEmail}`.toLowerCase(),
+            this.configService.get<string>('UUID_NAMESPACE'),
+        ).toString();
     }
 }

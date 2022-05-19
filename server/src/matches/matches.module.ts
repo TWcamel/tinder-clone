@@ -16,5 +16,6 @@ import { Matches, MatchesSchema } from './models/matches.schemas';
     ],
     controllers: [MatchesController],
     providers: [MatchesService],
+    exports: [MatchesService],
 })
 export class MatchesModule {}
