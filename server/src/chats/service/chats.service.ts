@@ -10,6 +10,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Chats, ChatsDocument } from '../models/chats.schemas';
 import { CreateChatsDto } from '../models/dto/CreateChats.dto';
 import { MatchesService } from 'src/matches/service/matches.service';
+import { LikesService } from 'src/likes/service/likes.service';
 import { v5 as uuidv5 } from 'uuid';
 import { ConfigService } from '@nestjs/config';
 import { ChatI, ReceivedMessageI } from '../models/chats.interface';
@@ -20,6 +21,7 @@ export class ChatsService {
         @InjectModel(Chats.name) private chatModel: Model<ChatsDocument>,
         private readonly configService: ConfigService,
         private readonly matchesService: MatchesService,
+        private readonly likesService: LikesService,
     ) {}
 
     async updateOrCreateChat({

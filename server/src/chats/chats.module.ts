@@ -4,6 +4,7 @@ import { ChatsController } from './controller/chats.controller';
 import { ChatsService } from './service/chats.service';
 import { AuthModule } from 'src/auth/auth.module';
 import { MatchesModule } from 'src/matches/matches.module';
+import { LikesModule } from 'src/likes/likes.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Chats, ChatsSchema } from './models/chats.schemas';
 
@@ -12,6 +13,7 @@ import { Chats, ChatsSchema } from './models/chats.schemas';
         MongooseModule.forFeature([{ name: Chats.name, schema: ChatsSchema }]),
         AuthModule,
         MatchesModule,
+        LikesModule,
     ],
     providers: [ChatsGateway, ChatsService],
     controllers: [ChatsController],
