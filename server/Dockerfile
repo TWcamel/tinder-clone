@@ -23,4 +23,4 @@ RUN yarn build
 
 EXPOSE 3000
 
-ENTRYPOINT ["sh", "-c", "cd /app && yarn start"]
+ENTRYPOINT ["sh", "-c", "cd /app/server && yarn start"]
