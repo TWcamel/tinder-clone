@@ -1,12 +1,13 @@
 FROM node:lts AS prod 
 
+RUN mkdir -p /app/client
 RUN mkdir -p /app/server
-WORKDIR /app
+WORKDIR /app/server 
 
 RUN apt update\
   && apt install yarn -y
 
-COPY . /app
+COPY . /app/server
 
 RUN yarn global add @nestjs/cli -y\
   && yarn install -y
