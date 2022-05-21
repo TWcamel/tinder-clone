@@ -264,4 +264,11 @@ export class UserService {
         const user = await this.userModel.findOne({ email: email }).exec();
         return user === null ? false : true;
     }
+
+    async mailsExists(emails: string[]): Promise<boolean> {
+        const users = await this.userModel
+            .find({ email: { $in: emails } })
+            .exec();
+        return users.length === emails.length ? true : false;
+    }
 }

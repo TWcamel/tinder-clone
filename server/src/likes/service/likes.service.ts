@@ -26,14 +26,8 @@ export class LikesService {
         email,
         matchedEmail,
     }: CreateLikesDto): Promise<LikeI> {
-        const isUserEmailExists: boolean = await this.userService.mailExists(
-            email,
-        );
-        const isRecipientEmailExists: boolean =
-            await this.userService.mailExists(matchedEmail);
-
         if (
-            !(isUserEmailExists && isRecipientEmailExists) ||
+            !(await this.userService.mailsExists([email, matchedEmail])) ||
             email === matchedEmail
         )
             return Promise.reject(

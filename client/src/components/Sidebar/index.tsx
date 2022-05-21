@@ -2,7 +2,7 @@ import React from 'react';
 import { Tab, Nav, Button, Modal } from 'react-bootstrap';
 import Conversations from '../conversations/';
 import Matches from '../matches/';
-import NewContactModal from '../modals/MatchesModal';
+import NewLikesModal from '../modals/MatchesModal';
 import NewConversationModal from '../modals/ConversationsModal';
 
 const CONVERSATIONS_KEY = 'conversations';
@@ -54,7 +54,7 @@ const Sidebar: React.FC<{ id: any; name: any }> = ({ id, name }) => {
                     onClick={() => setModalShow(true)}
                     className='rounded-0'
                 >
-                    New {conversationsOpen ? 'Conversation' : 'Match'}
+                    New {conversationsOpen ? 'Conversation' : 'Like'}
                 </Button>
             </Tab.Container>
 
@@ -62,7 +62,7 @@ const Sidebar: React.FC<{ id: any; name: any }> = ({ id, name }) => {
                 {conversationsOpen ? (
                     <NewConversationModal closeModal={closeModal} />
                 ) : (
-                    <NewContactModal closeModal={closeModal} />
+                    <NewLikesModal closeModal={closeModal} />
                 )}
             </Modal>
         </div>

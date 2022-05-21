@@ -3,7 +3,6 @@ import { Modal, Form, Button } from 'react-bootstrap';
 import { useMatches } from '../matches/provider';
 import userService from '../../services/userService';
 import useLocalStorage from '../../hooks/useLocalStorage';
-import axios from 'axios';
 
 interface IUser {
     email: string;

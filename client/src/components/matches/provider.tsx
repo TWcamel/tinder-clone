@@ -1,7 +1,7 @@
 import React, { useState, useContext } from 'react';
-import Matches from '.';
 import useLocalStorage from '../../hooks/useLocalStorage';
 import MatchesService from '../../services/matchesService';
+import LikesService from '../../services/likesService';
 
 const MatchesContext: React.Context<any> = React.createContext({});
 
@@ -19,7 +19,7 @@ export const MatchesProvider: React.FC<{ children: React.ReactNode }> = ({
         currentUserEmail: string,
     ) => {
         (async () => {
-            const match = await MatchesService.createMatchPair(
+            const match = await LikesService.createLikesToken(
                 currentUserEmail,
                 id,
             );
