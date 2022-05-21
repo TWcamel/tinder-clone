@@ -3,6 +3,7 @@ import {
     Controller,
     Delete,
     Get,
+    Patch,
     Param,
     Post,
     UseGuards,
@@ -13,6 +14,7 @@ import {
     HttpStatus,
 } from '@nestjs/common';
 import { UserService } from '../service/user.service';
+import { AuthService } from 'src/auth/service/auth.service';
 import { CreateUserDto } from '../models/dto/CreateUser.dto';
 import { LoginUserDto } from '../models/dto/LoginUser.dto';
 import { GrantMembershipUserDto } from '../models/dto/GrantMembershipUser.dto';
@@ -25,21 +27,74 @@ import { Response, Request } from 'express';
 
 @Controller('user')
 export class UserController {
-    constructor(private readonly userService: UserService) {}
+    constructor(
+        private readonly userService: UserService,
+        private authService: AuthService,
+    ) {}
 
     @Post()
     @HttpCode(200)
-    async create(@Body() createUserDto: CreateUserDto): Promise<UserI> {
-        return await this.userService.create(createUserDto);
+    async create(
+        @Body() createUserDto: CreateUserDto,
+        @Res() res: Response,
+    ): Promise<Response> {
+        try {
+            const user: UserI = await this.userService.create(
+                res,
+                createUserDto,
+            );
+            return res.send({
+                ok: true,
+                data: user,
+            });
+        } catch (error) {
+            res.send({
+                error: true,
+                message: error.response,
+            });
+        }
     }
 
-    @Post('login')
-    @HttpCode(200)
+    @Patch('login')
     async login(
         @Body() loginUserDto: LoginUserDto,
         @Res() res: Response,
+        @Req() req: Request,
     ): Promise<Response> {
-        return this.userService.login(loginUserDto, res);
+        const accessToken: string | null = req.headers?.authorization;
+        if (
+            req.headers?.authorization !== undefined &&
+            accessToken.replace('Bearer ', '').length > 0
+        ) {
+            try {
+                const _payload = await this.userService.loginWithJwt(req, res);
+                return res.send({
+                    ok: true,
+                    data: _payload,
+                });
+            } catch (error) {
+                return res.send({
+                    error: true,
+                    message: error,
+                });
+            }
+        } else {
+            try {
+                const user: UserI = await this.userService.login(
+                    loginUserDto,
+                    res,
+                );
+                return res.send({
+                    ok: true,
+                    data: user,
+                });
+            } catch (error) {
+                return res.send({
+                    error: true,
+                    message: error,
+                });
+            }
+        }
     }
 
     @Get('login/facebook')
@@ -54,7 +109,15 @@ export class UserController {
         @Req() req: Request,
         @Res() res: Response,
     ): Promise<object> {
-        return this.userService.authenticate(req, res);
+        try {
+            const auth: object = await this.userService.authenticate(req, res);
+            return auth;
+        } catch (error) {
+            return {
+                error: true,
+                message: error.response,
+            };
+        }
     }
 
     @Get('login/google')
@@ -69,12 +132,31 @@ export class UserController {
         @Req() req: Request,
         @Res() res: Response,
     ): Promise<object> {
-        return this.userService.authenticate(req, res);
+        try {
+            const auth: object = await this.userService.authenticate(req, res);
+            return auth;
+        } catch (error) {
+            return {
+                error: true,
+                message: error.response,
+            };
+        }
     }
 
     @Delete('logout')
     async logout(@Res() res: Response): Promise<Response> {
-        return this.userService.logout(res);
+        try {
+            const logoutMsg: string = await this.userService.logout(res);
+            return res.send({
+                ok: true,
+                data: logoutMsg,
+            });
+        } catch (error) {
+            return res.send({
+                error: true,
+                message: error.response,
+            });
+        }
     }
 
     @Post('upgrade')
@@ -82,13 +164,26 @@ export class UserController {
     @UseGuards(JwtAuthGuard)
     async upgradeMembership(
         @Req() req: Request,
+        @Res() res: Response,
         @Query() upgradeUserDto: GrantMembershipUserDto,
-    ): Promise<UserMembershipI> {
-        return await this.userService.changeMembership(
-            req,
-            upgradeUserDto,
-            'upgrade',
-        );
+    ): Promise<Response> {
+        try {
+            const membership: UserMembershipI =
+                await this.userService.changeMembership(
+                    req,
+                    upgradeUserDto,
+                    'upgrade',
+                );
+            return res.send({
+                ok: true,
+                data: membership,
+            });
+        } catch (error) {
+            return res.send({
+                error: true,
+                message: error.response,
+            });
+        }
     }
 
     @Post('downgrade')
@@ -96,24 +191,61 @@ export class UserController {
     @UseGuards(JwtAuthGuard)
     async downgradeMembership(
         @Req() req: Request,
+        @Res() res: Response,
         @Query() downgradeUserDto: GrantMembershipUserDto,
-    ): Promise<UserMembershipI> {
-        return await this.userService.changeMembership(
-            req,
-            downgradeUserDto,
-            'downgrade',
-        );
+    ): Promise<Response> {
+        try {
+            const membership: UserMembershipI =
+                await this.userService.changeMembership(
+                    req,
+                    downgradeUserDto,
+                    'downgrade',
+                );
+            return res.send({
+                ok: true,
+                data: membership,
+            });
+        } catch (error) {
+            return res.send({
+                error: true,
+                message: error.response,
+            });
+        }
     }
 
     @UseGuards(JwtAuthGuard)
-    @Get()
-    async findAll(): Promise<UserI[]> {
-        return this.userService.findAll();
+    @Get('findall')
+    async findAll(@Res() res: Response): Promise<Response> {
+        try {
+            const userList: UserI[] = await this.userService.findAll();
+            return res.send({
+                ok: true,
+                data: userList,
+            });
+        } catch (error) {
+            return res.send({
+                error: true,
+                message: error.response,
+            });
+        }
     }
 
-    @UseGuards(JwtAuthGuard)
-    @Get(':id')
-    async findOne(@Param('id') id: string): Promise<UserI> {
-        return this.userService.findOne(id);
+    @Get('find')
+    async findOne(
+        @Query() query: { email: string },
+        @Res() res: Response,
+    ): Promise<Response> {
+        try {
+            const user: UserI = await this.userService.findOne(query.email);
+            return res.send({
+                ok: true,
+                data: user,
+            });
+        } catch (error) {
+            return res.send({
+                error: true,
+                message: error.response,
+            });
+        }
     }
 }

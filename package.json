@@ -18,5 +18,6 @@
   "homepage": "https://github.com/TWcamel/tinder-clone#readme",
   "dependencies": {
     "rxjs": "^7.5.5"
-  }
+  },
+  "devDependencies": {}
 }

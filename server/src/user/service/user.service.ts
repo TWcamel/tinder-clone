@@ -14,18 +14,31 @@ import { LoginUserDto } from '../models/dto/LoginUser.dto';
 import { UserI } from '../models/user.interface';
 import { UserMembershipI } from '../models/user-membership.interface';
 import { Response, Request } from 'express';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class UserService {
     constructor(
         @InjectModel(User.name) private userModel: Model<UserDocument>,
         private authService: AuthService,
+        private readonly configService: ConfigService,
     ) {}
 
-    async create(createUserDto: CreateUserDto): Promise<User> {
+    async create(
+        @Res() res: Response,
+        createUserDto: CreateUserDto,
+    ): Promise<User> {
         const { email } = createUserDto;
+
         const isEmailExists: boolean = await this.mailExists(email);
-        if (!isEmailExists) {
+        if (isEmailExists) {
+            throw new HttpException(
+                'Email already exists',
+                HttpStatus.CONFLICT,
+            );
+        }
+
+        try {
             const hashedPassword: string = await this.authService.hashPassword(
                 createUserDto.password,
             );
@@ -36,6 +49,15 @@ export class UserService {
             const savedUser = new this.userModel(hashedCreateUserDto).save();
             if (savedUser) {
                 createUserDto.password = undefined;
+                const token: string = await this.authService.generateJwt(
+                    createUserDto,
+                );
+                res.cookie('service_token', token, {
+                    httpOnly: false,
+                    maxAge: 1000 * 60 * 60 * 24 * 7,
+                    domain: this.configService.get('FRONTEND_DOMAIN'),
+                });
+
                 return createUserDto;
             } else {
                 throw new HttpException(
@@ -43,18 +65,18 @@ export class UserService {
                     HttpStatus.INTERNAL_SERVER_ERROR,
                 );
             }
-        } else {
+        } catch (error) {
             throw new HttpException(
-                'Email already exists',
-                HttpStatus.CONFLICT,
+                'Service unavailable',
+                HttpStatus.INTERNAL_SERVER_ERROR,
             );
         }
     }
 
     async login(
         loginUserDto: LoginUserDto,
-        @Res() res: Response,
-    ): Promise<Response> {
+        @Res({ passthrough: true }) res: Response,
+    ): Promise<UserI> {
         const user: UserI = await this.findUserByEmail(loginUserDto.email);
         if (user) {
             const isPasswordValid: boolean = await this.validatePassword(
@@ -62,11 +84,17 @@ export class UserService {
                 user.password,
             );
             if (isPasswordValid) {
-                const cookie: string =
-                    await this.authService.getCookieWithJwtToken(user.id);
-                res.setHeader('Set-Cookie', cookie);
+                const payload = { name: user.name, email: user.email };
+                const token: string = await this.authService.generateJwt(
+                    payload,
+                );
                 user.password = undefined;
-                return res.send({ ok: true, data: user });
+                res.cookie('service_token', token, {
+                    httpOnly: false,
+                    maxAge: 1000 * 60 * 60 * 24 * 7,
+                    domain: this.configService.get('FRONTEND_DOMAIN'),
+                });
+                return user;
             } else {
                 throw new HttpException(
                     'Invalid password',
@@ -76,6 +104,17 @@ export class UserService {
         } else {
             throw new HttpException('User not found', HttpStatus.NOT_FOUND);
         }
+    }
+
+    async loginWithJwt(
+        @Req() req: Request,
+        @Res() res: Response,
+    ): Promise<any> {
+        const accessToken: string | null = req.headers?.authorization;
+        const payload = await this.authService.verifyJwt(accessToken);
+        return accessToken && payload
+            ? { name: payload.user.name, email: payload.user.email }
+            : null;
     }
 
     async authenticate(
@@ -90,30 +129,48 @@ export class UserService {
             };
         }
 
-        const payload: any = req.user;
-        const { facebookId, googleId } = payload.user;
+        const user = await this.findOrCreate(req);
 
-        res.setHeader(
-            'Set-Cookie',
-            await this.authService.getCookieWithJwtToken(
-                googleId || facebookId,
-            ),
-        );
+        const token = await this.authService.generateJwt(user);
 
-        await this.findOrCreate(req);
+        await this.authService.setCookieJwt(res, token);
 
         return res.send({
             ok: true,
-            statusCode: HttpStatus.OK,
             data: req.user,
         });
     }
 
-    async logout(@Res() res: Response): Promise<Response> {
-        const cookie: string = await this.authService.getCookieForLogout();
+    async logout(@Res() res: Response): Promise<string> {
+        const ok: HttpStatus = await this.authService.getCookieForLogout(res);
         await this.authService.clearSessionCookies(res);
-        res.setHeader('Set-Cookie', cookie);
-        return res.send({ ok: true, message: 'Logout successful' });
+        return ok === HttpStatus.OK ? 'Logout successful' : 'Logout failed';
+    }
+
+    private async findOrCreate(@Req() req: Request): Promise<UserI> | null {
+        const { user }: any = req.user;
+        const { email, googleId, facebookId, firstName }: any = user;
+
+        const isEmailExists: boolean = await this.mailExists(email);
+
+        let newUser: UserI = null;
+
+        if (!isEmailExists) {
+            newUser = await new this.userModel({
+                email,
+                googleId,
+                facebookId,
+                name: firstName,
+            }).save();
+        } else {
+            newUser = await this.updateUserAuthId(
+                email,
+                googleId || facebookId,
+                googleId ? 'google' : 'facebook',
+            );
+        }
+
+        return newUser;
     }
 
     private async updateUserAuthId(
@@ -129,25 +186,6 @@ export class UserService {
             .findOneAndUpdate({ email: _email }, authId, { new: true })
             .exec();
         return user;
-    }
-
-    private async findOrCreate(@Req() req: Request): Promise<UserI> | null {
-        const { user }: any = req.user;
-        const { email, googleId, facebookId }: any = user;
-
-        const isEmailExists: boolean = await this.mailExists(email);
-
-        if (!isEmailExists) {
-            await new this.userModel({ email }).save();
-        }
-
-        const newUser: any = await this.updateUserAuthId(
-            email,
-            googleId || facebookId,
-            googleId ? 'google' : 'facebook',
-        );
-
-        return newUser;
     }
 
     async changeMembership(
@@ -194,8 +232,10 @@ export class UserService {
         return this.userModel.find().exec();
     }
 
-    async findOne(id: string): Promise<User> {
-        return this.userModel.findOne({ _id: id }).exec();
+    async findOne(email: string): Promise<any | HttpException> {
+        const user: any = await this.userModel.findOne({ email }).exec();
+        if (user) return { email: user.email, name: user.name };
+        else throw new HttpException('Email not exists', HttpStatus.NOT_FOUND);
     }
 
     async findOneByEmail(email: string): Promise<User> {
@@ -209,19 +249,26 @@ export class UserService {
         return deletedUser;
     }
 
-    private async validatePassword(
+    async validatePassword(
         password: string,
         storedPassword: string,
     ): Promise<boolean> {
         return this.authService.comparePasswords(password, storedPassword);
     }
 
-    private async findUserByEmail(email: string): Promise<UserI> {
+    async findUserByEmail(email: string): Promise<UserI> {
         return this.userModel.findOne({ email }).exec();
     }
 
-    private async mailExists(email: string): Promise<boolean> {
+    async mailExists(email: string): Promise<boolean> {
         const user = await this.userModel.findOne({ email: email }).exec();
         return user === null ? false : true;
+    }
+
+    async mailsExists(emails: string[]): Promise<boolean> {
+        const users = await this.userModel
+            .find({ email: { $in: emails } })
+            .exec();
+        return users.length === emails.length ? true : false;
     }
 }

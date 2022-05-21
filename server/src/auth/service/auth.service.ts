@@ -1,4 +1,4 @@
-import { Injectable, Res, Req } from '@nestjs/common';
+import { Injectable, Res, Req, HttpStatus } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserI } from 'src/user/models/user.interface';
 import { TokenI } from '../interfaces/token.interface';
@@ -14,8 +14,11 @@ export class AuthService {
         private readonly configService: ConfigService,
     ) {}
 
-    async generateJwt(user: UserI): Promise<string> {
-        return await this.jwtService.signAsync({ user });
+    async generateJwt(user: UserI): Promise<any> {
+        return await this.jwtService.signAsync(
+            { user },
+            { expiresIn: this.configService.get('JWT_EXPIRATION_TIME') },
+        );
     }
 
     async hashPassword(password: string): Promise<string> {
@@ -29,16 +32,22 @@ export class AuthService {
         return bcrypt.compare(password, storedPasswordHash);
     }
 
-    async getCookieWithJwtToken(userId: number): Promise<string> {
-        const payload: TokenI = { userId: userId };
-        const token = this.jwtService.sign(payload);
-        return `Authentication=${token}; HttpOnly; Path=/; Max-Age=${this.configService.get(
-            'JWT_EXPIRATION_TIME',
-        )}`;
+    async getCookieForLogout(@Res() res: Response): Promise<HttpStatus> {
+        await res.cookie('service_token', '', {
+            expires: new Date(0),
+            httpOnly: false,
+            secure: false,
+        });
+        return HttpStatus.OK;
     }
 
-    async getCookieForLogout(): Promise<string> {
-        return `Authentication=; HttpOnly; Path=/; Max-Age=0`;
+    async setCookieJwt(@Res() res: Response, token: any): Promise<HttpStatus> {
+        res.cookie('service_token', token, {
+            httpOnly: false,
+            maxAge: 30 * 24 * 60 * 60 * 1000,
+            domain: this.configService.get('FRONTEND_DOMAIN'),
+        });
+        return HttpStatus.OK;
     }
 
     async clearSessionCookies(@Res() res: Response): Promise<void> {
@@ -46,8 +55,11 @@ export class AuthService {
         res.clearCookie('sid', { path: '/' });
     }
 
-    async getAuthPayload(token: string): Promise<object> {
-        return this.jwtService.verify(token);
+    async verifyJwt(accessToken: string): Promise<any> {
+        accessToken = accessToken.replace('Bearer ', '');
+        return (await this.jwtService.verify(accessToken)) === null
+            ? false
+            : this.decodeJwt(accessToken);
     }
 
     async decodeJwt(token: string): Promise<any> {

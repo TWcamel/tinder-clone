@@ -8,8 +8,14 @@
     -   [x] google Oauth
 -   [x] VIP membership
 -   [ ] Chat
--   [ ] Swipe
+    -   [ ] claim chat id: client -> server -> db (uuidv4)
+    -   [ ] join chat room by cliamed chat id
+    -   [ ] update chatroom's context by chat id
+    -   [ ] broadcast changes to chat id
+    -   [ ] (optional) unmatch chats
 -   [ ] Match
+    -   [ ] check user name before create a match pair
+-   [ ] Swipe
 -   [ ] Push Notification
 -   [ ] Passport
 -   [ ] Super like (send crush)
