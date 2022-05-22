@@ -22,6 +22,10 @@ const App = () => {
         </SocketProvider>
     );
 
+    React.useEffect(() => {
+        console.log('userId', userId);
+    });
+
     return (
         <>
             {userId ? (

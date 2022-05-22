@@ -1,7 +1,7 @@
 export interface LikeI {
     id: string;
     email: string;
-    matchedEmail: string;
+    matchEmail: string;
 }
 
 export interface FindLikedI {
@@ -10,5 +10,5 @@ export interface FindLikedI {
 
 export interface GetIdLikeI {
     email: string;
-    matchedEmail: string;
+    matchEmail: string;
 }

@@ -46,6 +46,7 @@ export class UserService {
                 ...createUserDto,
                 password: hashedPassword,
             };
+            console.log(hashedCreateUserDto);
             const savedUser = new this.userModel(hashedCreateUserDto).save();
             if (savedUser) {
                 createUserDto.password = undefined;
@@ -84,6 +85,11 @@ export class UserService {
                 user.password,
             );
             if (isPasswordValid) {
+                if (!user.gender)
+                    throw new HttpException(
+                        'Please update gender field',
+                        HttpStatus.NOT_ACCEPTABLE,
+                    );
                 const payload = { name: user.name, email: user.email };
                 const token: string = await this.authService.generateJwt(
                     payload,
@@ -101,9 +107,7 @@ export class UserService {
                     HttpStatus.UNAUTHORIZED,
                 );
             }
-        } else {
-            throw new HttpException('User not found', HttpStatus.NOT_FOUND);
-        }
+        } else throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
 
     async loginWithJwt(
@@ -112,9 +116,15 @@ export class UserService {
     ): Promise<any> {
         const accessToken: string | null = req.headers?.authorization;
         const payload = await this.authService.verifyJwt(accessToken);
-        return accessToken && payload
-            ? { name: payload.user.name, email: payload.user.email }
-            : null;
+        if (accessToken && payload)
+            if (payload?.gender)
+                return { name: payload.user.name, email: payload.user.email };
+            else
+                throw new HttpException(
+                    'Please update gender field',
+                    HttpStatus.NOT_ACCEPTABLE,
+                );
+        else throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
 
     async authenticate(

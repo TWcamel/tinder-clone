@@ -27,7 +27,7 @@ export const MatchesProvider: React.FC<{ children: React.ReactNode }> = ({
                 setMatches((prevMatches: any) => {
                     return [...prevMatches, { id, name }];
                 });
-            else alert('Match pair have been created!');
+            else alert('You liked her!');
         })();
     };
 

@@ -8,5 +8,5 @@ export class CreateLikesDto {
     email: string;
 
     @IsString()
-    matchedEmail: string;
+    matchEmail: string;
 }

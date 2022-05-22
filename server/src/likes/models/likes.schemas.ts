@@ -17,7 +17,7 @@ export class Likes {
     email: string;
 
     @Prop({ required: true })
-    matchedEmail: string;
+    matchEmail: string;
 }
 
 export const LikesSchema = SchemaFactory.createForClass(Likes);

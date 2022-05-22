@@ -12,7 +12,7 @@ import { CreateLikesDto } from '../models/dto/CreateLikes.dto';
 import { UserService } from 'src/user/service/user.service';
 import { v5 as uuidv5 } from 'uuid';
 import { ConfigService } from '@nestjs/config';
-import { LikeI, FindLikedI, GetIdLikeI } from '../models/like.interface';
+import { LikeI, FindLikedI, GetIdLikeI } from '../models/likes.interface';
 
 @Injectable()
 export class LikesService {
@@ -24,11 +24,11 @@ export class LikesService {
 
     async userALikesUserB({
         email,
-        matchedEmail,
+        matchEmail,
     }: CreateLikesDto): Promise<LikeI> {
         if (
-            !(await this.userService.mailsExists([email, matchedEmail])) ||
-            email === matchedEmail
+            !(await this.userService.mailsExists([email, matchEmail])) ||
+            email === matchEmail
         )
             return Promise.reject(
                 new HttpException(
@@ -37,17 +37,17 @@ export class LikesService {
                 ),
             );
         else {
-            const likeToken: string = await this.getLikeToken({
+            const likeToken: string = await this.genLikeToken({
                 email,
-                matchedEmail,
+                matchEmail,
             });
-            const newLikeToken = new this.likesModel({
+            const newLikedToken = new this.likesModel({
                 id: likeToken,
                 email,
-                matchedEmail,
+                matchEmail,
             }).save();
-            return newLikeToken
-                ? newLikeToken
+            return newLikedToken
+                ? newLikedToken
                 : Promise.reject(
                       new HttpException(
                           'Error creating like token pair',
@@ -69,9 +69,9 @@ export class LikesService {
               );
     }
 
-    async getLikeToken({ email, matchedEmail }: GetIdLikeI): Promise<string> {
+    async genLikeToken({ email, matchEmail }: GetIdLikeI): Promise<string> {
         return uuidv5(
-            `${email}${matchedEmail}`.toLowerCase(),
+            `${email}${matchEmail}`.toLowerCase(),
             this.configService.get<string>('UUID_NAMESPACE'),
         ).toString();
     }

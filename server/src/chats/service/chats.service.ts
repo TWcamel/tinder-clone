@@ -29,7 +29,7 @@ export class ChatsService {
         reciever,
         message,
     }: ReceivedMessageI): Promise<ChatI> {
-        const matchedId: string = await this.matchesService.getMatchId({
+        const matchedId: string = await this.matchesService.genMatchId({
             email: sender,
             matchedEmail: reciever,
         });

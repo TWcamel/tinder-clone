@@ -22,6 +22,9 @@ export class User {
 
     @Prop()
     membershipType: string;
+
+    @Prop()
+    gender: string;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

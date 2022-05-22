@@ -17,6 +17,8 @@ import {
     FindMatchedI,
     GetIdMatchedI,
 } from '../models/matches.interface';
+import { GetIdLikeI } from 'src/likes/models/likes.interface';
+import { LikesService } from 'src/likes/service/likes.service';
 
 @Injectable()
 export class MatchesService {
@@ -24,49 +26,28 @@ export class MatchesService {
         @InjectModel(Matches.name) private matchesModel: Model<MatchesDocument>,
         private readonly userService: UserService,
         private readonly configService: ConfigService,
+        private readonly likesService: LikesService,
     ) {}
 
-    // TODO: fix this one
-    // ERROR: this one is a like function, not not a match function
+    //TODO: Test this one
     async createMatchPair({
         email,
         matchedEmail,
     }: CreateMatchesDto): Promise<MatchI> {
-        const isUserEmailExists: boolean = await this.userService.mailExists(
+        const matchedPair = new this.matchesModel({
+            id: this.genMatchId({ email, matchedEmail }),
             email,
-        );
-        const isRecipientEmailExists: boolean =
-            await this.userService.mailExists(matchedEmail);
+            matchedEmail,
+        }).save();
 
-        if (
-            !(isUserEmailExists && isRecipientEmailExists) ||
-            email === matchedEmail
-        )
-            return Promise.reject(
-                new HttpException(
-                    'Provided email is not valid or you trying to selfmatching',
-                    HttpStatus.NOT_FOUND,
-                ),
-            );
-        else {
-            const matchId: string = await this.getMatchId({
-                email,
-                matchedEmail,
-            });
-            const matchedPair = new this.matchesModel({
-                id: matchId,
-                email,
-                matchedEmail,
-            }).save();
-            return matchedPair
-                ? matchedPair
-                : Promise.reject(
-                      new HttpException(
-                          'Error creating match pair',
-                          HttpStatus.INTERNAL_SERVER_ERROR,
-                      ),
-                  );
-        }
+        return matchedPair
+            ? matchedPair
+            : Promise.reject(
+                  new HttpException(
+                      'Error creating match pair',
+                      HttpStatus.INTERNAL_SERVER_ERROR,
+                  ),
+              );
     }
 
     async findMatchedPair({ id }: FindMatchedI): Promise<MatchI> {
@@ -81,10 +62,30 @@ export class MatchesService {
               );
     }
 
-    async getMatchId({ email, matchedEmail }: GetIdMatchedI): Promise<string> {
+    async genMatchId({ email, matchedEmail }: GetIdMatchedI): Promise<string> {
         return uuidv5(
-            `${email}${matchedEmail}`.toLowerCase(),
+            `${email}${matchedEmail}-${matchedEmail}${email}`.toLowerCase(),
             this.configService.get<string>('UUID_NAMESPACE'),
         ).toString();
+    }
+
+    async checkedGenIdIsMatched({
+        email,
+        matchedEmail,
+    }: GetIdMatchedI): Promise<boolean> {
+        const matchId = await this.genMatchId({ email, matchedEmail });
+        const IsMatched = await this.findMatchedPair({ id: matchId });
+        return IsMatched ? true : false;
+    }
+
+    async checkIsAMatch({ email, matchEmail }: GetIdLikeI): Promise<boolean> {
+        const likeToken = await this.likesService.genLikeToken({
+            email,
+            matchEmail,
+        });
+        const isAMatch = await this.likesService.findLikeToken({
+            id: likeToken,
+        });
+        return isAMatch ? true : false;
     }
 }

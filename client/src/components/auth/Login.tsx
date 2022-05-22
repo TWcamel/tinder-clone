@@ -11,12 +11,11 @@ export const Login: React.FC<{
     onUserNameSubmit: (userName: string) => void;
 }> = ({ onUserIdSubmit, onUserNameSubmit }) => {
     //TODO: make register independent from login component
-    const [isLoggedIn, setIsLoggedIn]: [boolean, Function] =
-        React.useState(false);
 
     useEffect(() => {
         (async () => {
-            await checkLogin();
+            const isLoggedIn: boolean = await checkLogin();
+            if (!isLoggedIn) userRegister();
         })();
     }, []);
 
@@ -36,7 +35,7 @@ export const Login: React.FC<{
         _target.id === 'login-button' ? userLogin() : userRegister();
     };
 
-    const checkLogin = async (): Promise<any> => {
+    const checkLogin = async (): Promise<boolean> => {
         const token = document.cookie.split('=')[1];
         const res = await AuthService.verify(token);
         if (res.ok) {
@@ -44,7 +43,7 @@ export const Login: React.FC<{
             onUserNameSubmit(res.data.name);
             return true;
         }
-        userRegister();
+
         return false;
     };
 
@@ -55,7 +54,9 @@ export const Login: React.FC<{
         if (email && password && email.length > 0 && password.length > 0) {
             const res = await AuthService.login(email, password);
             console.log(res);
-            res ? setIsLoggedIn(true) : setIsLoggedIn(false);
+            console.log(document.cookie);
+            onUserIdSubmit(res.email);
+            onUserNameSubmit(res.name);
         }
     };
 
