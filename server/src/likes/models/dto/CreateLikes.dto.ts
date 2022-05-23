@@ -14,5 +14,5 @@ export class CreateLikesDto {
     isLiked: boolean;
 
     @IsDate()
-    updatedAt?: Date;
+    updateAt?: Date;
 }

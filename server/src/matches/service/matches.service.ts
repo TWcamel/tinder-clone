@@ -63,14 +63,7 @@ export class MatchesService {
 
     async findMatchedPair({ id }: FindMatchedI): Promise<MatchI> {
         const matchedPair: any = await this.matchesModel.findOne({ id }).exec();
-        return matchedPair
-            ? matchedPair
-            : Promise.reject(
-                  new HttpException(
-                      'No match pair found',
-                      HttpStatus.NOT_FOUND,
-                  ),
-              );
+        return matchedPair ? matchedPair : false;
     }
 
     async genMatchId({ email, matchedEmail }: GetIdMatchedI): Promise<string> {

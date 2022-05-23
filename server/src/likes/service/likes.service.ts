@@ -12,7 +12,13 @@ import { CreateLikesDto } from '../models/dto/CreateLikes.dto';
 import { UserService } from 'src/user/service/user.service';
 import { v5 as uuidv5 } from 'uuid';
 import { ConfigService } from '@nestjs/config';
-import { LikeI, FindLikedI, GetIdLikeI } from '../models/likes.interface';
+import { Time } from 'src/utils/time';
+import {
+    LikeI,
+    FindLikedI,
+    GetIdLikeI,
+    FormatReturnMsgI,
+} from '../models/likes.interface';
 
 @Injectable()
 export class LikesService {
@@ -42,7 +48,7 @@ export class LikesService {
                 email,
                 matchEmail,
                 isLiked,
-                updatedAt: new Date(),
+                updateAt: new Date(),
             });
             return newLike
                 ? newLike
@@ -69,7 +75,7 @@ export class LikesService {
                 {
                     id: likeToken,
                 },
-                { isLiked },
+                { isLiked, updatAt: new Date(), email, matchEmail },
                 { upsert: true, new: true },
             )
             .exec();
@@ -100,5 +106,19 @@ export class LikesService {
             `${email}${matchEmail}`.toLowerCase(),
             this.configService.get<string>('UUID_NAMESPACE'),
         ).toString();
+    }
+
+    async formatRetMsg({
+        email,
+        matchEmail,
+        isLiked,
+        updateAt,
+    }: FormatReturnMsgI): Promise<FormatReturnMsgI> {
+        return {
+            email,
+            matchEmail,
+            isLiked,
+            updateAt: Time.convertToLocal(updateAt),
+        };
     }
 }

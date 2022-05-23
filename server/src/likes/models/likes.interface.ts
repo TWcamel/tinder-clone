@@ -3,7 +3,7 @@ export interface LikeI {
     email: string;
     matchEmail: string;
     isLiked: boolean;
-    updatedAt?: Date;
+    updateAt?: Date;
 }
 
 export interface FindLikedI {
@@ -11,6 +11,13 @@ export interface FindLikedI {
 }
 
 export interface GetIdLikeI {
+    email: string;
+    matchEmail: string;
+}
+
+export interface FormatReturnMsgI {
+    isLiked: boolean;
+    updateAt?: Date;
     email: string;
     matchEmail: string;
 }

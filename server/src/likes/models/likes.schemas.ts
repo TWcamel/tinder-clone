@@ -23,7 +23,7 @@ export class Likes {
     isLiked: boolean;
 
     @Prop({ required: true, default: new Date() })
-    updatedAt: Date;
+    updateAt: Date;
 }
 
 export const LikesSchema = SchemaFactory.createForClass(Likes);

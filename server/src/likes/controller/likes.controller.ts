@@ -11,7 +11,7 @@ import { MatchesService } from 'src/matches/service/matches.service';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
 import { Response, Request } from 'express';
 import { LikesService } from '../service/likes.service';
-import { LikeI } from '../models/likes.interface';
+import { LikeI, FormatReturnMsgI } from '../models/likes.interface';
 
 @Controller('likes')
 export class LikesController {
@@ -33,11 +33,12 @@ export class LikesController {
             isLiked,
         }: { user: string; recipient: string; isLiked: boolean } = req.body;
         try {
-            const likeToken: LikeI = await this.likesService.userAActsUserB({
-                email: user,
-                matchEmail: recipient,
-                isLiked,
-            });
+            const likeToken: FormatReturnMsgI =
+                await this.likesService.userAActsUserB({
+                    email: user,
+                    matchEmail: recipient,
+                    isLiked,
+                });
             if (likeToken.isLiked) {
                 const isAMatch: boolean =
                     await this.matchesService.checkIsAMatch({
@@ -52,12 +53,12 @@ export class LikesController {
                     return res.send({
                         ok: isAMatch,
                         message: 'its a match!',
-                        data: { likeToken },
+                        data: await this.likesService.formatRetMsg(likeToken),
                     });
                 } else
                     return res.send({
                         ok: true,
-                        data: { likeToken },
+                        data: await this.likesService.formatRetMsg(likeToken),
                     });
             }
         } catch (error) {
