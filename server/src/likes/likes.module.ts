@@ -1,8 +1,9 @@
-import { Module } from '@nestjs/common';
+import { Module, Inject, forwardRef } from '@nestjs/common';
 import { LikesController } from './controller/likes.controller';
 import { LikesService } from './service/likes.service';
 import { AuthModule } from 'src/auth/auth.module';
 import { UserModule } from 'src/user/user.module';
+import { MatchesModule } from 'src/matches/matches.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Likes, LikesSchema } from './models/likes.schemas';
 
@@ -11,6 +12,7 @@ import { Likes, LikesSchema } from './models/likes.schemas';
         MongooseModule.forFeature([{ name: Likes.name, schema: LikesSchema }]),
         AuthModule,
         UserModule,
+        forwardRef(() => MatchesModule),
     ],
     controllers: [LikesController],
     providers: [LikesService],

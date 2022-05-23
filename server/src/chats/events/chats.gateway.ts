@@ -84,10 +84,7 @@ export class ChatsGateway
 
 const getClientId = async (socket: Socket): Promise<string> => {
     const id: any = socket.handshake.query.id;
-    return socket.handshake.query.id.length > 0 &&
-        !isArray(socket.handshake.query.id)
-        ? id
-        : id[0];
+    return id.length > 0 && !isArray(id) ? id : id[0];
 };
 
 const isArray = (value: any): boolean => {

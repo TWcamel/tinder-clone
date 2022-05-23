@@ -18,6 +18,12 @@ export class Likes {
 
     @Prop({ required: true })
     matchEmail: string;
+
+    @Prop({ required: true })
+    isLiked: boolean;
+
+    @Prop({ required: true, default: new Date() })
+    updatedAt: Date;
 }
 
 export const LikesSchema = SchemaFactory.createForClass(Likes);

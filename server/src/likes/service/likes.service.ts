@@ -22,9 +22,10 @@ export class LikesService {
         private readonly configService: ConfigService,
     ) {}
 
-    async userALikesUserB({
+    async userAActsUserB({
         email,
         matchEmail,
+        isLiked,
     }: CreateLikesDto): Promise<LikeI> {
         if (
             !(await this.userService.mailsExists([email, matchEmail])) ||
@@ -37,17 +38,14 @@ export class LikesService {
                 ),
             );
         else {
-            const likeToken: string = await this.genLikeToken({
+            const newLike = await this.createOrUpdateLike({
                 email,
                 matchEmail,
+                isLiked,
+                updatedAt: new Date(),
             });
-            const newLikedToken = new this.likesModel({
-                id: likeToken,
-                email,
-                matchEmail,
-            }).save();
-            return newLikedToken
-                ? newLikedToken
+            return newLike
+                ? newLike
                 : Promise.reject(
                       new HttpException(
                           'Error creating like token pair',
@@ -55,6 +53,34 @@ export class LikesService {
                       ),
                   );
         }
+    }
+
+    async createOrUpdateLike({
+        email,
+        matchEmail,
+        isLiked,
+    }: CreateLikesDto): Promise<LikesDocument> {
+        const likeToken: string = await this.genLikeToken({
+            email,
+            matchEmail,
+        });
+        const newLikedToken = await this.likesModel
+            .findOneAndUpdate(
+                {
+                    id: likeToken,
+                },
+                { isLiked },
+                { upsert: true, new: true },
+            )
+            .exec();
+        return newLikedToken
+            ? newLikedToken
+            : Promise.reject(
+                  new HttpException(
+                      'Error creating like token pair',
+                      HttpStatus.INTERNAL_SERVER_ERROR,
+                  ),
+              );
     }
 
     async findLikeToken({ id }: FindLikedI): Promise<LikeI> {

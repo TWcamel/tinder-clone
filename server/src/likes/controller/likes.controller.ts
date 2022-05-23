@@ -11,6 +11,7 @@ import { MatchesService } from 'src/matches/service/matches.service';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
 import { Response, Request } from 'express';
 import { LikesService } from '../service/likes.service';
+import { LikeI } from '../models/likes.interface';
 
 @Controller('likes')
 export class LikesController {
@@ -26,32 +27,43 @@ export class LikesController {
         @Req() req: Request,
         @Res() res: Response,
     ): Promise<Response> {
-        const { user, recipient }: { user: string; recipient: string } =
-            req.body;
+        const {
+            user,
+            recipient,
+            isLiked,
+        }: { user: string; recipient: string; isLiked: boolean } = req.body;
         try {
-            const likeToken = await this.likesService.userALikesUserB({
+            const likeToken: LikeI = await this.likesService.userAActsUserB({
                 email: user,
                 matchEmail: recipient,
+                isLiked,
             });
-            const isAMatch: boolean = await this.matchesService.checkIsAMatch({
-                email: recipient,
-                matchEmail: user,
-            });
-            if (isAMatch)
-                return res.send({
-                    ok: isAMatch,
-                    message: 'its a match!',
-                    data: { likeToken },
-                });
-            else
-                return res.send({
-                    ok: true,
-                    data: { likeToken },
-                });
+            if (likeToken.isLiked) {
+                const isAMatch: boolean =
+                    await this.matchesService.checkIsAMatch({
+                        email: recipient,
+                        matchEmail: user,
+                    });
+                if (isAMatch) {
+                    await this.matchesService.createMatchPair({
+                        email: user,
+                        matchedEmail: recipient,
+                    });
+                    return res.send({
+                        ok: isAMatch,
+                        message: 'its a match!',
+                        data: { likeToken },
+                    });
+                } else
+                    return res.send({
+                        ok: true,
+                        data: { likeToken },
+                    });
+            }
         } catch (error) {
             return res.send({
                 error: true,
-                message: error.response || error._message || 'Duplicate like',
+                message: error.response || error._message,
             });
         }
     }

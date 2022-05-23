@@ -42,7 +42,7 @@ export class MatchesController {
         } catch (error) {
             return res.send({
                 error: true,
-                message: error.response || error._message,
+                message: error.response || error._message || error,
             });
         }
     }

@@ -19,6 +19,7 @@ import {
 } from '../models/matches.interface';
 import { GetIdLikeI } from 'src/likes/models/likes.interface';
 import { LikesService } from 'src/likes/service/likes.service';
+import { ArrayUtils } from 'src/utils/array';
 
 @Injectable()
 export class MatchesService {
@@ -29,13 +30,23 @@ export class MatchesService {
         private readonly likesService: LikesService,
     ) {}
 
-    //TODO: Test this one
     async createMatchPair({
         email,
         matchedEmail,
     }: CreateMatchesDto): Promise<MatchI> {
-        const matchedPair = new this.matchesModel({
-            id: this.genMatchId({ email, matchedEmail }),
+        const matchId = await this.checkedGenIdIsMatched({
+            email,
+            matchedEmail,
+        });
+        if (matchId)
+            return Promise.reject(
+                new HttpException(
+                    `Match already exists`,
+                    HttpStatus.BAD_REQUEST,
+                ),
+            );
+        const matchedPair = await new this.matchesModel({
+            id: await this.genMatchId({ email, matchedEmail }),
             email,
             matchedEmail,
         }).save();
@@ -51,7 +62,7 @@ export class MatchesService {
     }
 
     async findMatchedPair({ id }: FindMatchedI): Promise<MatchI> {
-        const matchedPair: any = this.matchesModel.findOne({ id }).exec();
+        const matchedPair: any = await this.matchesModel.findOne({ id }).exec();
         return matchedPair
             ? matchedPair
             : Promise.reject(
@@ -63,8 +74,9 @@ export class MatchesService {
     }
 
     async genMatchId({ email, matchedEmail }: GetIdMatchedI): Promise<string> {
+        const input = ArrayUtils.sortByLocale([email, matchedEmail]).join('');
         return uuidv5(
-            `${email}${matchedEmail}-${matchedEmail}${email}`.toLowerCase(),
+            input.toLowerCase(),
             this.configService.get<string>('UUID_NAMESPACE'),
         ).toString();
     }
