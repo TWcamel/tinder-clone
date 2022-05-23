@@ -33,10 +33,12 @@ export class ChatsService {
             email: sender,
             matchedEmail: reciever,
         });
-        const isMatched = await this.matchesService.findMatchedPair({
-            id: matchedId,
+        const isMatched = await this.matchesService.checkedGenIdIsMatched({
+            email: sender,
+            matchedEmail: reciever,
         });
-        if (isMatched?.id === matchedId && message) {
+        //TODO: make message to another document
+        if (isMatched && message) {
             const chat: any = await this.chatModel.findOne({
                 matchedId,
             });
