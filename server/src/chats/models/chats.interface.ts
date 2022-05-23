@@ -1,8 +1,3 @@
-export interface ChatI {
-    messages: MessagesI[];
-    updatedTime: Date;
-}
-
 export interface ReceivedMessageI {
     sender: string;
     reciever: string;
@@ -13,4 +8,10 @@ export interface MessagesI {
     message: string;
     updateAt: Date;
     user: string;
+}
+
+export interface ChatI {
+    message: string;
+    updateAt: Date;
+    sender: string;
 }

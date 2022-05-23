@@ -14,6 +14,7 @@ import { LikesService } from 'src/likes/service/likes.service';
 import { v5 as uuidv5 } from 'uuid';
 import { ConfigService } from '@nestjs/config';
 import { ChatI, ReceivedMessageI } from '../models/chats.interface';
+import { Time } from 'src/utils/time';
 
 @Injectable()
 export class ChatsService {
@@ -37,31 +38,22 @@ export class ChatsService {
             email: sender,
             matchedEmail: reciever,
         });
-        //TODO: make message to another document
         if (isMatched && message) {
-            const chat: any = await this.chatModel.findOne({
-                matchedId,
-            });
-            const formattedMessage = {
-                user: sender,
+            let formattedMessage = {
                 message,
+                sender,
                 updateAt: new Date(),
             };
-            if (chat) {
-                chat.chatContext.push(formattedMessage);
-                chat.save();
-                return {
-                    updatedTime: chat.lastEditTime,
-                    messages: chat.chatContext,
-                };
-            } else {
-                const newChat: any = new this.chatModel({
-                    matchedId,
-                    chatContext: formattedMessage,
-                });
-                await newChat.save();
-                return newChat;
-            }
+            const newChat: any = await new this.chatModel({
+                ...formattedMessage,
+                matchedId,
+            }).save();
+            formattedMessage = {
+                message: newChat.message,
+                sender: newChat.sender,
+                updateAt: Time.convertToLocal(newChat.updateAt),
+            };
+            return formattedMessage;
         } else {
             return Promise.reject(
                 new HttpException(

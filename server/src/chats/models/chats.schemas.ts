@@ -9,11 +9,14 @@ export class Chats extends Document {
     @Prop({ required: true, index: true })
     matchedId: string;
 
-    @Prop({ required: true, default: Date.now() })
-    updatedAt: Date;
-
     @Prop({ required: true })
-    chatContext: MessagesI[];
+    message: string;
+
+    @Prop({ required: true, default: Date.now() })
+    sender: string;
+
+    @Prop({ required: true, default: Date.now() })
+    updateAt: Date;
 }
 
 export const ChatsSchema = SchemaFactory.createForClass(Chats);
