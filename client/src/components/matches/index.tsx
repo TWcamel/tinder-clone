@@ -8,6 +8,7 @@ interface IMatch {
     isSelected: boolean;
 }
 
+// TODO: make a like component 
 const Matches: React.FC = () => {
     const { matches, selectMatchIndex } = useMatches();
 

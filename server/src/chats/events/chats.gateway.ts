@@ -61,6 +61,7 @@ export class ChatsGateway
         @MessageBody() msgBody: { recipients: object[]; text: string },
     ): Promise<void> {
         // TODO: auth verrification before sending messages
+        // TODO: get chat id from matched id
         const clientId: any = await getClientId(client);
         const recipients: any = msgBody.recipients;
         console.log(recipients);
