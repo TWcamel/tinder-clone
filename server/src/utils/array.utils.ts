@@ -1,12 +1,12 @@
-export const ArrayUtils = {
+export default {
     /**
      * @description
      * Returns the first element of an array.
      *
-     * @param {Array} array
+     * @param {Array<any>} array
      * @returns {any}
      */
-    first(array) {
+    first(array: Array<any>): any {
         return array[0];
     },
 
@@ -14,10 +14,10 @@ export const ArrayUtils = {
      * @description
      * Returns the last element of an array.
      *
-     * @param {Array} array
+     * @param {Array<any>} array
      * @returns {any}
      */
-    last(array) {
+    last(array: Array<any>): any {
         return array[array.length - 1];
     },
 
@@ -25,7 +25,7 @@ export const ArrayUtils = {
     * @description
     * Returns the index of the first element of an array.
     *
-    * @param {Array} array
+    * @param {Array<any>} array
     * @returns {number}
 
     * @example
@@ -33,7 +33,7 @@ export const ArrayUtils = {
     *
     * array.firstIndex(); // 0
     */
-    firstIndex(array) {
+    firstIndex(array: Array<any>): number {
         return 0;
     },
 
@@ -41,7 +41,7 @@ export const ArrayUtils = {
     * @description
     * Returns the index of the last element of an array.
     *
-    * @param {Array} array
+    * @param {Array<any>} array
     * @returns {number}
 
     * @example
@@ -49,7 +49,7 @@ export const ArrayUtils = {
     *
     * array.lastIndex(); // 2
     */
-    lastIndex(array) {
+    lastIndex(array: Array<any>): number {
         return array.length - 1;
     },
 
@@ -57,7 +57,7 @@ export const ArrayUtils = {
     * @description
     * Returns the length of an array.
     *
-    * @param {Array} array
+    * @param {Array<any>} array
     * @returns {number}
 
     * @example
@@ -65,7 +65,7 @@ export const ArrayUtils = {
     *
   kj    * array.length(); //3
     */
-    length(array) {
+    length(array: Array<any>): number {
         return array.length;
     },
 
@@ -73,15 +73,15 @@ export const ArrayUtils = {
     * @description
     * Returns the order by which an array is sorted by ASCII.
     *
-    * @param {Array} Array
-    * @returns {Array}
+    * @param {Array<any>} array
+    * @returns {Array<any>}
 
     * @example
     * const array = [1, 2, 3];
     *
     * array.sort(); // [1, 2, 3]
     */
-    sort(array) {
+    sort(array: Array<any>): Array<any> {
         return array.sort();
     },
 
@@ -89,15 +89,15 @@ export const ArrayUtils = {
     * @description
     * Returns the order by which an array is sorted by ASCII.
     *
-    * @param {Array} Array
-    * @returns {Array}
+    * @param {Array<any>} array
+    * @returns {Array<any>}
 
     * @example
     * const array = [ 'a', 'b', 'c' ];
     *
     * array.sort(); // [ 'a', 'b', 'c' ]
     */
-    sortBy(array, fn) {
+    sortBy(array: Array<any>, fn: any): Array<any> {
         return array.sort(fn);
     },
 
@@ -105,15 +105,31 @@ export const ArrayUtils = {
     * @description
     * Returns the order by which an array is sorted by localeCompare.
     *
-    * @param {Array} Array
-    * @returns {Array}
+    * @param {Array<any>} array
+    * @returns {Array<any>}
 
     * @example
     * const array = [ 'a', 'b', 'c' ];
     *
     * array.sort(); // [ 'a', 'b', 'c' ]
     */
-    sortByLocale(array) {
+    sortByLocale(array: Array<any>): Array<any> {
         return array.sort((a, b) => a.localeCompare(b));
+    },
+
+    /**
+    * @description
+    * Returns the privided object is an array.
+    *
+    * @param {any} obj
+    * @returns {boolean}
+
+    * @example
+    * const array = [1, 2, 3];
+    *
+    * Array.isArray(array); // true
+    */
+    isArray(obj: any): boolean {
+        return obj && typeof obj === 'object' && obj.constructor === Array;
     },
 };

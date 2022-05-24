@@ -19,7 +19,7 @@ import {
 } from '../models/matches.interface';
 import { GetIdLikeI } from 'src/likes/models/likes.interface';
 import { LikesService } from 'src/likes/service/likes.service';
-import { ArrayUtils } from 'src/utils/array';
+import ArrayUtils from 'src/utils/array.utils';
 
 @Injectable()
 export class MatchesService {
@@ -34,7 +34,7 @@ export class MatchesService {
         email,
         matchedEmail,
     }: CreateMatchesDto): Promise<MatchI> {
-        const matchId = await this.checkedGenIdIsMatched({
+        const matchId = await this.checkGenIdIsMatched({
             email,
             matchedEmail,
         });
@@ -74,7 +74,7 @@ export class MatchesService {
         ).toString();
     }
 
-    async checkedGenIdIsMatched({
+    async checkGenIdIsMatched({
         email,
         matchedEmail,
     }: GetIdMatchedI): Promise<boolean> {

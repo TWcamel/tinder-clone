@@ -6,6 +6,7 @@ const LikesService = {
         const payload = JSON.stringify({
             user: email,
             recipient: recipientEmail,
+            isLiked: true,
         });
         const response = await Api.post(`likes`, payload, {
             Authorization: `Bearer ${AuthService.getBearerToken()}`,

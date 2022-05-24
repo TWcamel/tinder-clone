@@ -4,7 +4,6 @@ import {
     SubscribeMessage,
     WebSocketGateway,
     WebSocketServer,
-    WsResponse,
     ConnectedSocket,
     OnGatewayInit,
     OnGatewayConnection,
@@ -14,6 +13,8 @@ import { from, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Server, Socket } from 'socket.io';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
+import ArrayUtils from 'src/utils/array.utils';
+import { ChatsService } from '../service/chats.service';
 
 interface RecipientI {
     id: string;
@@ -34,10 +35,11 @@ interface ChatMessageI {
 export class ChatsGateway
     implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
+    constructor(private readonly chatsService: ChatsService) {}
     @WebSocketServer()
     private server: Server;
     private socket: Socket;
-    private readonly logger = new Logger(ChatsGateway.name);
+    private readonly logger = new Logger(ChatsGateway.name); //TODO: enable logger
 
     afterInit(server: Server): void {
         console.log(
@@ -46,9 +48,11 @@ export class ChatsGateway
         );
     }
 
-    @UseGuards(JwtAuthGuard)
     handleConnection(@ConnectedSocket() client: Socket): void {
-        console.log('Client connected', client.handshake.query.id);
+        console.log(
+            'Client connected\n',
+            `id: ${client.id}\n email: ${client.handshake.query.id}`,
+        );
     }
 
     handleDisconnect(@ConnectedSocket() client: Socket): void {
@@ -58,36 +62,34 @@ export class ChatsGateway
     @SubscribeMessage('send-message')
     async sendMessage(
         @ConnectedSocket() client: Socket,
-        @MessageBody() msgBody: { recipients: object[]; text: string },
+        @MessageBody() msgBody: { recipients: string[]; text: string },
     ): Promise<void> {
-        // TODO: auth verrification before sending messages
-        // TODO: get chat id from matched id
-        const clientId: any = await getClientId(client);
-        const recipients: any = msgBody.recipients;
-        console.log(recipients);
-        recipients.forEach(async (recipient: RecipientI) => {
-            const newRecipients = recipients.filter(
-                (r: string) => r !== recipient.id,
-            );
-            newRecipients.push(clientId);
-            const returnMessage: ChatMessageI = {
-                text: msgBody.text,
-                sender: clientId,
-                recipients: newRecipients,
-            };
-            this.server.socketsJoin(clientId);
-            this.server.sockets
-                .to([recipient.toString(), clientId])
-                .emit('receive-message', returnMessage);
+        // TODO: get chat id from matched id, and chat room id is the same as the matched id
+        const clientId: string = await getClientId(client);
+        const recipient =
+            clientId === msgBody.recipients[0]
+                ? msgBody.recipients[0]
+                : clientId;
+        const returnMessage: any = {
+            text: msgBody.text,
+            sender: clientId,
+            recipients: [recipient],
+        };
+        let reciever;
+        this.server.sockets.sockets.forEach((socket) => {
+            if (
+                socket.handshake.query.id !== clientId &&
+                clientId === recipient
+            ) {
+                reciever = socket.id;
+            }
         });
+        console.log(reciever);
+        this.server.sockets.to(reciever).emit('receive-message', returnMessage);
     }
 }
 
 const getClientId = async (socket: Socket): Promise<string> => {
     const id: any = socket.handshake.query.id;
-    return id.length > 0 && !isArray(id) ? id : id[0];
-};
-
-const isArray = (value: any): boolean => {
-    return value && typeof value === 'object' && value.constructor === Array;
+    return id.length > 0 && !ArrayUtils.isArray(id) ? id : id[0];
 };

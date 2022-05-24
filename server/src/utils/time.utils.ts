@@ -1,4 +1,4 @@
-export const Time = {
+export default {
     getDate: (date: Date) => {
         return date.getDate();
     },

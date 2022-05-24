@@ -12,13 +12,8 @@ import { CreateLikesDto } from '../models/dto/CreateLikes.dto';
 import { UserService } from 'src/user/service/user.service';
 import { v5 as uuidv5 } from 'uuid';
 import { ConfigService } from '@nestjs/config';
-import { Time } from 'src/utils/time';
-import {
-    LikeI,
-    FindLikedI,
-    GetIdLikeI,
-    FormatReturnMsgI,
-} from '../models/likes.interface';
+import DateTime from 'src/utils/time.utils';
+import * as LikesI from '../models/likes.interface';
 
 @Injectable()
 export class LikesService {
@@ -32,7 +27,7 @@ export class LikesService {
         email,
         matchEmail,
         isLiked,
-    }: CreateLikesDto): Promise<LikeI> {
+    }: CreateLikesDto): Promise<LikesI.LikeI> {
         if (
             !(await this.userService.mailsExists([email, matchEmail])) ||
             email === matchEmail
@@ -89,7 +84,7 @@ export class LikesService {
               );
     }
 
-    async findLikeToken({ id }: FindLikedI): Promise<LikeI> {
+    async findLikeToken({ id }: LikesI.FindLikedI): Promise<LikesI.LikeI> {
         const likeToken: any = this.likesModel.findOne({ id }).exec();
         return likeToken
             ? likeToken
@@ -101,7 +96,10 @@ export class LikesService {
               );
     }
 
-    async genLikeToken({ email, matchEmail }: GetIdLikeI): Promise<string> {
+    async genLikeToken({
+        email,
+        matchEmail,
+    }: LikesI.GetIdLikeI): Promise<string> {
         return uuidv5(
             `${email}${matchEmail}`.toLowerCase(),
             this.configService.get<string>('UUID_NAMESPACE'),
@@ -113,12 +111,12 @@ export class LikesService {
         matchEmail,
         isLiked,
         updateAt,
-    }: FormatReturnMsgI): Promise<FormatReturnMsgI> {
+    }: LikesI.FormatReturnMsgI): Promise<LikesI.FormatReturnMsgI> {
         return {
             email,
             matchEmail,
             isLiked,
-            updateAt: Time.convertToLocal(updateAt),
+            updateAt: DateTime.convertToLocal(updateAt),
         };
     }
 }

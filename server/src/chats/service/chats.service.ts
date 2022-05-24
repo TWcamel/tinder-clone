@@ -13,8 +13,8 @@ import { MatchesService } from 'src/matches/service/matches.service';
 import { LikesService } from 'src/likes/service/likes.service';
 import { v5 as uuidv5 } from 'uuid';
 import { ConfigService } from '@nestjs/config';
-import { ChatI, ReceivedMessageI } from '../models/chats.interface';
-import { Time } from 'src/utils/time';
+import DateTime from 'src/utils/time.utils';
+import * as ChatsI from '../models/chats.interface';
 
 @Injectable()
 export class ChatsService {
@@ -29,12 +29,12 @@ export class ChatsService {
         sender,
         reciever,
         message,
-    }: ReceivedMessageI): Promise<ChatI> {
+    }: ChatsI.ReceivedMessageI): Promise<ChatsI.ChatI> {
         const matchedId: string = await this.matchesService.genMatchId({
             email: sender,
             matchedEmail: reciever,
         });
-        const isMatched = await this.matchesService.checkedGenIdIsMatched({
+        const isMatched = await this.matchesService.checkGenIdIsMatched({
             email: sender,
             matchedEmail: reciever,
         });
@@ -51,7 +51,7 @@ export class ChatsService {
             formattedMessage = {
                 message: newChat.message,
                 sender: newChat.sender,
-                updateAt: Time.convertToLocal(newChat.updateAt),
+                updateAt: DateTime.convertToLocal(newChat.updateAt),
             };
             return formattedMessage;
         } else {
@@ -62,5 +62,27 @@ export class ChatsService {
                 ),
             );
         }
+    }
+
+    async getChatId({
+        sender,
+        reciever,
+    }: ChatsI.SenderAndRecieverI): Promise<string> {
+        const matchedId: string = await this.matchesService.genMatchId({
+            email: sender,
+            matchedEmail: reciever,
+        });
+        const isMatched = await this.matchesService.checkGenIdIsMatched({
+            email: sender,
+            matchedEmail: reciever,
+        });
+        if (isMatched) return matchedId;
+        else
+            return Promise.reject(
+                new HttpException(
+                    'You are not matched with this user',
+                    HttpStatus.BAD_REQUEST,
+                ),
+            );
     }
 }

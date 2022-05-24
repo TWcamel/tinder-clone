@@ -14,9 +14,9 @@ const Sidebar: React.FC<{ id: any; name: any }> = ({ id, name }) => {
         React.useState(CONVERSATIONS_KEY);
     const conversationsOpen = activeKey === CONVERSATIONS_KEY;
 
-    function closeModal() {
+    const closeModal = () => {
         setModalShow(false);
-    }
+    };
 
     return (
         <div style={{ width: '273px' }} className='d-flex flex-column '>
