@@ -18,14 +18,12 @@ export const SocketProvider: React.FC<{
 
     React.useEffect(() => {
         const newSocket: Socket = io(Config.SERVER_URL, {
-            // query: { id, matches: JSON.stringify(matches) },
             query: { id },
             extraHeaders: {
                 Authorization: `Bearer ${AuthService.getBearerToken()}`,
             },
         });
         setSocket(newSocket);
-
         return (): any => newSocket.close();
     }, [id]);
 
