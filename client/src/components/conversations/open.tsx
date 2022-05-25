@@ -24,8 +24,8 @@ const OpenConversation: React.FC = () => {
         );
         setText('');
     };
-    
-    //TODO: improve pary is typing hint 
+
+    //TODO: improve pary is typing hint
 
     return (
         <>
