@@ -38,7 +38,6 @@ export class ChatsGateway
     constructor(private readonly chatsService: ChatsService) {}
     @WebSocketServer()
     private server: Server;
-    private socket: Socket;
     private readonly logger = new Logger(ChatsGateway.name); //TODO: enable logger
 
     afterInit(server: Server): void {
@@ -54,7 +53,6 @@ export class ChatsGateway
     }
 
     handleDisconnect(@ConnectedSocket() client: Socket): void {
-        client.to(client.id).emit('disconnect', client.id);
         console.log('Client disconnected', client.id);
     }
 
@@ -76,25 +74,13 @@ export class ChatsGateway
         };
         const reciever =
             clientId === recipient ? msgBody.recipients[0] : clientId;
-        // this.server.sockets.sockets.forEach((socket) => {
-        //     if (
-        //         socket.handshake.query.id !== clientId &&
-        //         clientId === recipient
-        //     ) {
-        //         reciever = socket.id;
-        //     }
-        // });
         this.server.sockets.to(reciever).emit('receive-message', returnMessage);
     }
 
     removeOverlayConn(client: Socket): void {
-        this.server.sockets.sockets.forEach((socket) => {
-            if (
-                socket.handshake.query.id === client.handshake.query.id &&
-                socket.id !== client.id
-            ) {
+        this.server.sockets.sockets.forEach(async (socket) => {
+            if (await ckeckIfTwoSocketsAreTheSame(socket, client))
                 socket.disconnect();
-            }
         });
     }
 }
@@ -102,4 +88,14 @@ export class ChatsGateway
 const getClientId = async (socket: Socket): Promise<string> => {
     const id: any = socket.handshake.query.id;
     return id.length > 0 && !ArrayUtils.isArray(id) ? id : id[0];
+};
+
+const ckeckIfTwoSocketsAreTheSame = async (
+    socket1: Socket,
+    socket2: Socket,
+): Promise<boolean> => {
+    return (
+        (await getClientId(socket1)) === (await getClientId(socket2)) &&
+        socket1.id !== socket2.id
+    );
 };
