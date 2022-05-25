@@ -15,6 +15,7 @@ import { UserI } from '../models/user.interface';
 import { UserMembershipI } from '../models/user-membership.interface';
 import { Response, Request } from 'express';
 import { ConfigService } from '@nestjs/config';
+import { throws } from 'assert';
 
 @Injectable()
 export class UserService {
@@ -86,9 +87,11 @@ export class UserService {
             );
             if (isPasswordValid) {
                 if (!user.gender)
-                    throw new HttpException(
-                        'Please update gender field',
-                        HttpStatus.NOT_ACCEPTABLE,
+                    return Promise.reject(
+                        new HttpException(
+                            'Please update gender field',
+                            HttpStatus.NOT_ACCEPTABLE,
+                        ),
                     );
                 const payload = { name: user.name, email: user.email };
                 const token: string = await this.authService.generateJwt(
@@ -102,12 +105,17 @@ export class UserService {
                 });
                 return user;
             } else {
-                throw new HttpException(
-                    'Invalid password',
-                    HttpStatus.UNAUTHORIZED,
+                return Promise.reject(
+                    new HttpException(
+                        'Invalid password',
+                        HttpStatus.UNAUTHORIZED,
+                    ),
                 );
             }
-        } else throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+        } else
+            return Promise.reject(
+                new HttpException('User not found', HttpStatus.NOT_FOUND),
+            );
     }
 
     async loginWithJwt(

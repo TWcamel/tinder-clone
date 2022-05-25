@@ -49,13 +49,12 @@ export class ChatsGateway
     }
 
     handleConnection(@ConnectedSocket() client: Socket): void {
-        console.log(
-            'Client connected\n',
-            `id: ${client.id}\n email: ${client.handshake.query.id}`,
-        );
+        this.removeOverlayConn(client);
+        client.join(client.handshake.query.id);
     }
 
     handleDisconnect(@ConnectedSocket() client: Socket): void {
+        client.to(client.id).emit('disconnect', client.id);
         console.log('Client disconnected', client.id);
     }
 
@@ -75,17 +74,28 @@ export class ChatsGateway
             sender: clientId,
             recipients: [recipient],
         };
-        let reciever;
+        const reciever =
+            clientId === recipient ? msgBody.recipients[0] : clientId;
+        // this.server.sockets.sockets.forEach((socket) => {
+        //     if (
+        //         socket.handshake.query.id !== clientId &&
+        //         clientId === recipient
+        //     ) {
+        //         reciever = socket.id;
+        //     }
+        // });
+        this.server.sockets.to(reciever).emit('receive-message', returnMessage);
+    }
+
+    removeOverlayConn(client: Socket): void {
         this.server.sockets.sockets.forEach((socket) => {
             if (
-                socket.handshake.query.id !== clientId &&
-                clientId === recipient
+                socket.handshake.query.id === client.handshake.query.id &&
+                socket.id !== client.id
             ) {
-                reciever = socket.id;
+                socket.disconnect();
             }
         });
-        console.log(reciever);
-        this.server.sockets.to(reciever).emit('receive-message', returnMessage);
     }
 }
 
