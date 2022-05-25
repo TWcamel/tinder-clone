@@ -15,7 +15,6 @@ import { UserI } from '../models/user.interface';
 import { UserMembershipI } from '../models/user-membership.interface';
 import { Response, Request } from 'express';
 import { ConfigService } from '@nestjs/config';
-import { throws } from 'assert';
 
 @Injectable()
 export class UserService {
@@ -47,18 +46,14 @@ export class UserService {
                 ...createUserDto,
                 password: hashedPassword,
             };
-            console.log(hashedCreateUserDto);
             const savedUser = new this.userModel(hashedCreateUserDto).save();
             if (savedUser) {
                 createUserDto.password = undefined;
                 const token: string = await this.authService.generateJwt(
                     createUserDto,
                 );
-                res.cookie('service_token', token, {
-                    httpOnly: false,
-                    maxAge: 1000 * 60 * 60 * 24 * 7,
-                    domain: this.configService.get('FRONTEND_DOMAIN'),
-                });
+
+                await this.authService.setServiceToken(res, token);
 
                 return createUserDto;
             } else {
@@ -98,11 +93,7 @@ export class UserService {
                     payload,
                 );
                 user.password = undefined;
-                res.cookie('service_token', token, {
-                    httpOnly: false,
-                    maxAge: 1000 * 60 * 60 * 24 * 7,
-                    domain: this.configService.get('FRONTEND_DOMAIN'),
-                });
+                await this.authService.setServiceToken(res, token);
                 return user;
             } else {
                 return Promise.reject(
@@ -151,7 +142,7 @@ export class UserService {
 
         const token = await this.authService.generateJwt(user);
 
-        await this.authService.setCookieJwt(res, token);
+        await this.authService.setServiceToken(res, token);
 
         return res.send({
             ok: true,

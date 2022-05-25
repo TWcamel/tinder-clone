@@ -4,7 +4,8 @@ import { useConversations } from './provider';
 
 const OpenConversation: React.FC = () => {
     const [text, setText]: [string, Function] = React.useState('');
-    const { sendMessage, selectedConversation } = useConversations();
+    const { sendMessage, selectedConversation, showTypingHint } =
+        useConversations();
     const setRef = React.useCallback((node: HTMLDivElement) => {
         if (node) {
             node.scrollIntoView({ behavior: 'smooth' });
@@ -85,7 +86,9 @@ const OpenConversation: React.FC = () => {
                                     as='textarea'
                                     required
                                     value={text}
-                                    onChange={(e) => setText(e.target.value)}
+                                    onChange={(e) => {
+                                        setText(e.target.value);
+                                    }}
                                     style={{ resize: 'none' }}
                                     className='rounded'
                                 />

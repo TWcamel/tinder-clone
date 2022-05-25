@@ -12,7 +12,7 @@ import { LikesService } from 'src/likes/service/likes.service';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
 import { Response, Request } from 'express';
 import { MatchesService } from '../service/matches.service';
-import { GetIdLikeI } from 'src/likes/models/likes.interface';
+import * as LikesI from 'src/likes/models/likes.interface';
 
 @Controller('matches')
 export class MatchesController {
@@ -52,7 +52,7 @@ export class MatchesController {
     async checkIsAMatch(
         @Req() req: Request,
         @Res() res: Response,
-        { email, matchEmail }: GetIdLikeI,
+        { email, matchEmail }: LikesI.GetIdLikeI,
     ): Promise<Response> {
         try {
             const likeToken: string = await this.likesService.genLikeToken({

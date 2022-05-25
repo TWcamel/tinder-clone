@@ -5,7 +5,6 @@ import { useConversations } from './provider';
 
 export const Conversations: React.FC = () => {
     const { conversations, selectConversationIndex } = useConversations();
-    console.log(conversations);
     return (
         <>
             <ListGroup variant='flush'>

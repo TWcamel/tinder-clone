@@ -16,15 +16,14 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
 import ArrayUtils from 'src/utils/array.utils';
 import { ChatsService } from '../service/chats.service';
 
-interface RecipientI {
-    id: string;
-    name: string;
-}
-
 interface ChatMessageI {
     text: string;
+    recipients: string[];
+}
+
+interface FormattedMessageI extends ChatMessageI {
     sender: string;
-    recipients: RecipientI[];
+    receiver: string;
 }
 
 @WebSocketGateway({
@@ -56,25 +55,31 @@ export class ChatsGateway
         console.log('Client disconnected', client.id);
     }
 
+    @SubscribeMessage('send-typing')
+    async yourMatchIsTyping(
+        @ConnectedSocket() client: Socket,
+        @MessageBody() msgBody: ChatMessageI,
+    ): Promise<void> {
+        const clientId: string = await getClientId(client);
+        const recipient = await this.getCorrectRecipient(
+            clientId,
+            msgBody.recipients[0],
+        );
+
+        this.server.sockets
+            .to(recipient)
+            .emit('receive-typing', `${clientId} is typing...`);
+    }
+
     @SubscribeMessage('send-message')
     async sendMessage(
         @ConnectedSocket() client: Socket,
-        @MessageBody() msgBody: { recipients: string[]; text: string },
+        @MessageBody() msgBody: ChatMessageI,
     ): Promise<void> {
-        // TODO: get chat id from matched id, and chat room id is the same as the matched id
-        const clientId: string = await getClientId(client);
-        const recipient =
-            clientId === msgBody.recipients[0]
-                ? msgBody.recipients[0]
-                : clientId;
-        const returnMessage: any = {
-            text: msgBody.text,
-            sender: clientId,
-            recipients: [recipient],
-        };
-        const reciever =
-            clientId === recipient ? msgBody.recipients[0] : clientId;
-        this.server.sockets.to(reciever).emit('receive-message', returnMessage);
+        const formattedMsg = await this.getFormattedMsg(client, msgBody);
+        this.server.sockets
+            .to(formattedMsg.receiver)
+            .emit('receive-message', formattedMsg);
     }
 
     removeOverlayConn(client: Socket): void {
@@ -82,6 +87,31 @@ export class ChatsGateway
             if (await ckeckIfTwoSocketsAreTheSame(socket, client))
                 socket.disconnect();
         });
+    }
+
+    async getFormattedMsg(
+        client: Socket,
+        msgBody: ChatMessageI,
+    ): Promise<FormattedMessageI> {
+        const clientId: string = await getClientId(client);
+        const recipient = await this.getCorrectRecipient(
+            clientId,
+            msgBody.recipients[0],
+        );
+        console.log(`${clientId} is sending a message to ${recipient}`);
+        return {
+            text: msgBody.text,
+            sender: clientId,
+            recipients: [recipient],
+            receiver: recipient,
+        };
+    }
+
+    async getCorrectRecipient(
+        clientId: string,
+        recipientId: string,
+    ): Promise<string> {
+        return clientId === recipientId ? clientId : recipientId;
     }
 }
 
