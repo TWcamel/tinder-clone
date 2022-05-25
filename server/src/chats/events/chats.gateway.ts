@@ -65,9 +65,11 @@ export class ChatsGateway
             clientId,
             msgBody.recipients[0],
         );
+        const reciever =
+            clientId === recipient ? msgBody.recipients[0] : clientId;
 
         this.server.sockets
-            .to(recipient)
+            .to(reciever)
             .emit('receive-typing', `${clientId} is typing...`);
     }
 
@@ -98,12 +100,11 @@ export class ChatsGateway
             clientId,
             msgBody.recipients[0],
         );
-        console.log(`${clientId} is sending a message to ${recipient}`);
         return {
             text: msgBody.text,
             sender: clientId,
             recipients: [recipient],
-            receiver: recipient,
+            receiver: clientId === recipient ? msgBody.recipients[0] : clientId,
         };
     }
 
@@ -111,7 +112,7 @@ export class ChatsGateway
         clientId: string,
         recipientId: string,
     ): Promise<string> {
-        return clientId === recipientId ? clientId : recipientId;
+        return clientId === recipientId ? recipientId : clientId;
     }
 }
 

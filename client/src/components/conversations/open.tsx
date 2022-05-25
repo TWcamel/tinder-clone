@@ -4,8 +4,12 @@ import { useConversations } from './provider';
 
 const OpenConversation: React.FC = () => {
     const [text, setText]: [string, Function] = React.useState('');
-    const { sendMessage, selectedConversation, showTypingHint } =
-        useConversations();
+    const {
+        sendMessage,
+        selectedConversation,
+        showTypingHint,
+        selectedIsTyping,
+    } = useConversations();
     const setRef = React.useCallback((node: HTMLDivElement) => {
         if (node) {
             node.scrollIntoView({ behavior: 'smooth' });
@@ -20,6 +24,8 @@ const OpenConversation: React.FC = () => {
         );
         setText('');
     };
+    
+    //TODO: improve pary is typing hint 
 
     return (
         <>
@@ -79,7 +85,12 @@ const OpenConversation: React.FC = () => {
                         <InputGroup>
                             <FloatingLabel
                                 controlId='floatingTextarea'
-                                label={`${text ? '' : 'Say something...'}`}
+                                label={`${
+                                    selectedIsTyping[2]
+                                        ? selectedIsTyping[1]
+                                        : 'Type a message'
+                                }`}
+                                // label={`${text ? '' : 'Say something...'}`}
                                 className='flex-grow-1'
                             >
                                 <Form.Control
@@ -87,6 +98,11 @@ const OpenConversation: React.FC = () => {
                                     required
                                     value={text}
                                     onChange={(e) => {
+                                        showTypingHint(
+                                            selectedConversation.recipients.map(
+                                                (r: any) => r.id,
+                                            ),
+                                        );
                                         setText(e.target.value);
                                     }}
                                     style={{ resize: 'none' }}

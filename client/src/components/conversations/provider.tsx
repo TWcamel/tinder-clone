@@ -42,6 +42,10 @@ export const ConversationsProvider: React.FC<{
     );
     const [selectedConversationIndex, setSelectedConversationIndex] =
         useState(0);
+
+    const [selectedConversationIsTyping, setSelectedConversationIsTyping] =
+        useState([selectedConversationIndex, '', false]);
+
     const { matches } = useMatches();
     const socket = useSocket();
 
@@ -50,6 +54,28 @@ export const ConversationsProvider: React.FC<{
             return [...prevConversations, { recipients, messages: [] }];
         });
     };
+
+    const showMessageToConversation: Function = useCallback(
+        (recipient: string) => {
+            new Promise((s, j) => {
+                setTimeout(() => {
+                    setSelectedConversationIsTyping([
+                        selectedConversationIndex,
+                        '',
+                        false,
+                    ]);
+                }, 3000);
+                s('done');
+            }).then(() => {
+                setSelectedConversationIsTyping([
+                    selectedConversationIndex,
+                    recipient,
+                    true,
+                ]);
+            });
+        },
+        [selectedConversationIndex],
+    );
 
     const addMessageToConversation: Function = useCallback(
         ({ recipients, text, sender }: INewConversation) => {
@@ -88,12 +114,21 @@ export const ConversationsProvider: React.FC<{
     useEffect(() => {
         if (socket == null) return;
         socket.on('receive-message', addMessageToConversation);
-        return () => socket.off('receive-message');
-    }, [socket, addMessageToConversation]);
+        socket.on('receive-typing', showMessageToConversation);
+        return () => {
+            socket.off('receive-message');
+            socket.off('receive-typing');
+        };
+    }, [socket, addMessageToConversation, showMessageToConversation]);
 
     const sendMessage: Function = (recipients: [IMatch], text: string) => {
         socket.emit('send-message', { recipients, text });
         addMessageToConversation({ recipients, text, sender: id });
+    };
+
+    const showTypingHint: Function = (recipients: [IMatch]) => {
+        socket.emit('send-typing', { recipients });
+        showMessageToConversation(recipients[0]);
     };
 
     const formattedConversations = conversations.map(
@@ -125,8 +160,10 @@ export const ConversationsProvider: React.FC<{
         conversations: formattedConversations,
         selectedConversation: formattedConversations[selectedConversationIndex],
         sendMessage,
+        showTypingHint,
         selectConversationIndex: setSelectedConversationIndex,
         createConversation,
+        selectedIsTyping: selectedConversationIsTyping,
     };
 
     return (
