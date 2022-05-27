@@ -6,7 +6,8 @@ import { useConversations } from './provider';
 export const Conversations: React.FC = () => {
     const { conversations, selectConversationIndex } = useConversations();
 
-    //TODO: make messages scroll to bottom when new message is added
+    //TODO: make messages scroll to top when new message is added
+    //TODO: infinate scroll
     return (
         <>
             <ListGroup variant='flush'>

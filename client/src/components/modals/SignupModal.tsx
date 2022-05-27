@@ -4,6 +4,7 @@ import ImageUploader from '../images/';
 import useLocalStorage from '../../hooks/useLocalStorage';
 import SignupService from '../../services/signupService';
 import { getLocalStorage } from '../../utils/localStorage';
+import { toast } from 'react-toastify';
 
 const SignupModal: React.FC<any> = ({
     closeModal,
@@ -29,8 +30,7 @@ const SignupModal: React.FC<any> = ({
             !imgs ||
             imgs?.length === 0
         ) {
-            //TODO: make an toast fail message
-            alert('Please fill out all fields');
+            toast.error('Please fill out all fields');
             return;
         } else {
             const user = {

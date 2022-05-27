@@ -58,7 +58,7 @@ export const ConversationsProvider: React.FC<{
         const show = () =>
             toast.info(text, {
                 position: toast.POSITION.TOP_RIGHT,
-                toastId: 'typing',
+                toastId: `typing-${text}`,
             });
         show();
     }, []);
