@@ -11,7 +11,6 @@ export const Login: React.FC<{
     onUserIdSubmit: (userId: string) => void;
     onUserNameSubmit: (userName: string) => void;
 }> = ({ onUserIdSubmit, onUserNameSubmit }) => {
-    //TODO: make register independent from login component
     const [modalShow, setModalShow] = React.useState(false);
 
     useEffect(() => {
@@ -25,10 +24,8 @@ export const Login: React.FC<{
         setModalShow(false);
     };
 
-    const nameRef = React.useRef<HTMLInputElement>(null);
     const emailRef = React.useRef<HTMLInputElement>(null);
     const passwordRef = React.useRef<HTMLInputElement>(null);
-    const signBtnRef = React.useRef<HTMLButtonElement>(null);
 
     const handleSubmit = (
         e:
@@ -65,23 +62,7 @@ export const Login: React.FC<{
     };
 
     const userRegister = async () => {
-        const email = emailRef.current!.value;
-        const password = passwordRef.current!.value;
-        const name = nameRef.current!.value;
-        nameRef.current!.parentElement!.hidden = false;
-        signBtnRef.current!.hidden = false;
-
-        if (
-            name &&
-            email &&
-            password &&
-            name.length > 0 &&
-            email.length > 0 &&
-            password.length > 0
-        ) {
-            const res = await AuthService.register(name, email, password);
-            return res;
-        }
+        setModalShow(true);
     };
 
     return (
@@ -91,15 +72,6 @@ export const Login: React.FC<{
                 style={{ height: '100vh' }}
             >
                 <Form className='w-100'>
-                    <Form.Group hidden={true}>
-                        <Form.Label className='form-fields'>Name</Form.Label>
-                        <Form.Control
-                            id='form-name'
-                            type='text'
-                            placeholder='My name is helloworld :)'
-                            ref={nameRef}
-                        />
-                    </Form.Group>
                     <Form.Group className='mt-2'>
                         <Form.Label>Email address</Form.Label>
                         <Form.Control
@@ -109,7 +81,7 @@ export const Login: React.FC<{
                             ref={emailRef}
                         />
                     </Form.Group>
-                    <Form.Group className='mt-2'>
+                    <Form.Group className='mt-2 mb-2'>
                         <Form.Label>Password</Form.Label>
                         <Form.Control
                             type='password'
@@ -129,7 +101,6 @@ export const Login: React.FC<{
                     <Button
                         onClick={() => setModalShow(true)}
                         className='mt-2 me-2 rounded'
-                        ref={signBtnRef}
                     >
                         Signup
                     </Button>

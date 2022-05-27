@@ -15,6 +15,7 @@ import { UserI } from '../models/user.interface';
 import { UserMembershipI } from '../models/user-membership.interface';
 import { Response, Request } from 'express';
 import { ConfigService } from '@nestjs/config';
+import ArrayUtils from 'src/utils/array.utils';
 
 @Injectable()
 export class UserService {
@@ -45,11 +46,7 @@ export class UserService {
             const hashedCreateUserDto = {
                 ...createUserDto,
                 password: hashedPassword,
-                avatar: createUserDto.avatar
-                    .toString()
-                    .replace('[', '')
-                    .replace(']', '')
-                    .split(','),
+                avatar: ArrayUtils.toArray(createUserDto.avatar.toString()),
             };
             const savedUser = new this.userModel(hashedCreateUserDto).save();
             if (savedUser) {

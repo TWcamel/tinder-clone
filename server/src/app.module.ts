@@ -6,6 +6,7 @@ import { ChatsModule } from './chats/chats.module';
 import { MatchesModule } from './matches/matches.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
+import { AwsService } from './aws/aws.service';
 
 @Module({
     imports: [
@@ -25,5 +26,6 @@ import { join } from 'path';
         UserModule,
         ChatsModule,
     ],
+    providers: [AwsService],
 })
 export class AppModule {}

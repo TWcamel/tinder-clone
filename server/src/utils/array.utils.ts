@@ -132,4 +132,21 @@ export default {
     isArray(obj: any): boolean {
         return obj && typeof obj === 'object' && obj.constructor === Array;
     },
+
+    /**
+    * @description
+    * Returns the privided string as an array that removes '[' and ']'.
+    *
+    * @param {string} str
+    * @returns {Array<any>}
+
+    * @example
+    * const array = '[1, 2, 3]';
+    *
+    * array.toArray(); // [1, 2, 3]
+    */
+    toArray(str: string): Array<any> {
+        return str.replace(/[\[\]]/g, '').split(',');
+    }
+
 };

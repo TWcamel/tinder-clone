@@ -56,7 +56,7 @@ const SignupModal: React.FC<any> = ({
 
     return (
         <>
-            <Modal.Header closeButton>Signup</Modal.Header>
+            <Modal.Header closeButton>Sinup</Modal.Header>
             <Modal.Body>
                 <Form onSubmit={handleSubmit}>
                     <Form.Group className='mb-2'>
@@ -105,7 +105,7 @@ const SignupModal: React.FC<any> = ({
                         <ImageUploader />
                     </Form.Group>
                     <Button type='submit' className='mt-2'>
-                        Create
+                        Signup
                     </Button>
                 </Form>
             </Modal.Body>
