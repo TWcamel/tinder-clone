@@ -1,6 +1,7 @@
 import React from 'react';
 import { Image, Button, Form } from 'react-bootstrap';
 import useLocalStorage from '../../hooks/useLocalStorage';
+import { deleteLocalStorage } from '../../utils/localStorage';
 
 declare global {
     interface FileList {
@@ -11,15 +12,15 @@ declare global {
 
 export const ImageUploader = () => {
     const [images, setImages] = React.useState<Blob[]>([]);
-    const [imageUrls, setImageUrls] = React.useState<string[]>([]);
-    const [imgs, setImgs] = useLocalStorage('imgs', []);
+    const [imageUrls, setImageUrls] = useLocalStorage('imgs', []);
 
     React.useEffect(() => {
+        deleteLocalStorage('imgs');
         if (images.length > 0) {
             const imageUrls = images.map((image) => URL.createObjectURL(image));
             setImageUrls(imageUrls);
         }
-    }, [images]);
+    }, [images, setImageUrls]);
 
     const onImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const files: any = e.target.files?.length ? e.target.files : [];
@@ -35,7 +36,7 @@ export const ImageUploader = () => {
                     onChange={onImageChange}
                     accept='image/*'
                 />
-                {imageUrls.map((imageSrc) => (
+                {imageUrls.map((imageSrc: string) => (
                     <Image
                         src={imageSrc}
                         key={imageSrc}
