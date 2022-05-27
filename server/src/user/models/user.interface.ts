@@ -7,4 +7,5 @@ export interface UserI {
     facebookId?: string;
     googleId?: string;
     token?: string;
+    avatar?: string[];
 }

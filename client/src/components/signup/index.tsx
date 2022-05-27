@@ -1,5 +1,5 @@
 import React from 'react';
 
 export const Signup: React.FC = () => {
-    return <div>sdas</div>;
+    return <h1>Signup</h1>;
 };

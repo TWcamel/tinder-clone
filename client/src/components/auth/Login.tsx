@@ -1,16 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Form, Button } from 'react-bootstrap';
+import { Container, Form, Button, Modal } from 'react-bootstrap';
 import AuthService from '../../services/authService';
 import { FbLogin } from './FbLogin';
 import { GoogleLogin } from './GoogleLogin';
 import { v4 as uuidV4 } from 'uuid';
 import useLocalStorage from '../../hooks/useLocalStorage';
+import SignupModal from '../modals/SignupModal';
 
 export const Login: React.FC<{
     onUserIdSubmit: (userId: string) => void;
     onUserNameSubmit: (userName: string) => void;
 }> = ({ onUserIdSubmit, onUserNameSubmit }) => {
     //TODO: make register independent from login component
+    const [modalShow, setModalShow] = React.useState(false);
 
     useEffect(() => {
         (async () => {
@@ -18,6 +20,10 @@ export const Login: React.FC<{
             if (!isLoggedIn) userRegister();
         })();
     }, []);
+
+    const closeModal = () => {
+        setModalShow(false);
+    };
 
     const nameRef = React.useRef<HTMLInputElement>(null);
     const emailRef = React.useRef<HTMLInputElement>(null);
@@ -121,16 +127,17 @@ export const Login: React.FC<{
                         Login
                     </Button>
                     <Button
-                        id='register-button'
+                        onClick={() => setModalShow(true)}
                         className='mt-2 me-2 rounded'
-                        variant='secondary'
-                        type='submit'
-                        onClick={handleSubmit}
-                        hidden={true}
                         ref={signBtnRef}
                     >
-                        Sign Up
+                        Signup
                     </Button>
+
+                    <Modal show={modalShow} onHide={closeModal}>
+                        <SignupModal closeModal={closeModal} />
+                    </Modal>
+
                     <FbLogin />
                     <GoogleLogin />
                 </Form>

@@ -20,11 +20,14 @@ export class User {
     @Prop()
     facebookId: string;
 
-    @Prop()
+    @Prop({ required: true, default: 'FREE' })
     membershipType: string;
 
     @Prop()
     gender: string;
+
+    @Prop({ required: true })
+    avatar: string[];
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
