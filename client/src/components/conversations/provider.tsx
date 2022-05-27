@@ -63,13 +63,16 @@ export const ConversationsProvider: React.FC<{
         show();
     }, []);
 
-    const removeDuplicatesMsg: Function = useCallback((msg: string) => {
-        setTypingMsg((prevMsg: string[]) => {
-            return prevMsg.includes(msg)
-                ? removeItem(prevMsg, msg)
-                : [...prevMsg, msg];
-        });
-    }, [setTypingMsg]);
+    const removeDuplicatesMsg: Function = useCallback(
+        (msg: string) => {
+            setTypingMsg((prevMsg: string[]) => {
+                return prevMsg.includes(msg)
+                    ? removeItem(prevMsg, msg)
+                    : [...prevMsg, msg];
+            });
+        },
+        [setTypingMsg],
+    );
 
     const showTyping: Function = useCallback(
         (msg: string) => {
