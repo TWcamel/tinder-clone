@@ -6,6 +6,8 @@ interface IApi {
     post: (url: string, data: any, headers?: any) => Promise<any>;
     delete: (url: string) => Promise<any>;
     patch: (url: string, data: any, headers?: any) => Promise<any>;
+    put: (url: string, data: any, headers?: any) => Promise<any>;
+    s3Request: (url: string, data: any, headers?: any) => Promise<any>;
     backendUrl: string;
 }
 
@@ -43,4 +45,15 @@ export const Api: IApi = {
             },
             withCredentials: true,
         }),
+    put: async (url: string, data: any, headers?: any) =>
+        axios.put(`${Api.backendUrl}/${url}`, data, {
+            headers: {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*',
+                ...headers,
+            },
+            withCredentials: true,
+        }),
+    s3Request: async (url: string, data: any, headers?: any) =>
+        axios.put(`${Api.backendUrl}/${url}`, data, {}),
 };
