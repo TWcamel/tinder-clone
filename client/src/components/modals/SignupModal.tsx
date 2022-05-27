@@ -3,42 +3,30 @@ import { Modal, Form, Button } from 'react-bootstrap';
 import ImageUploader from '../images/';
 import useLocalStorage from '../../hooks/useLocalStorage';
 import SignupService from '../../services/signupService';
+import { getLocalStorage } from '../../utils/localStorage';
 
 const SignupModal: React.FC<any> = ({
     closeModal,
 }: {
     closeModal: () => void;
 }) => {
-    const [imgUrls] = useLocalStorage('imgs');
     const [age, setAge] = React.useState(-1);
     const [gender, setGender] = React.useState('');
-    const [imgs, setImgs] = React.useState([]);
 
     const nameRef = useRef<HTMLInputElement>(null);
     const emailRef = useRef<HTMLInputElement>(null);
     const passwordRef = useRef<HTMLInputElement>(null);
 
-    const updateAge = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setAge(parseInt(e.target.value, 10));
-    };
-
-    const updateGender = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setGender(e.target.value);
-    };
-
-    React.useEffect(() => {
-        setImgs(imgUrls);
-    }, [imgUrls]);
-
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        const imgs: any = getLocalStorage('imgs');
         if (
             !nameRef?.current?.value ||
             !emailRef?.current?.value ||
             !passwordRef?.current?.value ||
             gender.length === 0 ||
             age === -1 ||
-            imgUrls.length === 0
+            imgs?.length === 0
         ) {
             //TODO: make an toast fail message
             alert('Please fill out all fields');
@@ -50,40 +38,20 @@ const SignupModal: React.FC<any> = ({
                 password: passwordRef.current.value,
                 age: age,
                 gender: gender,
-                image: imgUrls,
+                image: imgs,
             };
-            const res = SignupService.signup(user);
+            console.log(user);
+            const res = await SignupService.signup(user);
             console.log(res);
         }
+    };
 
-        // let formName = ['name', 'email', 'password', 'gender', 'avatar'];
-        // let formData: Object[] = [];
-        // if (formRef.current)
-        //     Array.prototype.forEach.call(
-        //         formRef.current,
-        //         (element: any, idx: number) => {
-        //             if (
-        //                 element.type !== 'file' &&
-        //                 element.type !== 'submit' &&
-        //                 element.type !== 'radio'
-        //             ) {
-        //                 formData.push({
-        //                     k: formName[idx],
-        //                     v: element.checked ? element.value : '',
-        //                 });
-        //             } else if ((idx === 3 || idx === 4) && element.checked) {
-        //                 formData.push({
-        //                     k: formName[3],
-        //                     v: element.value,
-        //                 });
-        //             } else if (element.type === 'file') {
-        //                 formData.push({
-        //                     k: formName[4],
-        //                     v: imgs,
-        //                 });
-        //             }
-        //         },
-        //     );
+    const updateAge = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        setAge(parseInt(e.target.value, 10));
+    };
+
+    const updateGender = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        setGender(e.target.value);
     };
 
     return (

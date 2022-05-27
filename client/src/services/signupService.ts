@@ -11,7 +11,7 @@ interface IUser {
 
 const SignupService = {
     signup: async (user: IUser) => {
-        const response = await Api.post('signup', user);
+        const response = await Api.post('user', user);
         return response.data;
     },
 };

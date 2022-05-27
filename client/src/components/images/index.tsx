@@ -17,8 +17,7 @@ export const ImageUploader = () => {
     React.useEffect(() => {
         deleteLocalStorage('imgs');
         if (images.length > 0) {
-            const imageUrls = images.map((image) => URL.createObjectURL(image));
-            setImageUrls(imageUrls);
+            setImageUrls(images.map((image) => URL.createObjectURL(image)));
         }
     }, [images, setImageUrls]);
 
