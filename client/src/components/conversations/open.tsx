@@ -1,15 +1,12 @@
 import React from 'react';
 import { Form, InputGroup, Button, FloatingLabel } from 'react-bootstrap';
 import { useConversations } from './provider';
+import { getLocalStorage } from '../../utils/localStorage';
 
 const OpenConversation: React.FC = () => {
     const [text, setText]: [string, Function] = React.useState('');
-    const {
-        sendMessage,
-        selectedConversation,
-        showTypingHint,
-        selectedIsTyping,
-    } = useConversations();
+    const { sendMessage, selectedConversation, showTypingHint } =
+        useConversations();
     const setRef = React.useCallback((node: HTMLDivElement) => {
         if (node) {
             node.scrollIntoView({ behavior: 'smooth' });
@@ -24,8 +21,6 @@ const OpenConversation: React.FC = () => {
         );
         setText('');
     };
-
-    //TODO: improve pary is typing hint
 
     return (
         <>
@@ -85,12 +80,7 @@ const OpenConversation: React.FC = () => {
                         <InputGroup>
                             <FloatingLabel
                                 controlId='floatingTextarea'
-                                label={`${
-                                    selectedIsTyping[2]
-                                        ? selectedIsTyping[1]
-                                        : 'Type a message'
-                                }`}
-                                // label={`${text ? '' : 'Say something...'}`}
+                                label={`${text ? '' : 'Say something...'}`}
                                 className='flex-grow-1'
                             >
                                 <Form.Control

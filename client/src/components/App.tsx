@@ -7,6 +7,8 @@ import useLocalStorage from '../hooks/useLocalStorage';
 import { MatchesProvider } from './matches/provider';
 import { ConversationsProvider } from './conversations/provider';
 import { SocketProvider } from './socket/provider';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const App = () => {
     const [userId, setUserId] = useLocalStorage('userId');
@@ -22,12 +24,9 @@ const App = () => {
         </SocketProvider>
     );
 
-    React.useEffect(() => {
-        console.log('userId', userId);
-    });
-
     return (
         <>
+            <ToastContainer position='top-right'></ToastContainer>
             {userId ? (
                 dashboard
             ) : (

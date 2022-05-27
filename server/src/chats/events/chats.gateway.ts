@@ -68,6 +68,8 @@ export class ChatsGateway
         const reciever =
             clientId === recipient ? msgBody.recipients[0] : clientId;
 
+        console.log(reciever);
+
         this.server.sockets
             .to(reciever)
             .emit('receive-typing', `${clientId} is typing...`);

@@ -2,7 +2,8 @@ import React, { useContext, useState, useEffect, useCallback } from 'react';
 import useLocalStorage from '../../hooks/useLocalStorage';
 import { useMatches } from '../matches/provider';
 import { useSocket } from '../socket/provider';
-import { arrayEqualty } from '../../utils/array';
+import { arrayEqualty, removeItem } from '../../utils/array';
+import { toast } from 'react-toastify';
 
 interface IMatch {
     id: string;
@@ -42,9 +43,8 @@ export const ConversationsProvider: React.FC<{
     );
     const [selectedConversationIndex, setSelectedConversationIndex] =
         useState(0);
-
-    const [selectedConversationIsTyping, setSelectedConversationIsTyping] =
-        useState([selectedConversationIndex, '', false]);
+    const [typingMsg, setTypingMsg] = useLocalStorage('typingMsg', []);
+    const [countdown, setCountdown] = useState(0);
 
     const { matches } = useMatches();
     const socket = useSocket();
@@ -55,26 +55,25 @@ export const ConversationsProvider: React.FC<{
         });
     };
 
-    const showMessageToConversation: Function = useCallback(
-        (recipient: string) => {
-            new Promise((s, j) => {
-                setTimeout(() => {
-                    setSelectedConversationIsTyping([
-                        selectedConversationIndex,
-                        '',
-                        false,
-                    ]);
-                }, 3000);
-                s('done');
-            }).then(() => {
-                setSelectedConversationIsTyping([
-                    selectedConversationIndex,
-                    recipient,
-                    true,
-                ]);
+    const showAnimatedToast = useCallback((text: string) => {
+        const show = () =>
+            toast.info(text, {
+                position: toast.POSITION.TOP_RIGHT,
+                toastId: 'typing',
             });
+        show();
+    }, []);
+
+    const showTyping: Function = useCallback(
+        (msg: string) => {
+            setTypingMsg((prevMsg: string[]) => {
+                return prevMsg.includes(msg)
+                    ? removeItem(prevMsg, msg)
+                    : [...prevMsg, msg];
+            });
+            showAnimatedToast(msg);
         },
-        [selectedConversationIndex],
+        [setTypingMsg, showAnimatedToast],
     );
 
     const addMessageToConversation: Function = useCallback(
@@ -114,12 +113,12 @@ export const ConversationsProvider: React.FC<{
     useEffect(() => {
         if (socket == null) return;
         socket.on('receive-message', addMessageToConversation);
-        socket.on('receive-typing', showMessageToConversation);
+        socket.on('receive-typing', showTyping);
         return () => {
             socket.off('receive-message');
             socket.off('receive-typing');
         };
-    }, [socket, addMessageToConversation, showMessageToConversation]);
+    }, [socket, addMessageToConversation, showTyping]);
 
     const sendMessage: Function = (recipients: [IMatch], text: string) => {
         socket.emit('send-message', { recipients, text });
@@ -128,7 +127,6 @@ export const ConversationsProvider: React.FC<{
 
     const showTypingHint: Function = (recipients: [IMatch]) => {
         socket.emit('send-typing', { recipients });
-        showMessageToConversation(recipients[0]);
     };
 
     const formattedConversations = conversations.map(
@@ -163,7 +161,6 @@ export const ConversationsProvider: React.FC<{
         showTypingHint,
         selectConversationIndex: setSelectedConversationIndex,
         createConversation,
-        selectedIsTyping: selectedConversationIsTyping,
     };
 
     return (
