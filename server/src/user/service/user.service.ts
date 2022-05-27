@@ -45,6 +45,11 @@ export class UserService {
             const hashedCreateUserDto = {
                 ...createUserDto,
                 password: hashedPassword,
+                avatar: createUserDto.avatar
+                    .toString()
+                    .replace('[', '')
+                    .replace(']', '')
+                    .split(','),
             };
             const savedUser = new this.userModel(hashedCreateUserDto).save();
             if (savedUser) {

@@ -38,6 +38,7 @@ export class UserController {
         @Body() createUserDto: CreateUserDto,
         @Res() res: Response,
     ): Promise<Response> {
+        console.log(createUserDto);
         try {
             const user: UserI = await this.userService.create(
                 res,

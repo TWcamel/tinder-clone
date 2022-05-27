@@ -23,8 +23,11 @@ export class User {
     @Prop({ required: true, default: 'FREE' })
     membershipType: string;
 
-    @Prop()
+    @Prop({ required: true })
     gender: string;
+
+    @Prop({ required: true })
+    age: number;
 
     @Prop({ required: true })
     avatar: string[];

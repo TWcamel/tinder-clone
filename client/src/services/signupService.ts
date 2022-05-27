@@ -6,7 +6,7 @@ interface IUser {
     password: string;
     gender: string;
     age: number;
-    image: string[];
+    avatar: string[];
 }
 
 const SignupService = {

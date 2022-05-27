@@ -3,6 +3,7 @@ import {
     MinLength,
     MaxLength,
     ValidationArguments,
+    IsNumber,
 } from 'class-validator';
 import { LoginUserDto } from './LoginUser.dto';
 
@@ -22,7 +23,9 @@ export class CreateUserDto extends LoginUserDto {
     @IsString()
     gender: string;
 
+    @IsNumber()
+    age: number;
+
     @MinLength(1, { each: true })
-    @MaxLength(4000, { each: true })
     avatar: string[];
 }

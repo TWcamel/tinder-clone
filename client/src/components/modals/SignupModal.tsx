@@ -26,6 +26,7 @@ const SignupModal: React.FC<any> = ({
             !passwordRef?.current?.value ||
             gender.length === 0 ||
             age === -1 ||
+            !imgs ||
             imgs?.length === 0
         ) {
             //TODO: make an toast fail message
@@ -38,9 +39,8 @@ const SignupModal: React.FC<any> = ({
                 password: passwordRef.current.value,
                 age: age,
                 gender: gender,
-                image: imgs,
+                avatar: imgs,
             };
-            console.log(user);
             const res = await SignupService.signup(user);
             console.log(res);
         }
