@@ -44,7 +44,6 @@ export const ConversationsProvider: React.FC<{
     const [selectedConversationIndex, setSelectedConversationIndex] =
         useState(0);
     const [typingMsg, setTypingMsg] = useLocalStorage('typingMsg', []);
-    const [countdown, setCountdown] = useState(0);
 
     const { matches } = useMatches();
     const socket = useSocket();
@@ -64,16 +63,20 @@ export const ConversationsProvider: React.FC<{
         show();
     }, []);
 
+    const removeDuplicatesMsg: Function = useCallback((msg: string) => {
+        setTypingMsg((prevMsg: string[]) => {
+            return prevMsg.includes(msg)
+                ? removeItem(prevMsg, msg)
+                : [...prevMsg, msg];
+        });
+    }, [setTypingMsg]);
+
     const showTyping: Function = useCallback(
         (msg: string) => {
-            setTypingMsg((prevMsg: string[]) => {
-                return prevMsg.includes(msg)
-                    ? removeItem(prevMsg, msg)
-                    : [...prevMsg, msg];
-            });
+            removeDuplicatesMsg(msg);
             showAnimatedToast(msg);
         },
-        [setTypingMsg, showAnimatedToast],
+        [removeDuplicatesMsg, showAnimatedToast],
     );
 
     const addMessageToConversation: Function = useCallback(
