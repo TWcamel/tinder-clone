@@ -3,11 +3,8 @@ import { Modal, Form, Button } from 'react-bootstrap';
 import ImageUploader from '../images/';
 import SignupService from '../../services/signupService';
 import AwsService from '../../services/awsService';
-import { getLocalStorage } from '../../utils/localStorage';
 import { toast } from 'react-toastify';
-import useLocalStorage from '../../hooks/useLocalStorage';
 import { v4 as uuidv4 } from 'uuid';
-import { stringToArray } from '../../utils/array';
 
 const SignupModal: React.FC<any> = ({
     closeModal,
@@ -93,7 +90,7 @@ const SignupModal: React.FC<any> = ({
 
     return (
         <>
-            <Modal.Header closeButton>Sinup</Modal.Header>
+            <Modal.Header closeButton>Become a member</Modal.Header>
             <Modal.Body>
                 <Form onSubmit={handleSubmit}>
                     <Form.Group className='mb-2'>

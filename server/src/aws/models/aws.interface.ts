@@ -9,3 +9,9 @@ export interface AvatarI {
     user: string;
     url: string;
 }
+
+export interface AvatarsI {
+    email: string;
+    url: string;
+    updateAt: Date;
+}

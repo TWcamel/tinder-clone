@@ -7,6 +7,8 @@ import {
     Req,
     Body,
     Post,
+    Query,
+    Get,
 } from '@nestjs/common';
 import { AuthService } from 'src/auth/service/auth.service';
 import { UserService } from 'src/user/service/user.service';
@@ -45,6 +47,27 @@ export class AwsController {
         return res.send({
             error: true,
             data: 'Error while uploading to S3 Bucket',
+        });
+    }
+
+    @Get('s3')
+    @UseGuards(JwtAuthGuard)
+    async s3BucketGet(
+        @Req() req: Request,
+        @Res() res: Response,
+        @Query() { user_email }: { user_email: any },
+    ): Promise<Response> {
+        const avatars: any = await this.awsService.getS3BucketFromMongoDb(
+            user_email,
+        );
+        return res.send({
+            ok: true,
+            data: avatars.map((avatar: AwsI.AvatarsI) => {
+                return {
+                    url: avatar?.url,
+                    updateAt: avatar?.updateAt,
+                };
+            }),
         });
     }
 }

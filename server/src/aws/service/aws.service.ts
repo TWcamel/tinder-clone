@@ -13,8 +13,7 @@ import { Avatar, AvatarDocument } from '../models/aws.schemas';
 import DateTime from 'src/utils/time.utils';
 import * as AwsI from '../models/aws.interface';
 import { CreateAvatarsDto } from '../models/dto/CreateAvatars.dto';
-import { putRequest } from '../../utils/request.utils';
-import axios from 'axios';
+import { apigwPutRequest, apigwGetRequest } from '../../utils/request.utils';
 
 @Injectable()
 export class AwsService {
@@ -24,7 +23,7 @@ export class AwsService {
     ) {}
     async saveToS3Bucket({ image, img_name }: AwsI.S3BucketI): Promise<string> {
         const url = this.configService.get<string>('S3_URL');
-        if (await putRequest(`${url}/${img_name}`, image))
+        if (await apigwPutRequest(`${url}/${img_name}`, image))
             return Promise.resolve('OK');
         else
             return Promise.reject(
@@ -45,5 +44,12 @@ export class AwsService {
             createdAt: DateTime.getCurrentTime(),
         };
         return await new this.AvatarModel(avatar).save();
+    }
+
+    async getS3BucketFromMongoDb(email: string): Promise<AwsI.AvatarsI> {
+        const avatars: any = await this.AvatarModel.find({
+            email,
+        }).exec();
+        return avatars;
     }
 }

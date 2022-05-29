@@ -1,12 +1,12 @@
 import axois from 'axios';
-const putRequest = async (url: string, image: Blob) => {
-    try {
-        return await axois.put(`${url}`, image, {
-            headers: { 'Content-Type': 'image/jpeg' },
-        });
-    } catch (error) {
-        console.log(error);
-    }
+const apigwPutRequest = async (url: string, image: Blob) => {
+    return await axois.put(`${url}`, image, {
+        headers: { 'Content-Type': 'image/jpeg' },
+    });
 };
 
-export { putRequest };
+const apigwGetRequest = async (url: string) => {
+    return await axois.get(`${url}`);
+};
+
+export { apigwGetRequest, apigwPutRequest };
