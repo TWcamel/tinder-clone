@@ -8,6 +8,7 @@ interface IApi {
     patch: (url: string, data: any, headers?: any) => Promise<any>;
     put: (url: string, data: any, headers?: any) => Promise<any>;
     s3Request: (url: string, data: any, headers?: any) => Promise<any>;
+    s3RequestGet: (url: string, query: object) => Promise<any>;
     backendUrl: string;
 }
 
@@ -67,4 +68,12 @@ export const Api: IApi = {
                 withCredentials: true,
             },
         ),
+    s3RequestGet: async (url: string, query: object) =>
+        axios.get(`${Api.backendUrl}/${url}`, {
+            params: query,
+            headers: {
+                'Access-Control-Allow-Origin': '*',
+            },
+            withCredentials: true,
+        }),
 };

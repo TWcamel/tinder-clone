@@ -156,6 +156,8 @@ export const ConversationsProvider: React.FC<{
 
             const selected = index === selectedConversationIndex;
 
+            console.log(conversation);
+
             return { ...conversation, messages, recipients, selected };
         },
     );
