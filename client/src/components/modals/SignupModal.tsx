@@ -46,11 +46,11 @@ const SignupModal: React.FC<any> = ({
                 gender: gender,
             };
             const res = await SignupService.signup(user);
-            if (res) {
-                toast.success(`${res.data.name} signed up !`);
+            if (res.ok) {
+                toast.success(`${res} signed up !`);
                 return true;
             } else {
-                toast.error(`Something went wrong: ${res.data.message}`);
+                toast.error(`Something went wrong: ${res.message}`);
                 return false;
             }
         }
