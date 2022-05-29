@@ -68,7 +68,10 @@ const SignupModal: React.FC<any> = ({
                     const res = await AwsService.uploadImagesToS3Bucket(
                         formData,
                     );
-                    if (res) toast.success('Image uploaded successfully');
+                    if (res) {
+                        toast.success('Image uploaded successfully');
+                        return true;
+                    }
                 } catch (err: any) {
                     toast.error(
                         `Error uploading image: ${
