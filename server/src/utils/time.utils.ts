@@ -15,4 +15,8 @@ export default {
     convertToLocal: (date) => {
         return date.toLocaleString();
     },
+
+    getCurrentTime: () => {
+        return new Date().toLocaleString();
+    },
 };

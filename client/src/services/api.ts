@@ -55,5 +55,16 @@ export const Api: IApi = {
             withCredentials: true,
         }),
     s3Request: async (url: string, data: any, headers?: any) =>
-        axios.put(`${Api.backendUrl}/${url}`, data, {}),
+        axios.post(
+            `${Api.backendUrl}/${url}`,
+            { ...data, url: `${Config.APIGW_S3_BUCKET_ADDR}/${data.img_name}` },
+            {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Access-Control-Allow-Origin': '*',
+                    ...headers,
+                },
+                withCredentials: true,
+            },
+        ),
 };

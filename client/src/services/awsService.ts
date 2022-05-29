@@ -1,12 +1,10 @@
 import { Api } from './api';
+import Config from '../config/config';
 
 const AwsService = {
-    //TODO: implement this one
-    uploadImagesToS3Bucket: async (imgs: string[]) => {
-        const payload = JSON.stringify({
-            imgs: imgs,
-        });
-        const response = await Api.s3Request(`likes`, payload);
+    uploadImagesToS3Bucket: async (formData: any) => {
+        console.log(formData);
+        const response = await Api.s3Request('aws/s3', formData);
         return response.data;
     },
 };

@@ -26,6 +26,6 @@ export class CreateUserDto extends LoginUserDto {
     @IsNumber()
     age: number;
 
-    @MinLength(1, { each: true })
-    avatar: string[];
+    // @MinLength(1, { each: true })
+    // avatar: string[];
 }

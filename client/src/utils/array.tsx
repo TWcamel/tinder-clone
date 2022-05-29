@@ -20,4 +20,13 @@ const removeItem = (array: any[], item: any) => {
     return array;
 };
 
-export { arrayEqualty, removeItem };
+const stringToArray = (str: string) => {
+    return str
+        .replace(/"/g, '')
+        .replace('[', '')
+        .replace(']', '')
+        .split(',')
+        .map((item) => item.trim());
+};
+
+export { arrayEqualty, removeItem, stringToArray };

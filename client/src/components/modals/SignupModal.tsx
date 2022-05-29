@@ -1,10 +1,13 @@
 import React, { useRef } from 'react';
 import { Modal, Form, Button } from 'react-bootstrap';
 import ImageUploader from '../images/';
-import useLocalStorage from '../../hooks/useLocalStorage';
 import SignupService from '../../services/signupService';
+import AwsService from '../../services/awsService';
 import { getLocalStorage } from '../../utils/localStorage';
 import { toast } from 'react-toastify';
+import useLocalStorage from '../../hooks/useLocalStorage';
+import { v4 as uuidv4 } from 'uuid';
+import { stringToArray } from '../../utils/array';
 
 const SignupModal: React.FC<any> = ({
     closeModal,
@@ -13,6 +16,7 @@ const SignupModal: React.FC<any> = ({
 }) => {
     const [age, setAge] = React.useState(-1);
     const [gender, setGender] = React.useState('');
+    const [imgs, setImgs] = React.useState();
 
     const nameRef = useRef<HTMLInputElement>(null);
     const emailRef = useRef<HTMLInputElement>(null);
@@ -20,18 +24,19 @@ const SignupModal: React.FC<any> = ({
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        const imgs: any = getLocalStorage('imgs');
+        (await userRegister()) && (await uploadImg()) && closeModal();
+    };
+
+    const userRegister = async () => {
         if (
             !nameRef?.current?.value ||
             !emailRef?.current?.value ||
             !passwordRef?.current?.value ||
             gender.length === 0 ||
-            age === -1 ||
-            !imgs ||
-            imgs?.length === 0
+            age === -1
         ) {
-            toast.error('Please fill out all fields');
-            return;
+            toast.error('Please fill all fields');
+            return false;
         } else {
             const user = {
                 name: nameRef.current.value,
@@ -39,11 +44,43 @@ const SignupModal: React.FC<any> = ({
                 password: passwordRef.current.value,
                 age: age,
                 gender: gender,
-                avatar: imgs,
             };
             const res = await SignupService.signup(user);
-            console.log(res);
+            if (res) {
+                toast.success(`${res.data.name} signed up !`);
+                return true;
+            } else {
+                toast.error(`Something went wrong: ${res.data.message}`);
+                return false;
+            }
         }
+    };
+
+    const uploadImg = async () => {
+        Array.prototype.forEach.call(imgs, async (img: File) => {
+            const fileReader = new FileReader();
+            fileReader.readAsDataURL(img);
+            fileReader.onload = async () => {
+                const base64 = fileReader.result as string;
+                const formData = {
+                    user: ((): any => nameRef.current?.value)(),
+                    image: base64,
+                    img_name: uuidv4(),
+                };
+                try {
+                    const res = await AwsService.uploadImagesToS3Bucket(
+                        formData,
+                    );
+                    if (res) toast.success('Image uploaded successfully');
+                } catch (err: any) {
+                    toast.error(
+                        `Error uploading image: ${
+                            err?.response?.data?.message || err
+                        }`,
+                    );
+                }
+            };
+        });
     };
 
     const updateAge = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -102,7 +139,7 @@ const SignupModal: React.FC<any> = ({
                         <Form.Label>Age: {age === -1 ? '50' : age}</Form.Label>
                         <Form.Range onChange={updateAge} />
                         <Form.Label>Upload Images</Form.Label>
-                        <ImageUploader />
+                        <ImageUploader onParentSubmit={setImgs} />
                     </Form.Group>
                     <Button type='submit' className='mt-2'>
                         Signup

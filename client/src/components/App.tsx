@@ -26,7 +26,7 @@ const App = () => {
 
     return (
         <>
-            <ToastContainer position='top-right'></ToastContainer>
+            <ToastContainer position='top-right'/>
             {userId ? (
                 dashboard
             ) : (

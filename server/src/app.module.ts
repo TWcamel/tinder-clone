@@ -4,9 +4,9 @@ import { UserModule } from './user/user.module';
 import { ConfigModule } from '@nestjs/config';
 import { ChatsModule } from './chats/chats.module';
 import { MatchesModule } from './matches/matches.module';
+import { AwsModule } from './aws/aws.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
-import { AwsService } from './aws/aws.service';
 
 @Module({
     imports: [
@@ -25,7 +25,7 @@ import { AwsService } from './aws/aws.service';
         MatchesModule,
         UserModule,
         ChatsModule,
+        AwsModule,
     ],
-    providers: [AwsService],
 })
 export class AppModule {}

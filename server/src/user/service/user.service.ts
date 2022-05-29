@@ -46,7 +46,7 @@ export class UserService {
             const hashedCreateUserDto = {
                 ...createUserDto,
                 password: hashedPassword,
-                avatar: ArrayUtils.toArray(createUserDto.avatar.toString()),
+                // avatar: ArrayUtils.toArray(createUserDto.avatar.toString()),
             };
             const savedUser = new this.userModel(hashedCreateUserDto).save();
             if (savedUser) {

@@ -147,6 +147,5 @@ export default {
     */
     toArray(str: string): Array<any> {
         return str.replace(/[\[\]]/g, '').split(',');
-    }
-
+    },
 };
