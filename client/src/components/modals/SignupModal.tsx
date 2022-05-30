@@ -54,32 +54,31 @@ const SignupModal: React.FC<any> = ({
     };
 
     const uploadImg = async () => {
-        Array.prototype.forEach.call(imgs, async (img: File) => {
-            const fileReader = new FileReader();
-            fileReader.readAsDataURL(img);
-            fileReader.onload = async () => {
-                const base64 = fileReader.result as string;
-                const formData = {
-                    user: ((): any => nameRef.current?.value)(),
-                    image: base64,
-                    img_name: uuidv4(),
-                };
-                try {
-                    const res = await AwsService.uploadImagesToS3Bucket(
-                        formData,
-                    );
-                    if (res) {
-                        toast.success('Image uploaded successfully');
-                        return true;
+        const promise = new Promise((resolve, reject) => {
+            Array.prototype.forEach.call(imgs, async (img: File) => {
+                const fileReader = new FileReader();
+                fileReader.readAsDataURL(img);
+                fileReader.onload = async () => {
+                    const base64 = fileReader.result as string;
+                    const formData = {
+                        user: ((): any => nameRef.current?.value)(),
+                        image: base64,
+                        img_name: uuidv4(),
+                    };
+                    try {
+                        AwsService.uploadImagesToS3Bucket(formData);
+                    } catch (err: any) {
+                        toast.error(
+                            `Error uploading image: ${
+                                err?.response?.data?.message || err
+                            }`,
+                        );
                     }
-                } catch (err: any) {
-                    toast.error(
-                        `Error uploading image: ${
-                            err?.response?.data?.message || err
-                        }`,
-                    );
-                }
-            };
+                };
+            });
+        });
+        promise.then(() => {
+            toast.success('Images uploaded successfully');
         });
     };
 
