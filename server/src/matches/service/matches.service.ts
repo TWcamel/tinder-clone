@@ -68,7 +68,43 @@ export class MatchesService {
 
     async getMatches({ email }: { email: string }): Promise<MatchI[]> {
         const matchedPairs: any = await this.matchesModel
-            .find({ $or: [{ email: email }, { matchedEmail: email }] })
+            .aggregate([
+                {
+                    $match: {
+                        $or: [{ email: email }, { matchedEmail: email }],
+                    },
+                },
+                {
+                    $lookup: {
+                        from: 'users',
+                        localField: 'matchedEmail',
+                        foreignField: 'email',
+                        as: 'matchedUser',
+                    },
+                },
+                {
+                    $lookup: {
+                        from: 'users',
+                        localField: 'email',
+                        foreignField: 'email',
+                        as: 'user',
+                    },
+                },
+                {
+                    $project: {
+                        matchedUser: {
+                            email: 1,
+                            name: 1,
+                            photo: 1,
+                        },
+                        user: {
+                            email: 1,
+                            name: 1,
+                            photo: 1,
+                        },
+                    },
+                },
+            ])
             .exec();
         return matchedPairs;
     }

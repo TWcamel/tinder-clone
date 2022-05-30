@@ -2,7 +2,7 @@ import axios from 'axios';
 import Config from '../config/config';
 
 interface IApi {
-    get: (url: string, _params?: any) => Promise<any>;
+    get: (url: string, _params?: any, headers?: any) => Promise<any>;
     post: (url: string, data: any, headers?: any) => Promise<any>;
     delete: (url: string) => Promise<any>;
     patch: (url: string, data: any, headers?: any) => Promise<any>;
@@ -14,11 +14,12 @@ interface IApi {
 
 export const Api: IApi = {
     backendUrl: Config.SERVER_API_URL,
-    get: async (url: string, _params?: any) => {
+    get: async (url: string, _params?: any, headers?: any) => {
         return axios.get(`${Api.backendUrl}/${url}`, {
             headers: {
                 'Content-Type': 'application/json',
                 'Access-Control-Allow-Origin': '*',
+                ...headers,
             },
             withCredentials: true,
             params: _params,

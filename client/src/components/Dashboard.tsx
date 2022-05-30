@@ -6,7 +6,6 @@ import { useConversations } from './conversations/provider';
 const Dashboard: React.FC<{ id: any; name: any }> = ({ id, name }) => {
     const { selectedConversation }: { selectedConversation: [{}] } =
         useConversations();
-    console.log(selectedConversation);
     return (
         <>
             <div className='d-flex' style={{ height: '100vh' }}>
