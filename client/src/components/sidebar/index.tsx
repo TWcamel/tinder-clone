@@ -8,11 +8,21 @@ import NewConversationModal from '../modals/ConversationsModal';
 const CONVERSATIONS_KEY = 'conversations';
 const MATCHES_KEY = 'matches';
 
-const Sidebar: React.FC<{ id: any; name: any }> = ({ id, name }) => {
+const Sidebar: React.FC<{
+    id: any;
+    name: any;
+    onSidebarSelected?: (activeKey: any) => void;
+}> = ({ id, name, onSidebarSelected }) => {
     const [modalShow, setModalShow] = React.useState(false);
     const [activeKey, setActiveKey]: [string, Function] =
         React.useState(CONVERSATIONS_KEY);
     const conversationsOpen = activeKey === CONVERSATIONS_KEY;
+
+    React.useEffect(() => {
+        if (onSidebarSelected) {
+            onSidebarSelected(activeKey);
+        }
+    }, [activeKey, onSidebarSelected]);
 
     const closeModal = () => {
         setModalShow(false);

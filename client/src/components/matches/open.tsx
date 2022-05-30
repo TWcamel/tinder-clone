@@ -1,5 +1,7 @@
 import React from 'react';
 
-export const openMatches: React.FC = () => {
-    return <div></div>;
+const OpenMatches: React.FC = () => {
+    return <div>this is swipe page </div>;
 };
+
+export default OpenMatches;
