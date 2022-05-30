@@ -66,6 +66,13 @@ export class MatchesService {
         return matchedPair ? matchedPair : false;
     }
 
+    async getMatches({ email }: { email: string }): Promise<MatchI[]> {
+        const matchedPairs: any = await this.matchesModel
+            .find({ $or: [{ email: email }, { matchedEmail: email }] })
+            .exec();
+        return matchedPairs;
+    }
+
     async genMatchId({ email, matchedEmail }: GetIdMatchedI): Promise<string> {
         const input = ArrayUtils.sortByLocale([email, matchedEmail]).join('');
         return uuidv5(

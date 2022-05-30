@@ -2,6 +2,7 @@ import {
     Controller,
     Post,
     Get,
+    Param,
     UseGuards,
     HttpCode,
     Res,
@@ -71,6 +72,25 @@ export class MatchesController {
                       erorr: true,
                       data: "It's not a match!",
                   });
+        } catch (error) {
+            return res.send({
+                error: true,
+                message: error.response || error._message,
+            });
+        }
+    }
+
+    @Get('/:id')
+    async getMatches(
+        @Req() req: Request,
+        @Res() res: Response,
+        @Param('id') id: string,
+    ): Promise<Response> {
+        try {
+            return res.send({
+                ok: true,
+                data: await this.matchesService.getMatches({ email: id }),
+            });
         } catch (error) {
             return res.send({
                 error: true,
