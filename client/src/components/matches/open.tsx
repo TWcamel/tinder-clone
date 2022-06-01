@@ -5,11 +5,28 @@ import axios from 'axios';
 import CloseIcon from '@material-ui/icons/Close';
 import FavoriteIcon from '@material-ui/icons/Favorite';
 import IconButton from '@material-ui/core/IconButton';
+import { toast } from 'react-toastify';
 
 const OpenMatches: React.FC = () => {
     const [people, setPeople] = React.useState([]);
+    const swiperBtnsRef = React.useRef(null);
     const handleSwipe = (e: any) => {
         console.log(e);
+        if (e === 'Left') {
+            console.log('left');
+        } else if (e === 'Right') {
+            console.log('right');
+        }
+    };
+
+    const handleBtnClick = (e: any) => {
+        const current: any = swiperBtnsRef.current;
+        const imgContainer: any = current.previousElementSibling;
+        if (imgContainer.tagName !== 'H1') {
+            return imgContainer.remove();
+        }
+        //TODO: load more people
+        return toast.error('No more matches to like');
     };
 
     React.useEffect(() => {
@@ -20,7 +37,6 @@ const OpenMatches: React.FC = () => {
             .then((res) => setPeople(res.data.results.reverse()));
     }, []);
 
-    //Bug: UI improve
     return (
         <div
             className={'m-4'}
@@ -72,6 +88,7 @@ const OpenMatches: React.FC = () => {
                 style={{
                     justifyContent: 'space-around',
                 }}
+                ref={swiperBtnsRef}
             >
                 <IconButton
                     className='close'
@@ -81,6 +98,7 @@ const OpenMatches: React.FC = () => {
                         boxShadow:
                             '20px 20px 30px #bebebe, -20px -20px 60px #ffffff',
                     }}
+                    onClick={handleBtnClick}
                 >
                     <CloseIcon fontSize='large' />
                 </IconButton>
@@ -92,6 +110,7 @@ const OpenMatches: React.FC = () => {
                         boxShadow:
                             '20px 20px 30px #bebebe, -20px -20px 60px #ffffff',
                     }}
+                    onClick={handleBtnClick}
                 >
                     <FavoriteIcon fontSize='large' />
                 </IconButton>

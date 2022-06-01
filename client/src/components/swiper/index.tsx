@@ -229,6 +229,7 @@ export const Swiper: React.FC<IProps> = (props: IProps) => {
             });
         }
     }, []);
+
     return (
         <div
             ref={target}
