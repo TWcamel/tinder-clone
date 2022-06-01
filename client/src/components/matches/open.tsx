@@ -23,48 +23,54 @@ const OpenMatches: React.FC = () => {
     //Bug: UI improve
     return (
         <div
-            className={'m-4 align-items-center justify-content-center'}
+            className={'m-4'}
             style={{
                 position: 'relative',
+                alignItems: 'center',
+                justifyContent: 'center',
+                textAlign: 'center',
                 width: '100%',
             }}
         >
             <h1>Is it a match?</h1>
-            {people.map((person: any) => (
+            {people.map((person: any, idx: number) => (
                 <Swiper
                     onSwipe={handleSwipe}
                     contents={
-                        <Card
-                            className='bg-dark text-white'
+                        <div
                             style={{
+                                width: '100%',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                                textAlign: 'center',
                                 position: 'absolute',
+                                top: '15vh',
                             }}
                         >
-                            <Card.Img
-                                src={`https://image.tmdb.org/t/p/w500/${person.poster_path}`}
-                                alt='Card image'
-                                style={{
-                                    width: '100%',
-                                    height: '100%',
-                                    objectFit: 'cover',
-                                }}
-                            />
-                            <Card.ImgOverlay>
-                                <Card.Title>{person.title}</Card.Title>
-                                <Card.Text>{person.overview}</Card.Text>
-                            </Card.ImgOverlay>
-                        </Card>
+                            <Card className='bg-dark text-white'>
+                                <Card.Img
+                                    src={`https://image.tmdb.org/t/p/w500/${person.poster_path}`}
+                                    alt='Card image'
+                                    style={{
+                                        width: '377px',
+                                        borderRadius: '10px',
+                                        border: '5px solid white',
+                                    }}
+                                />
+                                <Card.ImgOverlay>
+                                    <Card.Title>{person.title}</Card.Title>
+                                    <Card.Text>{person.overview}</Card.Text>
+                                </Card.ImgOverlay>
+                            </Card>
+                        </div>
                     }
                 />
             ))}
             <div
+                className={'d-flex bottom-0 position-absolute w-100 '}
                 style={{
-                    position: 'absolute',
-                    bottom: '0',
-                    left: '0',
-                    width: '80%',
-                    justifyContent: 'space-between',
-                    display: 'flex',
+                    justifyContent: 'space-around',
                 }}
             >
                 <IconButton
@@ -78,7 +84,15 @@ const OpenMatches: React.FC = () => {
                 >
                     <CloseIcon fontSize='large' />
                 </IconButton>
-                <IconButton className='favorite'>
+                <IconButton
+                    className='favorite'
+                    style={{
+                        background: '#fcfafa',
+                        color: 'green',
+                        boxShadow:
+                            '20px 20px 30px #bebebe, -20px -20px 60px #ffffff',
+                    }}
+                >
                     <FavoriteIcon fontSize='large' />
                 </IconButton>
             </div>
