@@ -1,10 +1,14 @@
 import React, { useEffect } from 'react';
 import { io, Manager } from 'socket.io-client';
-import { Button, ListGroup, Form } from 'react-bootstrap';
+import { Button, ListGroup, Form, Image } from 'react-bootstrap';
 import { useConversations } from './provider';
 
 export const Conversations: React.FC = () => {
     const { conversations, selectConversationIndex } = useConversations();
+
+    //TODO: make messages scroll to top when new message is added
+    //TODO: infinate scroll
+    //TODO: add avatar to the message vieww
     return (
         <>
             <ListGroup variant='flush'>
@@ -30,8 +34,15 @@ export const Conversations: React.FC = () => {
                                 onClick={() => selectConversationIndex(idx)}
                                 active={conversation.selected}
                             >
+                                <Image
+                                    src='https://via.placeholder.com/150'
+                                    roundedCircle
+                                    width='33'
+                                />
                                 {conversation.recipients
-                                    .map((r) => r.id)
+                                    .map((r) => {
+                                        return r.id;
+                                    })
                                     .join(', ')}
                             </ListGroup.Item>
                         );

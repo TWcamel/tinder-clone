@@ -33,7 +33,7 @@ export class AuthService {
     }
 
     async getCookieForLogout(@Res() res: Response): Promise<HttpStatus> {
-        await res.cookie('service_token', '', {
+        res.cookie('service_token', '', {
             expires: new Date(0),
             httpOnly: false,
             secure: false,
@@ -41,7 +41,10 @@ export class AuthService {
         return HttpStatus.OK;
     }
 
-    async setCookieJwt(@Res() res: Response, token: any): Promise<HttpStatus> {
+    async setServiceToken(
+        @Res() res: Response,
+        token: any,
+    ): Promise<HttpStatus> {
         res.cookie('service_token', token, {
             httpOnly: false,
             maxAge: 30 * 24 * 60 * 60 * 1000,

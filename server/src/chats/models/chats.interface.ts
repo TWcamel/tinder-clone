@@ -1,16 +1,21 @@
-export interface ChatI {
-    messages: MessagesI[];
-    updatedTime: Date;
+export interface ReceivedMessageI extends SenderAndRecieverI {
+    message: string;
 }
 
-export interface ReceivedMessageI {
+export interface MessagesI extends MessageI {
+    user: string;
+}
+
+export interface ChatI extends MessageI {
+    sender: string;
+}
+
+export interface SenderAndRecieverI {
     sender: string;
     reciever: string;
-    message: string;
 }
 
-export interface MessagesI {
+export interface MessageI {
     message: string;
     updateAt: Date;
-    user: string;
 }

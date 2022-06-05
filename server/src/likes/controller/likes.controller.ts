@@ -7,39 +7,73 @@ import {
     Req,
 } from '@nestjs/common';
 import { AuthService } from 'src/auth/service/auth.service';
+import { MatchesService } from 'src/matches/service/matches.service';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
 import { Response, Request } from 'express';
 import { LikesService } from '../service/likes.service';
+import { LikeI, FormatReturnMsgI } from '../models/likes.interface';
 
 @Controller('likes')
 export class LikesController {
     constructor(
         private readonly authService: AuthService,
         private readonly likesService: LikesService,
+        private readonly matchesService: MatchesService,
     ) {}
     @Post()
     @HttpCode(200)
     @UseGuards(JwtAuthGuard)
-    async createMatchPair(
+    async createLikeToken(
         @Req() req: Request,
         @Res() res: Response,
     ): Promise<Response> {
-        const { user, recipient }: { user: string; recipient: string } =
-            req.body;
+        const {
+            user,
+            recipient,
+            isLiked,
+        }: { user: string; recipient: string; isLiked: boolean } = req.body;
         try {
-            const likeToken = await this.likesService.userALikesUserB({
-                email: user,
-                matchedEmail: recipient,
-            });
-            return res.send({
-                ok: true,
-                data: { likeToken },
-            });
+            const likeToken: FormatReturnMsgI =
+                await this.likesService.userAActsUserB({
+                    email: user,
+                    matchEmail: recipient,
+                    isLiked,
+                });
+            if (likeToken.isLiked) {
+                const isAMatch: boolean =
+                    await this.matchesService.checkIsAMatch({
+                        email: recipient,
+                        matchEmail: user,
+                    });
+                if (isAMatch) {
+                    await this.matchesService.createMatchPair({
+                        email: user,
+                        matchedEmail: recipient,
+                    });
+                    return res.send({
+                        ok: isAMatch,
+                        message: 'its a match!',
+                        data: await this.likesService.formatRetMsg(likeToken),
+                    });
+                } else
+                    return res.send({
+                        ok: true,
+                        data: await this.likesService.formatRetMsg(likeToken),
+                    });
+            } else
+                return res.send({
+                    ok: true,
+                    data: "You dont't have provided a like field",
+                });
         } catch (error) {
             return res.send({
                 error: true,
-                message: error.response || error._message || 'Duplicate like',
+                message: error.response || error._message,
             });
         }
+    }
+
+    searchForLikes(@Req() req: Request, @Res() res: Response): Promise<any> {
+        return this.likesService.searchForLikes(req);
     }
 }

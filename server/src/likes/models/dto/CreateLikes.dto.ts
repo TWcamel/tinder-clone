@@ -1,4 +1,4 @@
-import { IsString } from 'class-validator';
+import { IsString, IsBoolean, IsDate } from 'class-validator';
 
 export class CreateLikesDto {
     @IsString()
@@ -8,5 +8,11 @@ export class CreateLikesDto {
     email: string;
 
     @IsString()
-    matchedEmail: string;
+    matchEmail: string;
+
+    @IsBoolean()
+    isLiked: boolean;
+
+    @IsDate()
+    updateAt?: Date;
 }

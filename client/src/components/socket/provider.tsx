@@ -24,6 +24,9 @@ export const SocketProvider: React.FC<{
             },
         });
         setSocket(newSocket);
+        newSocket.on('disconnect', () => {
+            alert('You have been disconnected');
+        });
         return (): any => newSocket.close();
     }, [id]);
 

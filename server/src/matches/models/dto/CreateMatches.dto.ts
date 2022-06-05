@@ -1,12 +1,12 @@
-import { IsString } from 'class-validator';
+import { IsString, IsEmail } from 'class-validator';
 
 export class CreateMatchesDto {
     @IsString()
     id?: string;
 
-    @IsString()
+    @IsEmail()
     email: string;
 
-    @IsString()
+    @IsEmail()
     matchedEmail: string;
 }

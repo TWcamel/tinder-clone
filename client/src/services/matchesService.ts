@@ -12,6 +12,17 @@ const MatchesService = {
         });
         return response.data;
     },
+
+    getMatches: async (email: string) => {
+        const response = await Api.get(
+            `matches/${email}`,
+            {},
+            {
+                Authorization: `Bearer ${AuthService.getBearerToken()}`,
+            },
+        );
+        return response.data;
+    },
 };
 
 export default MatchesService;

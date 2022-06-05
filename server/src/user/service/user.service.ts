@@ -15,6 +15,7 @@ import { UserI } from '../models/user.interface';
 import { UserMembershipI } from '../models/user-membership.interface';
 import { Response, Request } from 'express';
 import { ConfigService } from '@nestjs/config';
+import ArrayUtils from 'src/utils/array.utils';
 
 @Injectable()
 export class UserService {
@@ -45,6 +46,7 @@ export class UserService {
             const hashedCreateUserDto = {
                 ...createUserDto,
                 password: hashedPassword,
+                // avatar: ArrayUtils.toArray(createUserDto.avatar.toString()),
             };
             const savedUser = new this.userModel(hashedCreateUserDto).save();
             if (savedUser) {
@@ -52,11 +54,8 @@ export class UserService {
                 const token: string = await this.authService.generateJwt(
                     createUserDto,
                 );
-                res.cookie('service_token', token, {
-                    httpOnly: false,
-                    maxAge: 1000 * 60 * 60 * 24 * 7,
-                    domain: this.configService.get('FRONTEND_DOMAIN'),
-                });
+
+                await this.authService.setServiceToken(res, token);
 
                 return createUserDto;
             } else {
@@ -84,26 +83,32 @@ export class UserService {
                 user.password,
             );
             if (isPasswordValid) {
+                if (!user.gender)
+                    return Promise.reject(
+                        new HttpException(
+                            'Please update gender field',
+                            HttpStatus.NOT_ACCEPTABLE,
+                        ),
+                    );
                 const payload = { name: user.name, email: user.email };
                 const token: string = await this.authService.generateJwt(
                     payload,
                 );
                 user.password = undefined;
-                res.cookie('service_token', token, {
-                    httpOnly: false,
-                    maxAge: 1000 * 60 * 60 * 24 * 7,
-                    domain: this.configService.get('FRONTEND_DOMAIN'),
-                });
+                await this.authService.setServiceToken(res, token);
                 return user;
             } else {
-                throw new HttpException(
-                    'Invalid password',
-                    HttpStatus.UNAUTHORIZED,
+                return Promise.reject(
+                    new HttpException(
+                        'Invalid password',
+                        HttpStatus.UNAUTHORIZED,
+                    ),
                 );
             }
-        } else {
-            throw new HttpException('User not found', HttpStatus.NOT_FOUND);
-        }
+        } else
+            return Promise.reject(
+                new HttpException('User not found', HttpStatus.NOT_FOUND),
+            );
     }
 
     async loginWithJwt(
@@ -112,9 +117,15 @@ export class UserService {
     ): Promise<any> {
         const accessToken: string | null = req.headers?.authorization;
         const payload = await this.authService.verifyJwt(accessToken);
-        return accessToken && payload
-            ? { name: payload.user.name, email: payload.user.email }
-            : null;
+        if (accessToken && payload)
+            if (payload?.gender)
+                return { name: payload.user.name, email: payload.user.email };
+            else
+                throw new HttpException(
+                    'Please update gender field',
+                    HttpStatus.NOT_ACCEPTABLE,
+                );
+        else throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
 
     async authenticate(
@@ -133,7 +144,7 @@ export class UserService {
 
         const token = await this.authService.generateJwt(user);
 
-        await this.authService.setCookieJwt(res, token);
+        await this.authService.setServiceToken(res, token);
 
         return res.send({
             ok: true,

@@ -13,7 +13,8 @@ import { MatchesService } from 'src/matches/service/matches.service';
 import { LikesService } from 'src/likes/service/likes.service';
 import { v5 as uuidv5 } from 'uuid';
 import { ConfigService } from '@nestjs/config';
-import { ChatI, ReceivedMessageI } from '../models/chats.interface';
+import DateTime from 'src/utils/time.utils';
+import * as ChatsI from '../models/chats.interface';
 
 @Injectable()
 export class ChatsService {
@@ -28,38 +29,31 @@ export class ChatsService {
         sender,
         reciever,
         message,
-    }: ReceivedMessageI): Promise<ChatI> {
-        const matchedId: string = await this.matchesService.getMatchId({
+    }: ChatsI.ReceivedMessageI): Promise<ChatsI.ChatI> {
+        const matchedId: string = await this.matchesService.genMatchId({
             email: sender,
             matchedEmail: reciever,
         });
-        const isMatched = await this.matchesService.findMatchedPair({
-            id: matchedId,
+        const isMatched = await this.matchesService.checkGenIdIsMatched({
+            email: sender,
+            matchedEmail: reciever,
         });
-        if (isMatched?.id === matchedId && message) {
-            const chat: any = await this.chatModel.findOne({
-                matchedId,
-            });
-            const formattedMessage = {
-                user: sender,
+        if (isMatched && message) {
+            let formattedMessage = {
                 message,
+                sender,
                 updateAt: new Date(),
             };
-            if (chat) {
-                chat.chatContext.push(formattedMessage);
-                chat.save();
-                return {
-                    updatedTime: chat.lastEditTime,
-                    messages: chat.chatContext,
-                };
-            } else {
-                const newChat: any = new this.chatModel({
-                    matchedId,
-                    chatContext: formattedMessage,
-                });
-                await newChat.save();
-                return newChat;
-            }
+            const newChat: any = await new this.chatModel({
+                ...formattedMessage,
+                matchedId,
+            }).save();
+            formattedMessage = {
+                message: newChat.message,
+                sender: newChat.sender,
+                updateAt: DateTime.convertToLocal(newChat.updateAt),
+            };
+            return formattedMessage;
         } else {
             return Promise.reject(
                 new HttpException(
@@ -68,5 +62,27 @@ export class ChatsService {
                 ),
             );
         }
+    }
+
+    async getChatId({
+        sender,
+        reciever,
+    }: ChatsI.SenderAndRecieverI): Promise<string> {
+        const matchedId: string = await this.matchesService.genMatchId({
+            email: sender,
+            matchedEmail: reciever,
+        });
+        const isMatched = await this.matchesService.checkGenIdIsMatched({
+            email: sender,
+            matchedEmail: reciever,
+        });
+        if (isMatched) return matchedId;
+        else
+            return Promise.reject(
+                new HttpException(
+                    'You are not matched with this user',
+                    HttpStatus.BAD_REQUEST,
+                ),
+            );
     }
 }

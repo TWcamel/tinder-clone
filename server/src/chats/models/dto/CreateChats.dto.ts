@@ -12,21 +12,11 @@ export class CreateChatsDto {
     matchedId: string;
 
     @IsDate()
-    lastEditTime: Date;
+    editTime: Date;
 
-    @MinLength(1, {
-        each: true,
-        message: (targetName: ValidationArguments) => {
-            if (targetName.value.length < 1)
-                return `${targetName.property} is too short`;
-        },
-    })
-    @MaxLength(4000, {
-        each: true,
-        message: (targetName: ValidationArguments) => {
-            if (targetName.value.length < 1)
-                return `${targetName.property} is too short`;
-        },
-    })
-    chatContext: string[];
+    @IsString()
+    sender: string;
+
+    @IsString()
+    message: string;
 }

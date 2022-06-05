@@ -1,10 +1,12 @@
 import React from 'react';
 import { Form, InputGroup, Button, FloatingLabel } from 'react-bootstrap';
 import { useConversations } from './provider';
+import { getLocalStorage } from '../../utils/localStorage';
 
 const OpenConversation: React.FC = () => {
     const [text, setText]: [string, Function] = React.useState('');
-    const { sendMessage, selectedConversation } = useConversations();
+    const { sendMessage, selectedConversation, showTypingHint } =
+        useConversations();
     const setRef = React.useCallback((node: HTMLDivElement) => {
         if (node) {
             node.scrollIntoView({ behavior: 'smooth' });
@@ -85,7 +87,14 @@ const OpenConversation: React.FC = () => {
                                     as='textarea'
                                     required
                                     value={text}
-                                    onChange={(e) => setText(e.target.value)}
+                                    onChange={(e) => {
+                                        showTypingHint(
+                                            selectedConversation.recipients.map(
+                                                (r: any) => r.id,
+                                            ),
+                                        );
+                                        setText(e.target.value);
+                                    }}
                                     style={{ resize: 'none' }}
                                     className='rounded'
                                 />

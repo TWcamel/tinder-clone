@@ -43,7 +43,7 @@ export class ChatsController {
             if (chat)
                 return res.send({
                     ok: true,
-                    data: { chat },
+                    data: chat,
                 });
         } catch (error) {
             return res.send({

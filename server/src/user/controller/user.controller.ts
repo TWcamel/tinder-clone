@@ -4,7 +4,6 @@ import {
     Delete,
     Get,
     Patch,
-    Param,
     Post,
     UseGuards,
     HttpCode,
@@ -79,21 +78,10 @@ export class UserController {
                 });
             }
         } else {
-            try {
-                const user: UserI = await this.userService.login(
-                    loginUserDto,
-                    res,
-                );
-                return res.send({
-                    ok: true,
-                    data: user,
-                });
-            } catch (error) {
-                return res.send({
-                    error: true,
-                    message: error,
-                });
-            }
+            return res.send({
+                ok: true,
+                data: await this.userService.login(loginUserDto, res),
+            });
         }
     }
 

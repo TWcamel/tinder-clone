@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import * as cookieParser from 'cookie-parser';
+import * as bodyParser from 'body-parser';
 // import { RedisIoAdapter } from './chats/adapters/redis-io.adapter';
 
 const bootstrap = async () => {
@@ -18,6 +19,8 @@ const bootstrap = async () => {
         optionsSuccessStatus: 200,
         origin: process.env.TRUST_SITES.split(', '),
     });
+
+    app.use(bodyParser.json({ limit: '10mb' }));
 
     await app.listen(process.env.SERVER_PORT || 3000, async () => {
         console.log(
