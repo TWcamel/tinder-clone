@@ -12,11 +12,7 @@ const OpenMatches: React.FC = () => {
     const swiperBtnsRef = React.useRef(null);
     const handleSwipe = (e: any) => {
         console.log(e);
-        if (e === 'Left') {
-            console.log('left');
-        } else if (e === 'Right') {
-            console.log('right');
-        }
+        //TODO: send swipe to server
     };
 
     const handleBtnClick = (e: any) => {

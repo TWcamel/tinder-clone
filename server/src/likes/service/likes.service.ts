@@ -23,6 +23,10 @@ export class LikesService {
         private readonly configService: ConfigService,
     ) {}
 
+    async searchForLikes({ email }: any): Promise<string> {
+        return email;
+    }
+
     async userAActsUserB({
         email,
         matchEmail,

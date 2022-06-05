@@ -72,4 +72,8 @@ export class LikesController {
             });
         }
     }
+
+    searchForLikes(@Req() req: Request, @Res() res: Response): Promise<any> {
+        return this.likesService.searchForLikes(req);
+    }
 }
