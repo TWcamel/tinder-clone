@@ -3,6 +3,7 @@ import {
     Injectable,
     HttpException,
     HttpStatus,
+    UseGuards,
     Res,
     Req,
 } from '@nestjs/common';
@@ -10,6 +11,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Likes, LikesDocument } from '../models/likes.schemas';
 import { CreateLikesDto } from '../models/dto/CreateLikes.dto';
 import { UserService } from 'src/user/service/user.service';
+import { InterestsService } from 'src/user/service/interests.service';
 import { v5 as uuidv5 } from 'uuid';
 import { ConfigService } from '@nestjs/config';
 import DateTime from 'src/utils/time.utils';
@@ -20,11 +22,14 @@ export class LikesService {
     constructor(
         @InjectModel(Likes.name) private likesModel: Model<LikesDocument>,
         private readonly userService: UserService,
+        private readonly interestsService: InterestsService,
         private readonly configService: ConfigService,
     ) {}
 
-    async searchForLikes({ email }: any): Promise<string> {
-        return email;
+    async getPeopleListForLikes(id: string): Promise<string> {
+        const userInterests = await this.interestsService.findOne(id);
+
+        return 'ok';
     }
 
     async userAActsUserB({

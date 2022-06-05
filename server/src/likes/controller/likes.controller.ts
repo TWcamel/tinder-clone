@@ -5,6 +5,7 @@ import {
     HttpCode,
     Res,
     Req,
+    Param,
 } from '@nestjs/common';
 import { AuthService } from 'src/auth/service/auth.service';
 import { MatchesService } from 'src/matches/service/matches.service';
@@ -73,7 +74,11 @@ export class LikesController {
         }
     }
 
-    searchForLikes(@Req() req: Request, @Res() res: Response): Promise<any> {
-        return this.likesService.searchForLikes(req);
+    @UseGuards(JwtAuthGuard)
+    getPeopleForLikes(
+        @Res() res: Response,
+        @Param('id') id: string,
+    ): Promise<any> {
+        return this.likesService.getPeopleListForLikes(id);
     }
 }

@@ -28,9 +28,6 @@ export class User {
 
     @Prop({ required: true })
     age: number;
-
-    // @Prop({ required: true })
-    // avatar: string[];
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

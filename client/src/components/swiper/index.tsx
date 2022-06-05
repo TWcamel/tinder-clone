@@ -18,7 +18,7 @@ export const Swiper: React.FC<IProps> = (props: IProps) => {
 
     const mid = useRef<number>(0);
 
-    const angleMax = 30;
+    const angleMax = 33;
 
     const getRotateOrigin = async (mx: number) => {
         let result: number[] = [];
@@ -204,19 +204,19 @@ export const Swiper: React.FC<IProps> = (props: IProps) => {
                 ev.preventDefault();
             });
 
-            target.current.addEventListener('mousedown', (ev) => {
-                ev.preventDefault();
-            });
-
             target.current.addEventListener('touchmove', (ev) => {
                 ev.preventDefault();
             });
 
-            target.current.addEventListener('mousemove', (ev) => {
+            target.current.addEventListener('touchend', (ev) => {
                 ev.preventDefault();
             });
 
-            target.current.addEventListener('touchend', (ev) => {
+            target.current.addEventListener('mousedown', (ev) => {
+                ev.preventDefault();
+            });
+
+            target.current.addEventListener('mousemove', (ev) => {
                 ev.preventDefault();
             });
 
