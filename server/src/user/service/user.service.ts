@@ -11,11 +11,10 @@ import { User, UserDocument } from '../models/user.schemas';
 import { CreateUserDto } from '../models/dto/CreateUser.dto';
 import { AuthService } from 'src/auth/service/auth.service';
 import { LoginUserDto } from '../models/dto/LoginUser.dto';
-import { UserI } from '../models/user.interface';
+import { UserI, UserUpdateInfoI } from '../models/user.interface';
 import { UserMembershipI } from '../models/user-membership.interface';
 import { Response, Request } from 'express';
 import { ConfigService } from '@nestjs/config';
-import ArrayUtils from 'src/utils/array.utils';
 
 @Injectable()
 export class UserService {
@@ -58,6 +57,55 @@ export class UserService {
                 await this.authService.setServiceToken(res, token);
 
                 return createUserDto;
+            } else {
+                throw new HttpException(
+                    'Service unavailable',
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                );
+            }
+        } catch (error) {
+            throw new HttpException(
+                'Service unavailable',
+                HttpStatus.INTERNAL_SERVER_ERROR,
+            );
+        }
+    }
+
+    async update(
+        @Res() res: Response,
+        newUserInfo: UserUpdateInfoI,
+    ): Promise<User> {
+        const { email } = newUserInfo;
+
+        const isEmailExists: boolean = await this.mailExists(email);
+        if (!isEmailExists)
+            throw new HttpException('Email not exists', HttpStatus.NOT_FOUND);
+
+        try {
+            const hashedPassword: string = await this.authService.hashPassword(
+                newUserInfo.password,
+            );
+
+            const updatedUser = await this.userModel.findOneAndUpdate(
+                { email: email },
+                {
+                    $set: {
+                        password: hashedPassword,
+                    },
+                },
+                { new: true },
+            );
+            const { name } = updatedUser;
+            if (updatedUser) {
+                updatedUser.password = undefined;
+                const token: string = await this.authService.generateJwt({
+                    name,
+                    email,
+                });
+
+                await this.authService.setServiceToken(res, token);
+
+                return updatedUser;
             } else {
                 throw new HttpException(
                     'Service unavailable',

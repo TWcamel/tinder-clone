@@ -17,7 +17,7 @@ import { AuthService } from 'src/auth/service/auth.service';
 import { CreateUserDto } from '../models/dto/CreateUser.dto';
 import { LoginUserDto } from '../models/dto/LoginUser.dto';
 import { GrantMembershipUserDto } from '../models/dto/GrantMembershipUser.dto';
-import { UserI } from '../models/user.interface';
+import { UserI, UserUpdateInfoI } from '../models/user.interface';
 import { UserMembershipI } from '../models/user-membership.interface';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
 import { FacebookAuthGuard } from 'src/auth/guards/facebook.guard';
@@ -42,6 +42,27 @@ export class UserController {
                 res,
                 createUserDto,
             );
+            return res.send({
+                ok: true,
+                data: user,
+            });
+        } catch (error) {
+            res.send({
+                error: true,
+                message: error.response,
+            });
+        }
+    }
+
+    @Post('info')
+    @HttpCode(200)
+    @UseGuards(JwtAuthGuard)
+    async update(
+        @Body() newUserInfo: UserUpdateInfoI,
+        @Res() res: Response,
+    ): Promise<Response> {
+        try {
+            const user: UserI = await this.userService.update(res, newUserInfo);
             return res.send({
                 ok: true,
                 data: user,

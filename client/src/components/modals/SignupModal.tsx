@@ -19,8 +19,7 @@ const SignupModal: React.FC<any> = ({
     const emailRef = useRef<HTMLInputElement>(null);
     const passwordRef = useRef<HTMLInputElement>(null);
 
-    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => { e.preventDefault();
         (await userRegister()) && (await uploadImg()) && closeModal();
     };
 

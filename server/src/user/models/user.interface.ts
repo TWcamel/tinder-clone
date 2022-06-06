@@ -9,3 +9,8 @@ export interface UserI {
     token?: string;
     avatar?: string[];
 }
+
+export interface UserUpdateInfoI {
+    email: string;
+    password: string;
+}

@@ -14,6 +14,9 @@ export class Interest {
     @Prop({ required: true })
     ageRange: number[];
 
+    @Prop({ required: true })
+    location: string;
+
     @Prop({ required: true, default: new Date() })
     updateAt: Date;
 }

@@ -18,6 +18,9 @@ export class CreateUserInterestsDto {
     @MaxLength(2, { each: true })
     ageRange: number[];
 
+    @IsString()
+    location: string;
+
     @IsDate()
     updateAt: Date;
 }

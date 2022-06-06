@@ -1,78 +1,103 @@
 import React, { useRef } from 'react';
 import { Modal, Form, Button } from 'react-bootstrap';
-import ImageUploader from '../images/';
-import SignupService from '../../services/signupService';
-import AwsService from '../../services/awsService';
+import InterestsService from '../../services/interestsService';
 import { toast } from 'react-toastify';
-import { v4 as uuidv4 } from 'uuid';
+import MultiRangeSlider from '../sliders/';
+import useLocalStorage from '../../hooks/useLocalStorage';
 
-const SignupModal: React.FC<any> = ({
+const InterestsModal: React.FC<any> = ({
     closeModal,
 }: {
     closeModal: () => void;
 }) => {
-    const [age, setAge] = React.useState(-1);
+    const [ageRange, setAgeRange] = React.useState([0, 0]);
     const [gender, setGender] = React.useState('');
-    const [imgs, setImgs] = React.useState();
+    const [loc, setLoc] = React.useState('');
+    const [userEmail] = useLocalStorage('userId');
 
-    const nameRef = useRef<HTMLInputElement>(null);
-    const emailRef = useRef<HTMLInputElement>(null);
-    const passwordRef = useRef<HTMLInputElement>(null);
+    const userRegister = async () => {
+        if (gender === '' || ageRange === [0, 0] || loc === '') {
+            toast.error('Please fill all fields');
+            return false;
+        } else {
+            const user = {
+                ageRange,
+                gender,
+                location: loc,
+            };
+            const res = await InterestsService.update(user, userEmail);
+            if (res.ok) {
+                toast.success(`update successed!`);
+                return true;
+            } else {
+                toast.error(`Something went wrong: ${res.message}`);
+                return false;
+            }
+        }
+    };
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        // (await userRegister()) && (await uploadImg()) && closeModal();
+        (await userRegister()) && closeModal();
+    };
+
+    const updateGender = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        setGender(e.target.value);
     };
 
     return (
         <>
-            <Modal.Header closeButton>Become a member</Modal.Header>
+            <Modal.Header>
+                <h3>Preferred Settings</h3>
+            </Modal.Header>
             <Modal.Body>
                 <Form onSubmit={handleSubmit}>
                     <Form.Group className='mb-2'>
-                        <Form.Label>Name</Form.Label>
-                        <Form.Control
-                            type='text'
-                            required
-                            placeholder='Your Name'
-                            className='mb-2'
-                            ref={nameRef}
-                        />
-                        <Form.Label>Email</Form.Label>
-                        <Form.Control
-                            type='email'
-                            placeholder='example@gmail.com'
-                            required
-                            className='mb-2'
-                            ref={emailRef}
-                        />
-                        <Form.Label>Password</Form.Label>
-                        <Form.Control
-                            type='password'
-                            placeholder='********'
-                            className='mb-2'
-                            ref={passwordRef}
-                        />
-                        <Form.Label>Gender</Form.Label>
+                        <Form.Label>Show Me</Form.Label>
                         <Form.Check
                             type='radio'
-                            label='Male'
+                            label='Men'
                             value='M'
                             name='user-gender'
-                            // onChange={updateGender}
+                            onChange={updateGender}
                         />
                         <Form.Check
                             type='radio'
-                            label='Female'
+                            label='Women'
                             value='F'
                             name='user-gender'
                             className='mb-2'
-                            // onChange={updateGender}
+                            onChange={updateGender}
                         />
-                        <Form.Label>Age: {age === -1 ? '50' : age}</Form.Label>
-                        {/* <Form.Range onChange={updateAge} /> */}
-                        <Form.Label>Upload Images</Form.Label>
-                        <ImageUploader onParentSubmit={setImgs} />
+                        <Form.Label>Age Range</Form.Label>
+                        <div className='pt-2 pb-3 mb-2'>
+                            <MultiRangeSlider onParentSubmit={setAgeRange} />
+                        </div>
+                        <Form.Label className='mt-3 mb-2'>Location</Form.Label>
+                        <Form.Control
+                            as='select'
+                            value={loc}
+                            onChange={(e) => setLoc(e.target.value)}
+                        >
+                            <option value='Taipei'>Taipei</option>
+                            <option value='New Taipei'>New Taipei</option>
+                            <option value='Taoyuan'>Taoyuan</option>
+                            <option value='Hsinchu'>Hsinchu</option>
+                            <option value='Miaoli'>Miaoli</option>
+                            <option value='Taichung'>Taichung</option>
+                            <option value='Changhua'>Changhua</option>
+                            <option value='Nantou'>Nantou</option>
+                            <option value='Yunlin'>Yunlin</option>
+                            <option value='Chiayi'>Chiayi</option>
+                            <option value='Tainan'>Tainan</option>
+                            <option value='Kaohsiung'>Kaohsiung</option>
+                            <option value='Pingtung'>Pingtung</option>
+                            <option value='Taitung'>Taitung</option>
+                            <option value='Hualien'>Hualien</option>
+                            <option value='Keelung'>Keelung</option>
+                            <option value='Kinmen'>Kinmen</option>
+                            <option value='Lienchiang'>Lienchiang</option>
+                        </Form.Control>
                     </Form.Group>
                     <Button type='submit' className='mt-2'>
                         Signup
@@ -83,4 +108,4 @@ const SignupModal: React.FC<any> = ({
     );
 };
 
-export default SignupModal;
+export default InterestsModal;
