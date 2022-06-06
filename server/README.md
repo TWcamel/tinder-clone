@@ -15,7 +15,7 @@
     -   [ ] (optional) unmatch chats
 -   [x] Match
     -   [x] check user name before create a match pair
--   [ ] Swipe
+-   [x] Swipe
 -   [x] Push Notification
 -   [x] Passport
 -   [ ] (Additional) Super like (send crush)
