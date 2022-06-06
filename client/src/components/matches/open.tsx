@@ -5,6 +5,8 @@ import axios from 'axios';
 import CloseIcon from '@material-ui/icons/Close';
 import FavoriteIcon from '@material-ui/icons/Favorite';
 import IconButton from '@material-ui/core/IconButton';
+import PeopleAltIcon from '@material-ui/icons/PeopleAlt';
+import SettingsIcon from '@material-ui/icons/Settings';
 import { toast } from 'react-toastify';
 
 const OpenMatches: React.FC = () => {
@@ -42,12 +44,45 @@ const OpenMatches: React.FC = () => {
                 justifyContent: 'center',
                 textAlign: 'center',
                 width: '100%',
+                paddingTop: '10rem',
             }}
         >
-            <h1>Is it a match?</h1>
+            <div
+                className={'d-flex top-0 position-absolute w-100 '}
+                style={{
+                    justifyContent: 'space-around',
+                    borderRadius: '10px',
+                    borderBottom: '1px solid #e5e5e5',
+                }}
+                ref={swiperBtnsRef}
+            >
+                <IconButton>
+                    <PeopleAltIcon
+                        fontSize='large'
+                        style={{
+                            background: '#fcfafa',
+                            color: 'grey',
+                            boxShadow:
+                                '20px 20px 30px #bebebe, -20px -20px 60px #ffffff',
+                        }}
+                    />
+                </IconButton>
+                <IconButton>
+                    <SettingsIcon
+                        fontSize='large'
+                        style={{
+                            background: '#fcfafa',
+                            color: 'grey',
+                            boxShadow:
+                                '20px 20px 30px #bebebe, -20px -20px 60px #ffffff',
+                        }}
+                    />
+                </IconButton>
+            </div>
             {people.map((person: any, idx: number) => (
                 <Swiper
                     onSwipe={handleSwipe}
+                    detectingSize={50}
                     contents={
                         <div
                             style={{
@@ -57,7 +92,7 @@ const OpenMatches: React.FC = () => {
                                 alignItems: 'center',
                                 textAlign: 'center',
                                 position: 'absolute',
-                                top: '15vh',
+                                height: '100%',
                             }}
                         >
                             <Card className='bg-dark text-white'>
@@ -65,9 +100,9 @@ const OpenMatches: React.FC = () => {
                                     src={`https://image.tmdb.org/t/p/w500/${person.poster_path}`}
                                     alt='Card image'
                                     style={{
-                                        width: '377px',
                                         borderRadius: '10px',
                                         border: '5px solid white',
+                                        height: '100%',
                                     }}
                                 />
                                 <Card.ImgOverlay>
