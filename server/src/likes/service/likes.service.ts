@@ -16,6 +16,7 @@ import { v5 as uuidv5 } from 'uuid';
 import { ConfigService } from '@nestjs/config';
 import DateTime from 'src/utils/time.utils';
 import * as LikesI from '../models/likes.interface';
+import { RedisCacheService } from 'src/cache/service/redis-cache.service';
 
 @Injectable()
 export class LikesService {
@@ -23,13 +24,19 @@ export class LikesService {
         @InjectModel(Likes.name) private likesModel: Model<LikesDocument>,
         private readonly userService: UserService,
         private readonly interestsService: InterestsService,
+        private readonly redisCacheService: RedisCacheService,
         private readonly configService: ConfigService,
     ) {}
 
+    //TODO: add pagination
+    //TODO: add sorting
+    //TODO: add filtering
     async getPeopleListForLikes(id: string): Promise<string> {
-        const userInterests = await this.interestsService.findOne(id);
-
-        return 'ok';
+        // const userInterests = await this.interestsService.findOne(id);
+        await this.redisCacheService.set('userInterests', 'test');
+        const cachedItem = await this.redisCacheService.get('userInterests');
+        // console.log(cachedItem);
+        return cachedItem;
     }
 
     async userAActsUserB({

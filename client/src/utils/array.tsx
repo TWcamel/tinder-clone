@@ -29,4 +29,12 @@ const stringToArray = (str: string) => {
         .map((item) => item.trim());
 };
 
-export { arrayEqualty, removeItem, stringToArray };
+const arrayIsEmpty = (array: any[]) => {
+    return Array.isArray(array) && array.length === 0;
+};
+
+const fileArrayIsEmpty = (array: File[]) => {
+    return Array.isArray(array) && array.length === 1 && array[0].name === '';
+};
+
+export { arrayEqualty, removeItem, stringToArray, arrayIsEmpty, fileArrayIsEmpty };

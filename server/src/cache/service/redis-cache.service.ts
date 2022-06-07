@@ -9,29 +9,66 @@ import {
     OnModuleInit,
     Logger,
 } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
 import { Response, Request } from 'express';
 import { ConfigService } from '@nestjs/config';
 import { Cache } from 'cache-manager';
+import { createClient, RedisClientOptions, RedisClientType } from 'redis';
 
 @Injectable()
-export class RedisCacheService implements OnModuleInit {
+export class RedisCacheService {
     constructor(
         private readonly configService: ConfigService,
         @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
     ) {}
+    private cache = this.cacheManager;
+    private logger = new Logger('RedisCache');
 
-    public async onModuleInit() {
-        const logger = new Logger('Cache');
+    //ENGENCE: client should be integrated with cache manager
+    private redisClient = createClient(
+        this.configService.get<string>('REDIS_PORT'),
+    );
 
-        const commnad = ['get', 'set', 'del'];
+    async get(key: string): Promise<any> {
+        this.logger.log(`GET ${key}`);
+        return this.cache.get(key);
+    }
 
-        const cache = this.cacheManager;
+    async set(key: string, value: any, ttl?: number): Promise<any> {
+        this.logger.log(`SET ${key}`);
+        return this.cache.set(key, value, ttl);
+    }
 
-        Array.prototype.forEach.call(commnad, (command: string) => {
-            cache[command] = async (...args: any[]) => {
-                console.log(args);
-            };
-        });
+    async del(key: string): Promise<any> {
+        this.logger.log(`DEL ${key}`);
+        return this.cache.del(key);
+    }
+
+    async invalidate(key: string): Promise<any> {
+        this.logger.log(`INVALIDATE ${key}`);
+        return this.cache.del(key);
+    }
+
+    async invalidatePrefix(prefix: string): Promise<any> {
+        this.logger.log(`INVALIDATE PREFIX ${prefix}`);
+        return this.cache.del(prefix);
+    }
+
+    async reset(): Promise<any> {
+        this.logger.log('RESET');
+        return this.cache.reset();
+    }
+
+    async zAdd(key: string, score: number, value: any): Promise<any> {
+        this.logger.log(`ZADD ${key}`);
+        return this.redisClient.zadd(key, score, value);
+    }
+
+    async getRedisClientConnected(): Promise<any> {
+        return this.redisClient;
+    }
+
+    //BUG: always return true
+    async getZRange(key: string, start: number, stop: number): Promise<any> {
+        return this.redisClient.zrange(key, start, stop);
     }
 }

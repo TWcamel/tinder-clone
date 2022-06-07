@@ -6,6 +6,8 @@ import { UserModule } from 'src/user/user.module';
 import { MatchesModule } from 'src/matches/matches.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Likes, LikesSchema } from './models/likes.schemas';
+import { CacheModule as RedisCacheModule } from '../cache/cache.module';
+import { RedisCacheService } from '../cache/service/redis-cache.service';
 
 @Module({
     imports: [
@@ -13,9 +15,10 @@ import { Likes, LikesSchema } from './models/likes.schemas';
         AuthModule,
         UserModule,
         forwardRef(() => MatchesModule),
+        RedisCacheModule,
     ],
     controllers: [LikesController],
-    providers: [LikesService],
+    providers: [LikesService, RedisCacheService],
     exports: [LikesService],
 })
 export class LikesModule {}

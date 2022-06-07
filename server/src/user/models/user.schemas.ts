@@ -31,6 +31,9 @@ export class User {
 
     @Prop()
     bio: string;
+
+    @Prop({ required: true })
+    location: string;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

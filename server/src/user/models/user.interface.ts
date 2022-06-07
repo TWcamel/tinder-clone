@@ -9,6 +9,7 @@ export interface UserI {
     token?: string;
     avatar?: string[];
     bio?: string;
+    location?: string;
     memberShipType?: string;
 }
 

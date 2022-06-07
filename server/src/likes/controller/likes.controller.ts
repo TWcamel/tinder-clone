@@ -5,6 +5,7 @@ import {
     HttpCode,
     Res,
     Req,
+    Get,
     Param,
 } from '@nestjs/common';
 import { AuthService } from 'src/auth/service/auth.service';
@@ -74,11 +75,16 @@ export class LikesController {
         }
     }
 
+    @Get('/:id')
     @UseGuards(JwtAuthGuard)
-    getPeopleForLikes(
+    async getPeopleForLikes(
         @Res() res: Response,
         @Param('id') id: string,
     ): Promise<any> {
-        return this.likesService.getPeopleListForLikes(id);
+        const _res = await this.likesService.getPeopleListForLikes(id);
+        return res.send({
+            ok: true,
+            data: _res,
+        });
     }
 }

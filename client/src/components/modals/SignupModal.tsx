@@ -6,6 +6,7 @@ import AwsService from '../../services/awsService';
 import { toast } from 'react-toastify';
 import { v4 as uuidv4 } from 'uuid';
 import useLocalStorage from '../../hooks/useLocalStorage';
+import { arrayIsEmpty, fileArrayIsEmpty } from '../../utils/array';
 
 const SignupModal: React.FC<any> = ({
     closeModal,
@@ -14,7 +15,7 @@ const SignupModal: React.FC<any> = ({
 }) => {
     const [age, setAge] = React.useState(-1);
     const [gender, setGender] = React.useState('');
-    const [imgs, setImgs] = React.useState();
+    const [imgs, setImgs] = React.useState([]);
     const [loc, setLoc] = React.useState('');
 
     const nameRef = useRef<HTMLInputElement>(null);
@@ -33,7 +34,9 @@ const SignupModal: React.FC<any> = ({
             !passwordRef?.current?.value ||
             gender.length === 0 ||
             age === -1 ||
-            loc === ''
+            loc === '' ||
+            arrayIsEmpty(imgs) ||
+            fileArrayIsEmpty(imgs)
         ) {
             toast.error('Please fill all fields');
             return false;

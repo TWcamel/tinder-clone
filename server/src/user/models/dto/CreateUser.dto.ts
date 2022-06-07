@@ -31,4 +31,7 @@ export class CreateUserDto extends LoginUserDto {
 
     @IsString()
     bio: string;
+
+    @IsString()
+    location: string;
 }

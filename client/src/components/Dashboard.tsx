@@ -24,7 +24,7 @@ const Dashboard: React.FC<{ id: any; name: any }> = ({ id, name }) => {
             setModalShow(false);
         } else {
             setModalShow(true);
-            toast.error('Please update your preferences', {
+            toast.info('Please update your preferences to move forward', {
                 position: toast.POSITION.TOP_CENTER,
                 toastId: 'preferences',
             });
