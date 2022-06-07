@@ -15,7 +15,7 @@ const Sidebar: React.FC<{
 }> = ({ id, name, onSidebarSelected }) => {
     const [modalShow, setModalShow] = React.useState(false);
     const [activeKey, setActiveKey]: [string, Function] =
-        React.useState(CONVERSATIONS_KEY);
+        React.useState(MATCHES_KEY);
     const conversationsOpen = activeKey === CONVERSATIONS_KEY;
 
     React.useEffect(() => {
@@ -31,7 +31,7 @@ const Sidebar: React.FC<{
     return (
         <div style={{ width: '273px' }} className='d-flex flex-column '>
             <Tab.Container
-                defaultActiveKey='conversations'
+                defaultActiveKey='matches'
                 activeKey={activeKey}
                 onSelect={(eventKey: any) => setActiveKey(eventKey)}
             >

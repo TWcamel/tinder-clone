@@ -5,6 +5,7 @@ import SignupService from '../../services/signupService';
 import AwsService from '../../services/awsService';
 import { toast } from 'react-toastify';
 import { v4 as uuidv4 } from 'uuid';
+import useLocalStorage from '../../hooks/useLocalStorage';
 
 const SignupModal: React.FC<any> = ({
     closeModal,
@@ -14,12 +15,14 @@ const SignupModal: React.FC<any> = ({
     const [age, setAge] = React.useState(-1);
     const [gender, setGender] = React.useState('');
     const [imgs, setImgs] = React.useState();
+    const [loc, setLoc] = React.useState('');
 
     const nameRef = useRef<HTMLInputElement>(null);
     const emailRef = useRef<HTMLInputElement>(null);
     const passwordRef = useRef<HTMLInputElement>(null);
 
-    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => { e.preventDefault();
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
         (await userRegister()) && (await uploadImg()) && closeModal();
     };
 
@@ -29,7 +32,8 @@ const SignupModal: React.FC<any> = ({
             !emailRef?.current?.value ||
             !passwordRef?.current?.value ||
             gender.length === 0 ||
-            age === -1
+            age === -1 ||
+            loc === ''
         ) {
             toast.error('Please fill all fields');
             return false;
@@ -40,10 +44,11 @@ const SignupModal: React.FC<any> = ({
                 password: passwordRef.current.value,
                 age: age,
                 gender: gender,
+                location: loc,
             };
             const res = await SignupService.signup(user);
             if (res.ok) {
-                toast.success(`${res} signed up !`);
+                toast.success(`${res.data.email} signed up !`);
                 return true;
             } else {
                 toast.error(`Something went wrong: ${res.message}`);
@@ -60,25 +65,30 @@ const SignupModal: React.FC<any> = ({
                 fileReader.onload = async () => {
                     const base64 = fileReader.result as string;
                     const formData = {
-                        user: ((): any => nameRef.current?.value)(),
+                        user: ((): any => emailRef.current?.value)(),
                         image: base64,
                         img_name: uuidv4(),
                     };
-                    try {
-                        AwsService.uploadImagesToS3Bucket(formData);
-                    } catch (err: any) {
+                    const res = await AwsService.uploadImagesToS3Bucket(
+                        formData,
+                    );
+                    if (res.ok) {
+                        resolve('done');
+                    } else {
                         toast.error(
-                            `Error uploading image: ${
-                                err?.response?.data?.message || err
-                            }`,
+                            `Error uploading image: ${res?.message || res}`,
                         );
                     }
                 };
             });
         });
-        promise.then(() => {
-            toast.success('Images uploaded successfully');
-        });
+        return promise
+            .then(() => {
+                toast.success('Images uploaded successfully');
+            })
+            .then(() => {
+                return true;
+            });
     };
 
     const updateAge = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -91,7 +101,9 @@ const SignupModal: React.FC<any> = ({
 
     return (
         <>
-            <Modal.Header closeButton>Become a member</Modal.Header>
+            <Modal.Header closeButton>
+                <h3>Become a member</h3>
+            </Modal.Header>
             <Modal.Body>
                 <Form onSubmit={handleSubmit}>
                     <Form.Group className='mb-2'>
@@ -134,8 +146,34 @@ const SignupModal: React.FC<any> = ({
                             className='mb-2'
                             onChange={updateGender}
                         />
-                        <Form.Label>Age: {age === -1 ? '50' : age}</Form.Label>
-                        <Form.Range onChange={updateAge} />
+                        <Form.Label>Age: {age === -1 ? '?' : age}</Form.Label>
+                        <Form.Range onChange={updateAge} min={18} max={60} />
+                        <Form.Label>Location</Form.Label>
+                        <Form.Control
+                            as='select'
+                            value={loc}
+                            onChange={(e: any) => setLoc(e.target.value)}
+                            className='mb-2'
+                        >
+                            <option value='Taipei'>Taipei</option>
+                            <option value='New Taipei'>New Taipei</option>
+                            <option value='Taoyuan'>Taoyuan</option>
+                            <option value='Hsinchu'>Hsinchu</option>
+                            <option value='Miaoli'>Miaoli</option>{' '}
+                            <option value='Taichung'>Taichung</option>
+                            <option value='Changhua'>Changhua</option>
+                            <option value='Nantou'>Nantou</option>
+                            <option value='Yunlin'>Yunlin</option>
+                            <option value='Chiayi'>Chiayi</option>
+                            <option value='Tainan'>Tainan</option>
+                            <option value='Kaohsiung'>Kaohsiung</option>
+                            <option value='Pingtung'>Pingtung</option>
+                            <option value='Taitung'>Taitung</option>
+                            <option value='Hualien'>Hualien</option>
+                            <option value='Keelung'>Keelung</option>
+                            <option value='Kinmen'>Kinmen</option>
+                            <option value='Lienchiang'>Lienchiang</option>
+                        </Form.Control>
                         <Form.Label>Upload Images</Form.Label>
                         <ImageUploader onParentSubmit={setImgs} />
                     </Form.Group>

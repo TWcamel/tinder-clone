@@ -39,7 +39,11 @@ export class InterestsService {
     ): Promise<Interest> {
         const { ageRange, gender, location } = createUserInterestsDto;
         return await this.interestsModel
-            .findOneAndUpdate({ id: id }, { ageRange, gender, location }, { new: true })
+            .findOneAndUpdate(
+                { id: id },
+                { ageRange, gender, location },
+                { new: true },
+            )
             .exec();
     }
 

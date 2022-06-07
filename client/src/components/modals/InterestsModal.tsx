@@ -7,13 +7,18 @@ import useLocalStorage from '../../hooks/useLocalStorage';
 
 const InterestsModal: React.FC<any> = ({
     closeModal,
+    id,
+    onUpdated,
 }: {
     closeModal: () => void;
+    id: string;
+    onUpdated: (_isUpdated: boolean) => void;
 }) => {
+    const [isUpdated, setIsUpdated] = React.useState(false);
     const [ageRange, setAgeRange] = React.useState([0, 0]);
     const [gender, setGender] = React.useState('');
     const [loc, setLoc] = React.useState('');
-    const [userEmail] = useLocalStorage('userId');
+    const [userPrefer, setUserPrefer] = useLocalStorage('userPrefer');
 
     const userRegister = async () => {
         if (gender === '' || ageRange === [0, 0] || loc === '') {
@@ -25,8 +30,10 @@ const InterestsModal: React.FC<any> = ({
                 gender,
                 location: loc,
             };
-            const res = await InterestsService.update(user, userEmail);
+            const res = await InterestsService.update(user, id);
             if (res.ok) {
+                setUserPrefer(res.data);
+                setIsUpdated(true);
                 toast.success(`update successed!`);
                 return true;
             } else {
@@ -35,6 +42,12 @@ const InterestsModal: React.FC<any> = ({
             }
         }
     };
+
+    React.useEffect(() => {
+        if (isUpdated) {
+            onUpdated(isUpdated);
+        }
+    }, [isUpdated, onUpdated]);
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -77,13 +90,13 @@ const InterestsModal: React.FC<any> = ({
                         <Form.Control
                             as='select'
                             value={loc}
-                            onChange={(e) => setLoc(e.target.value)}
+                            onChange={(e: any) => setLoc(e.target.value)}
                         >
                             <option value='Taipei'>Taipei</option>
                             <option value='New Taipei'>New Taipei</option>
                             <option value='Taoyuan'>Taoyuan</option>
                             <option value='Hsinchu'>Hsinchu</option>
-                            <option value='Miaoli'>Miaoli</option>
+                            <option value='Miaoli'>Miaoli</option>{' '}
                             <option value='Taichung'>Taichung</option>
                             <option value='Changhua'>Changhua</option>
                             <option value='Nantou'>Nantou</option>
@@ -100,7 +113,7 @@ const InterestsModal: React.FC<any> = ({
                         </Form.Control>
                     </Form.Group>
                     <Button type='submit' className='mt-2'>
-                        Signup
+                        Update
                     </Button>
                 </Form>
             </Modal.Body>

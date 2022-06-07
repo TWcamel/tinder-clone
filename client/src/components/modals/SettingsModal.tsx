@@ -6,26 +6,48 @@ import UserService from '../../services/userService';
 import AwsService from '../../services/awsService';
 import { toast } from 'react-toastify';
 import { v4 as uuidv4 } from 'uuid';
+import RotateLeftRounded from '@material-ui/icons/RotateLeftRounded';
 
 const SettingsModal: React.FC<any> = ({
     closeModal,
+    id,
 }: {
     closeModal: () => void;
+    id: string;
 }) => {
     const [userName] = useLocalStorage('userName');
-    const [userEmail] = useLocalStorage('userId');
     const passwordRef = useRef<HTMLInputElement>(null);
+    const bioRef = useRef<HTMLTextAreaElement>(null);
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         const password = passwordRef.current?.value;
-        if (!password) {
-            toast.error('Please fill out all fields');
+        const bio = bioRef.current?.value;
+
+        if (password) {
+            const _pwd = await UserService.updatePassword(id, password);
+            if (!_pwd) {
+                toast.error('Update password went wrong');
+                return;
+            }
+            toast.success('Successfully update password');
             return;
         }
-        const user = await UserService.updatePersonalInfo(userEmail, password);
-        if (!user) {
-            toast.error('Something went wrong');
+
+        if (!bio) {
+            toast.error('Please fill out Bio fields');
+            return;
+        }
+
+        const user = {
+            email: id,
+            bio,
+        };
+
+        const res = await UserService.updatePersonalInfo(user);
+
+        if (!res) {
+            toast.error('Something went wrong while updating');
             return;
         }
 
@@ -54,16 +76,47 @@ const SettingsModal: React.FC<any> = ({
                             className='mb-2'
                             disabled
                         />
-                        <Form.Label>Password</Form.Label>
+                        <Form.Label>
+                            Password
+                            <span
+                                className='ml-2'
+                                style={{
+                                    fontSize: '0.77em',
+                                    cursor: 'pointer',
+                                }}
+                                onClick={() => {
+                                    passwordRef?.current?.removeAttribute(
+                                        'disabled',
+                                    );
+                                }}
+                            >
+                                <RotateLeftRounded style={{ color: 'navy' }} />
+                                reset
+                            </span>
+                        </Form.Label>
                         <Form.Control
                             type='password'
                             placeholder='********'
                             className='mb-2'
                             ref={passwordRef}
+                            disabled
+                        />
+                        <Form.Label>Bio</Form.Label>
+                        <Form.Control
+                            as='textarea'
+                            rows={3}
+                            placeholder='Tell us about yourself'
+                            className='mb-2'
+                            ref={bioRef}
                         />
                     </Form.Group>
-                    <Button type='submit' className='mt-2'>
-                        Update
+                    <Button type='submit'>Update</Button>
+                    <Button
+                        className='m-2'
+                        variant='danger'
+                        onClick={closeModal}
+                    >
+                        Cancel
                     </Button>
                 </Form>
             </Modal.Body>

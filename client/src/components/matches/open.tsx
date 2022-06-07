@@ -5,7 +5,7 @@ import axios from 'axios';
 import CloseIcon from '@material-ui/icons/Close';
 import FavoriteIcon from '@material-ui/icons/Favorite';
 import IconButton from '@material-ui/core/IconButton';
-import PeopleAltIcon from '@material-ui/icons/PeopleAlt';
+import AccountBoxRounded from '@material-ui/icons/AccountBoxRounded';
 import SettingsIcon from '@material-ui/icons/Settings';
 import { toast } from 'react-toastify';
 import InterestsModal from '../modals/InterestsModal';
@@ -14,7 +14,7 @@ import Settings from '../modals/SettingsModal';
 const USER_SETTINGS_KEY = 'userSettings';
 const USER_INTERESTS_KEY = 'userInterests';
 
-const OpenMatches: React.FC = () => {
+const OpenMatches: React.FC<{ id: string }> = ({ id }) => {
     const [modalShow, setModalShow] = React.useState(false);
     const [people, setPeople] = React.useState([]);
     const swiperBtnsRef = React.useRef(null);
@@ -66,39 +66,37 @@ const OpenMatches: React.FC = () => {
                     style={{
                         justifyContent: 'space-around',
                         borderRadius: '10px',
-                        borderBottom: '1px solid #e5e5e5',
+                        // borderBottom: '1px solid #e5e5e5',
                     }}
                     ref={swiperBtnsRef}
                 >
-                    <IconButton>
-                        <PeopleAltIcon
-                            fontSize='large'
-                            style={{
-                                background: '#fcfafa',
-                                color: 'grey',
-                                boxShadow:
-                                    '20px 20px 30px #bebebe, -20px -20px 60px #ffffff',
-                            }}
-                            onClick={() => {
-                                setModalShow(true);
-                                setActiveKey(USER_SETTINGS_KEY);
-                            }}
-                        />
+                    <IconButton
+                        style={{
+                            background: '#fcfafa',
+                            color: 'grey',
+                            boxShadow:
+                                '20px 20px 30px #bebebe, -20px -20px 60px #ffffff',
+                        }}
+                        onClick={() => {
+                            setModalShow(true);
+                            setActiveKey(USER_SETTINGS_KEY);
+                        }}
+                    >
+                        <AccountBoxRounded fontSize='large' />
                     </IconButton>
-                    <IconButton>
-                        <SettingsIcon
-                            fontSize='large'
-                            style={{
-                                background: '#fcfafa',
-                                color: 'grey',
-                                boxShadow:
-                                    '20px 20px 30px #bebebe, -20px -20px 60px #ffffff',
-                            }}
-                            onClick={() => {
-                                setModalShow(true);
-                                setActiveKey(USER_INTERESTS_KEY);
-                            }}
-                        />
+                    <IconButton
+                        style={{
+                            background: '#fcfafa',
+                            color: 'grey',
+                            boxShadow:
+                                '20px 20px 30px #bebebe, -20px -20px 60px #ffffff',
+                        }}
+                        onClick={() => {
+                            setModalShow(true);
+                            setActiveKey(USER_INTERESTS_KEY);
+                        }}
+                    >
+                        <SettingsIcon fontSize='large' />
                     </IconButton>
                 </div>
                 {people.map((person: any, idx: number) => (
@@ -139,7 +137,7 @@ const OpenMatches: React.FC = () => {
                 <div
                     className={'d-flex bottom-0 position-absolute w-100 '}
                     style={{
-                        borderTop: '1px solid #e5e5e5',
+                        // borderTop: '1px solid #e5e5e5',
                         borderRadius: '10px',
                         justifyContent: 'space-around',
                     }}
@@ -174,9 +172,9 @@ const OpenMatches: React.FC = () => {
 
             <Modal show={modalShow} onHide={closeModal}>
                 {userSettingsOpen ? (
-                    <Settings closeModal={closeModal} />
+                    <Settings id={id} closeModal={closeModal} />
                 ) : (
-                    <InterestsModal closeModal={closeModal} />
+                    <InterestsModal id={id} closeModal={closeModal} />
                 )}
             </Modal>
         </>

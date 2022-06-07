@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
 import { UserService } from './service/user.service';
 import { InterestsService } from './service/interests.service';
+import { PeopleService } from './service/people.service';
+import { PeopleController } from './controller/people.controller';
 import { UserController } from './controller/user.controller';
 import { UserInterestsController } from './controller/interests.controller';
 import { MongooseModule } from '@nestjs/mongoose';
@@ -16,8 +18,8 @@ import { AuthModule } from 'src/auth/auth.module';
         ]),
         AuthModule,
     ],
-    controllers: [UserController, UserInterestsController],
-    providers: [InterestsService, UserService],
+    controllers: [UserController, UserInterestsController, PeopleController],
+    providers: [InterestsService, UserService, PeopleService],
     exports: [UserService, InterestsService],
 })
 export class UserModule {}

@@ -28,4 +28,7 @@ export class CreateUserDto extends LoginUserDto {
 
     // @MinLength(1, { each: true })
     // avatar: string[];
+
+    @IsString()
+    bio: string;
 }

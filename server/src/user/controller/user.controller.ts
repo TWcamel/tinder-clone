@@ -17,7 +17,11 @@ import { AuthService } from 'src/auth/service/auth.service';
 import { CreateUserDto } from '../models/dto/CreateUser.dto';
 import { LoginUserDto } from '../models/dto/LoginUser.dto';
 import { GrantMembershipUserDto } from '../models/dto/GrantMembershipUser.dto';
-import { UserI, UserUpdateInfoI } from '../models/user.interface';
+import {
+    UserI,
+    UserUpdateInfoI,
+    UserUpdatePwdI,
+} from '../models/user.interface';
 import { UserMembershipI } from '../models/user-membership.interface';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
 import { FacebookAuthGuard } from 'src/auth/guards/facebook.guard';
@@ -57,12 +61,41 @@ export class UserController {
     @Post('info')
     @HttpCode(200)
     @UseGuards(JwtAuthGuard)
-    async update(
+    async updateUser(
         @Body() newUserInfo: UserUpdateInfoI,
         @Res() res: Response,
     ): Promise<Response> {
+        const { email } = newUserInfo;
         try {
-            const user: UserI = await this.userService.update(res, newUserInfo);
+            const user: UserI = await this.userService.updateUserInfo(
+                email,
+                newUserInfo,
+            );
+            return res.send({
+                ok: true,
+                data: user,
+            });
+        } catch (error) {
+            res.send({
+                error: true,
+                message: error.response,
+            });
+        }
+    }
+
+    @Post('password')
+    @HttpCode(200)
+    @UseGuards(JwtAuthGuard)
+    async updatePassword(
+        @Body() newUserPwd: UserUpdatePwdI,
+        @Res() res: Response,
+    ): Promise<Response> {
+        console.log(newUserPwd);
+        try {
+            const user: UserI = await this.userService.updatePassword(
+                res,
+                newUserPwd,
+            );
             return res.send({
                 ok: true,
                 data: user,

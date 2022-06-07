@@ -11,7 +11,11 @@ import { User, UserDocument } from '../models/user.schemas';
 import { CreateUserDto } from '../models/dto/CreateUser.dto';
 import { AuthService } from 'src/auth/service/auth.service';
 import { LoginUserDto } from '../models/dto/LoginUser.dto';
-import { UserI, UserUpdateInfoI } from '../models/user.interface';
+import {
+    UserI,
+    UserUpdateInfoI,
+    UserUpdatePwdI,
+} from '../models/user.interface';
 import { UserMembershipI } from '../models/user-membership.interface';
 import { Response, Request } from 'express';
 import { ConfigService } from '@nestjs/config';
@@ -71,9 +75,19 @@ export class UserService {
         }
     }
 
-    async update(
+    async updateUserInfo(
+        _email: string,
+        _userInfo: UserUpdateInfoI,
+    ): Promise<User> {
+        const user = await this.userModel
+            .findOneAndUpdate({ email: _email }, _userInfo, { new: true })
+            .exec();
+        return user;
+    }
+
+    async updatePassword(
         @Res() res: Response,
-        newUserInfo: UserUpdateInfoI,
+        newUserInfo: UserUpdatePwdI,
     ): Promise<User> {
         const { email } = newUserInfo;
 
