@@ -3,7 +3,6 @@ import { Modal, Form, Button } from 'react-bootstrap';
 import InterestsService from '../../services/interestsService';
 import { toast } from 'react-toastify';
 import MultiRangeSlider from '../sliders/';
-import useLocalStorage from '../../hooks/useLocalStorage';
 
 const InterestsModal: React.FC<any> = ({
     closeModal,
@@ -18,7 +17,6 @@ const InterestsModal: React.FC<any> = ({
     const [ageRange, setAgeRange] = React.useState([0, 0]);
     const [gender, setGender] = React.useState('');
     const [loc, setLoc] = React.useState('');
-    const [userPrefer, setUserPrefer] = useLocalStorage('userPrefer');
 
     const userRegister = async () => {
         if (gender === '' || ageRange === [0, 0] || loc === '') {
@@ -32,7 +30,6 @@ const InterestsModal: React.FC<any> = ({
             };
             const res = await InterestsService.update(user, id);
             if (res.ok) {
-                setUserPrefer(res.data);
                 setIsUpdated(true);
                 toast.success(`update successed!`);
                 return true;
@@ -45,9 +42,9 @@ const InterestsModal: React.FC<any> = ({
 
     React.useEffect(() => {
         if (isUpdated) {
-            onUpdated(isUpdated);
+            closeModal();
         }
-    }, [isUpdated, onUpdated]);
+    }, [isUpdated, closeModal]);
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();

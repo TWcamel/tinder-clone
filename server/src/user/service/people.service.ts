@@ -45,6 +45,7 @@ export class PeopleService {
                     },
                 },
             },
+            { $limit: 1 },
         ]);
     }
 }

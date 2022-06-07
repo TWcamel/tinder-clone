@@ -50,13 +50,35 @@ export class UserInterestsController {
         @Res() res: Response,
         @Body() createUserInterestsDto: CreateUserInterestsDto,
         @Param('id') id: string,
-    ) {
+    ): Promise<Response> {
+        let updatedInterests = await this.interestsService.update(
+            id,
+            createUserInterestsDto,
+        );
+        if (!updatedInterests) {
+            const formattedInterestsDto = {
+                id,
+                ...createUserInterestsDto,
+            };
+            updatedInterests = await this.interestsService.findOneOrCreate(
+                formattedInterestsDto,
+            );
+        }
         return res.send({
             ok: true,
-            data: await this.interestsService.update(
-                id,
-                createUserInterestsDto,
-            ),
+            data: updatedInterests,
+        });
+    }
+
+    @Get('interests/:id')
+    @UseGuards(JwtAuthGuard)
+    async getInterests(
+        @Res() res: Response,
+        @Param('id') id: string,
+    ): Promise<Response> {
+        return res.send({
+            ok: true,
+            data: await this.interestsService.findOne(id),
         });
     }
 }

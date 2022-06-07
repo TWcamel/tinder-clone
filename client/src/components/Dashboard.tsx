@@ -2,11 +2,11 @@ import React from 'react';
 import Sidebar from './sidebar';
 import OpenConversation from './conversations/open';
 import OpenMatches from './matches/open';
-import useLocalStorage from '../hooks/useLocalStorage';
 import { useConversations } from './conversations/provider';
 import InterestsModal from './modals/InterestsModal';
 import { Modal } from 'react-bootstrap';
 import { toast } from 'react-toastify';
+import InterestsService from '../services/interestsService';
 
 const Dashboard: React.FC<{ id: any; name: any }> = ({ id, name }) => {
     const [modalShow, setModalShow] = React.useState(false);
@@ -16,18 +16,28 @@ const Dashboard: React.FC<{ id: any; name: any }> = ({ id, name }) => {
     const [isPrefferSettingsUpdated, setIsPrefferSettingsUpdated] =
         React.useState(false);
 
-    const [userPrefer] = useLocalStorage('userPrefer');
-
-    React.useEffect(() => {
-        if (isPrefferSettingsUpdated || userPrefer) setModalShow(false);
-        else {
+    const preCheck = React.useCallback(async () => {
+        const interests = await InterestsService.check(id);
+        if (interests.data) {
+            toast.success('Welcome!', { toastId: 'preferences' });
+            setIsPrefferSettingsUpdated(true);
+            setModalShow(false);
+        } else {
             setModalShow(true);
-            toast.info('Please update your preferences to continue', {
+            toast.error('Please update your preferences', {
                 position: toast.POSITION.TOP_CENTER,
                 toastId: 'preferences',
             });
         }
-    }, [isPrefferSettingsUpdated, userPrefer]);
+    }, [id]);
+
+    const closeModal = () => {
+        setModalShow(false);
+    };
+
+    React.useEffect(() => {
+        preCheck();
+    }, [preCheck]);
 
     return (
         <>
@@ -47,6 +57,7 @@ const Dashboard: React.FC<{ id: any; name: any }> = ({ id, name }) => {
                 <InterestsModal
                     id={id}
                     onUpdated={setIsPrefferSettingsUpdated}
+                    closeModal={closeModal}
                 />
             </Modal>
         </>

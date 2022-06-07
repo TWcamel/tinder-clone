@@ -15,6 +15,12 @@ const SignupService = {
         });
         return response.data;
     },
+    check: async (email: string) => {
+        const response = await Api.get(`user/interests/${email}`, null ,{
+            Authorization: `Bearer ${AuthService.getBearerToken()}`,
+        });
+        return response.data;
+    },
 };
 
 export default SignupService;
