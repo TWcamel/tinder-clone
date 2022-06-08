@@ -10,6 +10,12 @@ import SettingsIcon from '@material-ui/icons/Settings';
 import { toast } from 'react-toastify';
 import InterestsModal from '../modals/InterestsModal';
 import Settings from '../modals/SettingsModal';
+import SwipeService from '../../services/swipeService';
+import AwsService from '../../services/awsService';
+import AuthService from '../../services/authService';
+import { v4 as uuidv4 } from 'uuid';
+import { Api } from '../../services/api';
+import * as _ from 'lodash';
 
 const USER_SETTINGS_KEY = 'userSettings';
 const USER_INTERESTS_KEY = 'userInterests';
@@ -20,6 +26,7 @@ const OpenMatches: React.FC<{ id: string }> = ({ id }) => {
     const swiperBtnsRef = React.useRef(null);
     const [activeKey, setActiveKey]: [string, Function] = React.useState('');
     const userSettingsOpen = activeKey === USER_SETTINGS_KEY;
+    const [imgs, setImgs]: [object[], Function] = React.useState([]);
 
     const handleSwipe = (e: any) => {
         console.log(e);
@@ -38,11 +45,48 @@ const OpenMatches: React.FC<{ id: string }> = ({ id }) => {
 
     React.useEffect(() => {
         axios
-            .get(
-                'https://api.themoviedb.org/3/trending/all/day?api_key=360a9b5e0dea438bac3f653b0e73af47&language=en-US',
-            )
-            .then((res) => setPeople(res.data.results.reverse()));
-    }, []);
+            .get(`${Api.backendUrl}/likes/${id}`, {
+                headers: {
+                    Authorization: `Bearer ${AuthService.getBearerToken()}`,
+                    'Content-Type': 'application/json',
+                    'Access-Control-Allow-Origin': '*',
+                },
+            })
+            .then((response) => {
+                if (response.data.ok) {
+                    let imgArr = new Array<object>();
+
+                    Array.prototype.forEach.call(
+                        response.data.data,
+                        (swipe: any) => {
+                            AwsService.getAvatarFromS3(swipe.avatar)
+                                .then((url: string) => url)
+                                .then((url) => {
+                                    imgArr.push({
+                                        email: `${swipe.email}`,
+                                        url: `${url}`,
+                                    });
+                                });
+                        },
+                    );
+
+                    setImgs((preImg: any) => {
+                        return _.uniqBy([...preImg, imgArr], 'email');
+                    });
+
+                    return response.data.data;
+                }
+                return;
+            })
+            .then((ppl) => {
+                if (ppl) {
+                    setPeople(ppl);
+                }
+            })
+            .catch((error) => {
+                toast.error(error.response.data.error);
+            });
+    }, [id]);
 
     const closeModal = () => {
         setModalShow(false);
@@ -99,41 +143,47 @@ const OpenMatches: React.FC<{ id: string }> = ({ id }) => {
                         <SettingsIcon fontSize='large' />
                     </IconButton>
                 </div>
-                {people.map((person: any, idx: number) => (
-                    <Swiper
-                        onSwipe={handleSwipe}
-                        detectingSize={50}
-                        contents={
-                            <div
-                                style={{
-                                    width: '100%',
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    alignItems: 'center',
-                                    textAlign: 'center',
-                                    position: 'absolute',
-                                    height: '100%',
-                                }}
-                            >
-                                <Card className='bg-dark text-white'>
-                                    <Card.Img
-                                        src={`https://image.tmdb.org/t/p/w500/${person.poster_path}`}
-                                        alt='Card image'
-                                        style={{
-                                            borderRadius: '10px',
-                                            border: '5px solid white',
-                                            height: '100%',
-                                        }}
-                                    />
-                                    <Card.ImgOverlay>
-                                        <Card.Title>{person.title}</Card.Title>
-                                        <Card.Text>{person.overview}</Card.Text>
-                                    </Card.ImgOverlay>
-                                </Card>
-                            </div>
-                        }
-                    />
-                ))}
+                {people.map((person: any, idx: number) => {
+                    console.log(imgs[idx]);
+                    return (
+                        <Swiper
+                            key={idx}
+                            onSwipe={handleSwipe}
+                            detectingSize={50}
+                            contents={
+                                <div
+                                    style={{
+                                        width: '100%',
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        alignItems: 'center',
+                                        textAlign: 'center',
+                                        position: 'absolute',
+                                        height: '100%',
+                                    }}
+                                >
+                                    <Card className='bg-dark text-white'>
+                                        <Card.Img
+                                            alt={`${uuidv4()}`}
+                                            src={'asd'}
+                                            style={{
+                                                borderRadius: '10px',
+                                                border: '5px solid white',
+                                                height: '100%',
+                                            }}
+                                        />
+                                        <Card.ImgOverlay>
+                                            <Card.Title>
+                                                {person.name}
+                                            </Card.Title>
+                                            <Card.Text>{person.bio}</Card.Text>
+                                        </Card.ImgOverlay>
+                                    </Card>
+                                </div>
+                            }
+                        />
+                    );
+                })}
                 <div
                     className={'d-flex bottom-0 position-absolute w-100 '}
                     style={{

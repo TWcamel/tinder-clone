@@ -8,6 +8,7 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Interest, InterestDocument } from '../models/user-interests.schemas';
+import { User, UserDocument } from '../models/user.schemas';
 import { AuthService } from 'src/auth/service/auth.service';
 import { Response, Request } from 'express';
 import { ConfigService } from '@nestjs/config';
@@ -18,9 +19,59 @@ export class InterestsService {
     constructor(
         @InjectModel(Interest.name)
         private readonly interestsModel: Model<InterestDocument>,
+        @InjectModel(User.name)
+        private readonly userModel: Model<UserDocument>,
         private readonly authService: AuthService,
         private readonly configService: ConfigService,
     ) {}
+
+    async getPplWithMyInterests(id: string): Promise<any> {
+        const interests = await this.interestsModel.findOne({ id }).exec();
+        const pplWithMyInterests = await this.userModel.aggregate([
+            {
+                $match: {
+                    email: { $ne: interests.id },
+                    gender: { $eq: interests.gender },
+                    age: {
+                        $gte: interests.ageRange[0],
+                        $lt: interests.ageRange[1],
+                    },
+                    location: { $eq: interests.location },
+                },
+            },
+            {
+                $lookup: {
+                    from: 'avatars',
+                    localField: 'email',
+                    foreignField: 'email',
+                    as: 'avatar',
+                },
+            },
+            {
+                $project: {
+                    _id: 0,
+                    name: 1,
+                    email: 1,
+                    age: 1,
+                    gender: 1,
+                    location: 1,
+                    avatar: { $arrayElemAt: ['$avatar.url', 0] },
+                    bio: 1,
+                    userInterests: {
+                        ageRange: interests.ageRange,
+                        gender: interests.gender,
+                        location: interests.location,
+                        email: interests.id,
+                    },
+                },
+            },
+            {
+                $limit: 25,
+            },
+        ]);
+
+        return pplWithMyInterests;
+    }
 
     async findOneOrCreate(
         createUserInterestsDto: CreateUserInterestsDto,

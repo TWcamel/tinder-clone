@@ -16,7 +16,7 @@ const InterestsModal: React.FC<any> = ({
     const [isUpdated, setIsUpdated] = React.useState(false);
     const [ageRange, setAgeRange] = React.useState([0, 0]);
     const [gender, setGender] = React.useState('');
-    const [loc, setLoc] = React.useState('');
+    const [loc, setLoc] = React.useState('Taipei');
 
     const userRegister = async () => {
         if (gender === '' || ageRange === [0, 0] || loc === '') {

@@ -68,7 +68,7 @@ export class RedisCacheService {
     }
 
     //BUG: always return true
-    async getZRange(key: string, start: number, stop: number): Promise<any> {
+    async zRange(key: string, start: number, stop: number): Promise<any> {
         return this.redisClient.zrange(key, start, stop);
     }
 }

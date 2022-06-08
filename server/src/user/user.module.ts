@@ -20,6 +20,6 @@ import { AuthModule } from 'src/auth/auth.module';
     ],
     controllers: [UserController, UserInterestsController, PeopleController],
     providers: [InterestsService, UserService, PeopleService],
-    exports: [UserService, InterestsService],
+    exports: [InterestsService, UserService],
 })
 export class UserModule {}

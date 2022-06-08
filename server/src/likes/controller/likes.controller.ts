@@ -7,6 +7,8 @@ import {
     Req,
     Get,
     Param,
+    CacheKey,
+    CacheTTL,
 } from '@nestjs/common';
 import { AuthService } from 'src/auth/service/auth.service';
 import { MatchesService } from 'src/matches/service/matches.service';
@@ -81,10 +83,9 @@ export class LikesController {
         @Res() res: Response,
         @Param('id') id: string,
     ): Promise<any> {
-        const _res = await this.likesService.getPeopleListForLikes(id);
         return res.send({
             ok: true,
-            data: _res,
+            data: await this.likesService.getPeopleListForLikes(id),
         });
     }
 }

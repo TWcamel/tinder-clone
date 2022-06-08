@@ -37,4 +37,10 @@ const fileArrayIsEmpty = (array: File[]) => {
     return Array.isArray(array) && array.length === 1 && array[0].name === '';
 };
 
-export { arrayEqualty, removeItem, stringToArray, arrayIsEmpty, fileArrayIsEmpty };
+export {
+    arrayEqualty,
+    removeItem,
+    stringToArray,
+    arrayIsEmpty,
+    fileArrayIsEmpty,
+};

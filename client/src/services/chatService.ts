@@ -6,7 +6,6 @@ const ChatService = {
         return response.data;
     },
 
-    createNewMatch: async (userId: string) => {},
 };
 
 export default ChatService;

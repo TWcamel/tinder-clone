@@ -16,7 +16,7 @@ const SignupModal: React.FC<any> = ({
     const [age, setAge] = React.useState(-1);
     const [gender, setGender] = React.useState('');
     const [imgs, setImgs] = React.useState([]);
-    const [loc, setLoc] = React.useState('');
+    const [loc, setLoc] = React.useState('Taipei');
 
     const nameRef = useRef<HTMLInputElement>(null);
     const emailRef = useRef<HTMLInputElement>(null);
