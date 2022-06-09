@@ -7,6 +7,7 @@ import InterestsModal from './modals/InterestsModal';
 import { Modal } from 'react-bootstrap';
 import { toast } from 'react-toastify';
 import InterestsService from '../services/interestsService';
+import useLocalStorage from '../hooks/useLocalStorage';
 
 const Dashboard: React.FC<{ id: any; name: any }> = ({ id, name }) => {
     const [modalShow, setModalShow] = React.useState(false);
@@ -15,6 +16,7 @@ const Dashboard: React.FC<{ id: any; name: any }> = ({ id, name }) => {
     const [sidebarActiveKey, setSidebarActiveKey] = React.useState();
     const [isPrefferSettingsUpdated, setIsPrefferSettingsUpdated] =
         React.useState(false);
+    const [userId, setUserId] = useLocalStorage('userId');
 
     const preCheck = React.useCallback(async () => {
         const interests = await InterestsService.check(id);
@@ -37,7 +39,8 @@ const Dashboard: React.FC<{ id: any; name: any }> = ({ id, name }) => {
 
     React.useEffect(() => {
         preCheck();
-    }, [preCheck]);
+        setUserId(id);
+    }, [preCheck, id, setUserId]);
 
     return (
         <>

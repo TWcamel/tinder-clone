@@ -15,12 +15,21 @@ import AwsService from '../../services/awsService';
 import AuthService from '../../services/authService';
 import { v4 as uuidv4 } from 'uuid';
 import { Api } from '../../services/api';
-import AutorenewIcon from '@material-ui/icons/Autorenew';
+import LoadingEffect from '../loading/';
+import { useMatches } from './provider';
+import { arrayIsEmpty } from '../../utils/array';
 
 const USER_SETTINGS_KEY = 'userSettings';
 const USER_INTERESTS_KEY = 'userInterests';
 
+interface IPerson {
+    email: string;
+    name: string;
+    avatar: string;
+}
+
 const OpenMatches: React.FC<{ id: string }> = ({ id }) => {
+    const { userSwipBehavoir } = useMatches();
     const [modalShow, setModalShow] = React.useState(false);
     const [people, setPeople] = React.useState([]);
     const swiperBtnsRef = React.useRef(null);
@@ -29,18 +38,17 @@ const OpenMatches: React.FC<{ id: string }> = ({ id }) => {
     const [imgs, setImgs]: [{ email: string; url: string }[], Function] =
         React.useState([]);
 
-    const handleSwipe = (e: any) => {
-        console.log(e);
-        //TODO: send swipe to server
+    const handleSwipe = (e: string, p: IPerson) => {
+        userSwipBehavoir(id, p, e);
     };
 
     const handleBtnClick = (e: any) => {
         const current: any = swiperBtnsRef.current;
         const imgContainer: any = current.previousElementSibling;
-        if (imgContainer.tagName !== 'H1') {
+        if (imgContainer.id !== 'swiper-btns-header') {
             return imgContainer.remove();
         }
-        //TODO: load more people
+        //TODO: count down 24hrs later for more likes
         return toast.error('No more matches to like');
     };
 
@@ -123,9 +131,9 @@ const OpenMatches: React.FC<{ id: string }> = ({ id }) => {
                     style={{
                         justifyContent: 'space-around',
                         borderRadius: '10px',
-                        // borderBottom: '1px solid #e5e5e5',
                     }}
                     ref={swiperBtnsRef}
+                    id={'swiper-btns-header'}
                 >
                     <IconButton
                         style={{
@@ -157,10 +165,18 @@ const OpenMatches: React.FC<{ id: string }> = ({ id }) => {
                     </IconButton>
                 </div>
                 {people.map((person: any, idx: number) => {
+                    const _img = imgs.find((img) => img.email === person.email);
                     return (
                         <Swiper
                             key={idx}
-                            onSwipe={handleSwipe}
+                            onSwipe={(e: string) => {
+                                if (_img)
+                                    handleSwipe(e, {
+                                        email: person.email,
+                                        name: person.name,
+                                        avatar: _img.url,
+                                    });
+                            }}
                             detectingSize={50}
                             contents={
                                 <div
@@ -171,29 +187,36 @@ const OpenMatches: React.FC<{ id: string }> = ({ id }) => {
                                         alignItems: 'center',
                                         textAlign: 'center',
                                         position: 'absolute',
-                                        height: '100%',
                                     }}
                                 >
-                                    <Card className='bg-dark text-white'>
-                                        {imgs && imgs.length ? (
-                                            <Card.Img
-                                                alt={`${uuidv4()}`}
-                                                src={imgs[idx].url}
-                                                style={{
-                                                    borderRadius: '10px',
-                                                    border: '5px solid white',
-                                                    height: '100%',
-                                                }}
-                                            />
-                                        ) : (
-                                            <AutorenewIcon fontSize='large' />
-                                        )}
-                                        <Card.ImgOverlay>
-                                            <Card.Title>
-                                                {person.name}
-                                            </Card.Title>
-                                            <Card.Text>{person.bio}</Card.Text>
-                                        </Card.ImgOverlay>
+                                    <Card
+                                        border='warning'
+                                        style={{
+                                            backgroundColor: '#fcfafa',
+                                            width: '100%',
+                                            maxWidth: '377px',
+                                        }}
+                                    >
+                                        <Card.Header>{person.name}</Card.Header>
+                                        <Card.Body>
+                                            {imgs != null &&
+                                            imgs.length &&
+                                            !arrayIsEmpty(imgs) &&
+                                            _img ? (
+                                                <Card.Img
+                                                    alt={`${uuidv4()}`}
+                                                    src={_img.url}
+                                                    style={{
+                                                        borderRadius: '10px',
+                                                        border: '1px solid white',
+                                                        height: '100%',
+                                                    }}
+                                                />
+                                            ) : (
+                                                <LoadingEffect />
+                                            )}
+                                        </Card.Body>
+                                        <Card.Text>{person.bio}</Card.Text>
                                     </Card>
                                 </div>
                             }
@@ -203,7 +226,6 @@ const OpenMatches: React.FC<{ id: string }> = ({ id }) => {
                 <div
                     className={'d-flex bottom-0 position-absolute w-100 '}
                     style={{
-                        // borderTop: '1px solid #e5e5e5',
                         borderRadius: '10px',
                         justifyContent: 'space-around',
                     }}

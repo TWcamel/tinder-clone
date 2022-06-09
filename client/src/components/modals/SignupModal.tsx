@@ -21,6 +21,7 @@ const SignupModal: React.FC<any> = ({
     const nameRef = useRef<HTMLInputElement>(null);
     const emailRef = useRef<HTMLInputElement>(null);
     const passwordRef = useRef<HTMLInputElement>(null);
+    const bioRef = useRef<HTMLTextAreaElement>(null);
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -32,6 +33,7 @@ const SignupModal: React.FC<any> = ({
             !nameRef?.current?.value ||
             !emailRef?.current?.value ||
             !passwordRef?.current?.value ||
+            !bioRef.current?.value ||
             gender.length === 0 ||
             age === -1 ||
             loc === '' ||
@@ -45,6 +47,7 @@ const SignupModal: React.FC<any> = ({
                 name: nameRef.current.value,
                 email: emailRef.current.value,
                 password: passwordRef.current.value,
+                bio: bioRef.current?.value,
                 age: age,
                 gender: gender,
                 location: loc,
@@ -177,6 +180,14 @@ const SignupModal: React.FC<any> = ({
                             <option value='Kinmen'>Kinmen</option>
                             <option value='Lienchiang'>Lienchiang</option>
                         </Form.Control>
+                        <Form.Label>About</Form.Label>
+                        <Form.Control
+                            as='textarea'
+                            rows={3}
+                            placeholder='Introduce yourself'
+                            className='mb-2'
+                            ref={bioRef}
+                        />
                         <Form.Label>Upload Images</Form.Label>
                         <ImageUploader onParentSubmit={setImgs} />
                     </Form.Group>

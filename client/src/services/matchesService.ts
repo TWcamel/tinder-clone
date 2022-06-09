@@ -14,13 +14,9 @@ const MatchesService = {
     },
 
     getMatches: async (email: string) => {
-        const response = await Api.get(
-            `matches/${email}`,
-            {},
-            {
-                Authorization: `Bearer ${AuthService.getBearerToken()}`,
-            },
-        );
+        const response = await Api.get(`matches/${email}`, null, {
+            Authorization: `Bearer ${AuthService.getBearerToken()}`,
+        });
         return response.data;
     },
 };

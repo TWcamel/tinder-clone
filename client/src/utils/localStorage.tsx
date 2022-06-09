@@ -7,9 +7,10 @@ const deleteLocalStorage: (key: string) => void = (key) => {
     localStorage.removeItem(prefixedKey);
 };
 
-const getLocalStorage: (key: string) => string | null = (key) => {
+const getLocalStorage: (key: string) => string | null | undefined = (key) => {
     const prefixedKey = PREFIX + key;
-    return localStorage.getItem(prefixedKey);
+    const item = localStorage.getItem(prefixedKey);
+    return JSON.parse(item ?? 'null');
 };
 
 export { deleteLocalStorage, getLocalStorage };

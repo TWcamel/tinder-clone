@@ -17,7 +17,7 @@ import { ConfigService } from '@nestjs/config';
 import DateTime from 'src/utils/time.utils';
 import * as LikesI from '../models/likes.interface';
 import { RedisCacheService } from 'src/cache/service/redis-cache.service';
-import { apigwGetRequest} from 'src/utils/request.utils'
+import { apigwGetRequest } from 'src/utils/request.utils';
 
 @Injectable()
 export class LikesService {
@@ -30,13 +30,13 @@ export class LikesService {
     ) {}
 
     async getPeopleListForLikes(id: string): Promise<string> {
-        const cachedItem = await this.redisCacheService.get(`ppl-${id}`);
-        if (cachedItem) return cachedItem;
-        else {
-            const like = await this.interestsService.getPplWithMyInterests(id);
-            await this.redisCacheService.set(`ppl-${id}`, like);
-            return like;
-        }
+        // const cachedItem = await this.redisCacheService.get(`ppl-${id}`);
+        // if (cachedItem) return cachedItem;
+        // else {
+        const like = await this.interestsService.getPplWithMyInterests(id);
+        // await this.redisCacheService.set(`ppl-${id}`, like);
+        return like;
+        // }
     }
 
     //TODO: add pagination

@@ -21,12 +21,7 @@ const removeItem = (array: any[], item: any) => {
 };
 
 const stringToArray = (str: string) => {
-    return str
-        .replace(/"/g, '')
-        .replace('[', '')
-        .replace(']', '')
-        .split(',')
-        .map((item) => item.trim());
+    return str.replace(/"/g, '').trim();
 };
 
 const arrayIsEmpty = (array: any[]) => {
@@ -37,10 +32,25 @@ const fileArrayIsEmpty = (array: File[]) => {
     return Array.isArray(array) && array.length === 1 && array[0].name === '';
 };
 
+const twoObjOfArrayEqualty = (a: object[], b: object[]) => {
+    if (a.length !== b.length) {
+        return false;
+    }
+
+    Object.keys(a[0])
+        .sort()
+        .forEach((key) => {
+            if (Object.keys(b[0]).includes(key)) return false;
+        });
+
+    return true;
+};
+
 export {
     arrayEqualty,
     removeItem,
     stringToArray,
     arrayIsEmpty,
     fileArrayIsEmpty,
+    twoObjOfArrayEqualty,
 };

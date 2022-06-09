@@ -76,10 +76,18 @@ export class MatchesService {
                 },
                 {
                     $lookup: {
-                        from: 'users',
+                        from: 'avatars',
+                        localField: 'email',
+                        foreignField: 'email',
+                        as: 'userAvatar',
+                    },
+                },
+                {
+                    $lookup: {
+                        from: 'avatars',
                         localField: 'matchedEmail',
                         foreignField: 'email',
-                        as: 'matchedUser',
+                        as: 'matchedAvatar',
                     },
                 },
                 {
@@ -92,15 +100,26 @@ export class MatchesService {
                 },
                 {
                     $project: {
-                        matchedUser: {
-                            email: 1,
-                            name: 1,
-                            photo: 1,
+                        _id: 0,
+                        id: 1,
+                        email: {
+                            $cond: {
+                                if: { $eq: ['$email', email] },
+                                then: '$matchedEmail',
+                                else: '$email',
+                            },
                         },
-                        user: {
-                            email: 1,
-                            name: 1,
-                            photo: 1,
+                        avatar: {
+                            $cond: {
+                                if: { $eq: ['$email', email] },
+                                then: {
+                                    $arrayElemAt: ['$matchedAvatar.url', 0],
+                                },
+                                else: { $arrayElemAt: ['$userAvatar.url', 0] },
+                            },
+                        },
+                        name: {
+                            $arrayElemAt: ['$user.name', 0],
                         },
                     },
                 },

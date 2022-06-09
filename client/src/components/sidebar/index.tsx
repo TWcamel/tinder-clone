@@ -14,8 +14,10 @@ const Sidebar: React.FC<{
     onSidebarSelected?: (activeKey: any) => void;
 }> = ({ id, name, onSidebarSelected }) => {
     const [modalShow, setModalShow] = React.useState(false);
-    const [activeKey, setActiveKey]: [string, Function] =
-        React.useState(MATCHES_KEY);
+    const [activeKey, setActiveKey]: [
+        string,
+        React.Dispatch<React.SetStateAction<string>>,
+    ] = React.useState(MATCHES_KEY);
     const conversationsOpen = activeKey === CONVERSATIONS_KEY;
 
     React.useEffect(() => {
@@ -54,18 +56,15 @@ const Sidebar: React.FC<{
                         <Conversations />
                     </Tab.Pane>
                     <Tab.Pane eventKey={MATCHES_KEY}>
-                        <Matches />
+                        <Matches onSidebarSelcet={setActiveKey} />
                     </Tab.Pane>
                 </Tab.Content>
-                <div className='p-2 small border'>
+                <div
+                    className='p-2 small border'
+                    style={{ backgroundColor: '#f5f5f5' }}
+                >
                     Your Name: <span className='text-muted'>{id}</span>
                 </div>
-                <Button
-                    onClick={() => setModalShow(true)}
-                    className='rounded-0'
-                >
-                    New {conversationsOpen ? 'Conversation' : 'Like'}
-                </Button>
             </Tab.Container>
 
             <Modal show={modalShow} onHide={closeModal}>

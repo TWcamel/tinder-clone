@@ -9,6 +9,7 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { Interest, InterestDocument } from '../models/user-interests.schemas';
 import { User, UserDocument } from '../models/user.schemas';
+import { Matches, MatchesDocument } from 'src/matches/models/matches.schemas';
 import { AuthService } from 'src/auth/service/auth.service';
 import { Response, Request } from 'express';
 import { ConfigService } from '@nestjs/config';
@@ -21,6 +22,8 @@ export class InterestsService {
         private readonly interestsModel: Model<InterestDocument>,
         @InjectModel(User.name)
         private readonly userModel: Model<UserDocument>,
+        @InjectModel(Matches.name)
+        private readonly matchesModel: Model<MatchesDocument>,
         private readonly authService: AuthService,
         private readonly configService: ConfigService,
     ) {}
@@ -69,6 +72,8 @@ export class InterestsService {
                 $limit: 25,
             },
         ]);
+
+        //TODO: exclude already matched users
 
         return pplWithMyInterests;
     }

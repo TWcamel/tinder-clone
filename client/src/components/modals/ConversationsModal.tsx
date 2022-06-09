@@ -15,8 +15,9 @@ export default function NewConversationModal({
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        console.log(selectedMatchedIds);
 
-        createConversation(selectedMatchedIds);
+        // createConversation(selectedMatchedIds);
         closeModal();
     };
 

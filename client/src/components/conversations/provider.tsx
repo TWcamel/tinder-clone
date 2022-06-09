@@ -8,6 +8,7 @@ import { toast } from 'react-toastify';
 interface IMatch {
     id: string;
     name: string;
+    avatar: string;
 }
 
 interface IMessages {
@@ -50,7 +51,30 @@ export const ConversationsProvider: React.FC<{
 
     const createConversation = (recipients: [IMatch]) => {
         setConversations((prevConversations: [IConversation]) => {
-            return [...prevConversations, { recipients, messages: [] }];
+            if (prevConversations.length > 0) {
+                console.log(prevConversations);
+                // const prev = prevConversations?.find(
+                //     (conversation: IConversation) =>
+                //         arrayEqualty(recipients, conversation.recipients) &&
+                //         toast.info(`You can start a conversation now :)`),
+                // );
+                // if (!prev)
+                //     return [
+                //         ...prevConversations,
+                //         {
+                //             recipients,
+                //             messages: [],
+                //         },
+                //     ];
+                return prevConversations;
+            } else {
+                return [
+                    {
+                        recipients,
+                        messages: [],
+                    },
+                ];
+            }
         });
     };
 
