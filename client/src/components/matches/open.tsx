@@ -15,7 +15,7 @@ import AwsService from '../../services/awsService';
 import AuthService from '../../services/authService';
 import { v4 as uuidv4 } from 'uuid';
 import { Api } from '../../services/api';
-import * as _ from 'lodash';
+import AutorenewIcon from '@material-ui/icons/Autorenew';
 
 const USER_SETTINGS_KEY = 'userSettings';
 const USER_INTERESTS_KEY = 'userInterests';
@@ -26,7 +26,8 @@ const OpenMatches: React.FC<{ id: string }> = ({ id }) => {
     const swiperBtnsRef = React.useRef(null);
     const [activeKey, setActiveKey]: [string, Function] = React.useState('');
     const userSettingsOpen = activeKey === USER_SETTINGS_KEY;
-    const [imgs, setImgs]: [object[], Function] = React.useState([]);
+    const [imgs, setImgs]: [{ email: string; url: string }[], Function] =
+        React.useState([]);
 
     const handleSwipe = (e: any) => {
         console.log(e);
@@ -54,25 +55,37 @@ const OpenMatches: React.FC<{ id: string }> = ({ id }) => {
             })
             .then((response) => {
                 if (response.data.ok) {
-                    let imgArr = new Array<object>();
-
                     Array.prototype.forEach.call(
                         response.data.data,
                         (swipe: any) => {
                             AwsService.getAvatarFromS3(swipe.avatar)
                                 .then((url: string) => url)
                                 .then((url) => {
-                                    imgArr.push({
-                                        email: `${swipe.email}`,
-                                        url: `${url}`,
-                                    });
+                                    setImgs(
+                                        (
+                                            imgs: {
+                                                email: string;
+                                                url: string;
+                                            }[],
+                                        ) => {
+                                            if (
+                                                imgs.find(
+                                                    (img) =>
+                                                        img.email ===
+                                                        swipe.email,
+                                                )
+                                            ) {
+                                                return imgs;
+                                            }
+                                            return [
+                                                ...imgs,
+                                                { email: swipe.email, url },
+                                            ];
+                                        },
+                                    );
                                 });
                         },
                     );
-
-                    setImgs((preImg: any) => {
-                        return _.uniqBy([...preImg, imgArr], 'email');
-                    });
 
                     return response.data.data;
                 }
@@ -144,7 +157,6 @@ const OpenMatches: React.FC<{ id: string }> = ({ id }) => {
                     </IconButton>
                 </div>
                 {people.map((person: any, idx: number) => {
-                    console.log(imgs[idx]);
                     return (
                         <Swiper
                             key={idx}
@@ -163,15 +175,19 @@ const OpenMatches: React.FC<{ id: string }> = ({ id }) => {
                                     }}
                                 >
                                     <Card className='bg-dark text-white'>
-                                        <Card.Img
-                                            alt={`${uuidv4()}`}
-                                            src={'asd'}
-                                            style={{
-                                                borderRadius: '10px',
-                                                border: '5px solid white',
-                                                height: '100%',
-                                            }}
-                                        />
+                                        {imgs && imgs.length ? (
+                                            <Card.Img
+                                                alt={`${uuidv4()}`}
+                                                src={imgs[idx].url}
+                                                style={{
+                                                    borderRadius: '10px',
+                                                    border: '5px solid white',
+                                                    height: '100%',
+                                                }}
+                                            />
+                                        ) : (
+                                            <AutorenewIcon fontSize='large' />
+                                        )}
                                         <Card.ImgOverlay>
                                             <Card.Title>
                                                 {person.name}
@@ -230,4 +246,5 @@ const OpenMatches: React.FC<{ id: string }> = ({ id }) => {
         </>
     );
 };
+
 export default OpenMatches;
