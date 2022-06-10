@@ -27,6 +27,31 @@ export class ChatsService {
     ) {}
     private readonly logger = new Logger('ChatsService');
 
+    async getChatsHistory({
+        sender,
+        reciever,
+    }: ChatsI.SenderAndRecieverI): Promise<ChatsI.ChatI[]> {
+        const chatId = await this.getChatId({ sender, reciever });
+        this.logger.log(chatId);
+        const chats = await this.chatModel
+            .find({
+                chatId,
+            })
+            .sort({ updateAt: -1 })
+            .limit(10)
+            .exec();
+
+        return chats.map((chat) => {
+            const fromMe = chat.sender === sender;
+            return {
+                message: chat.message,
+                sender: fromMe ? sender : reciever,
+                reciever: fromMe ? reciever : sender,
+                updateAt: chat.updateAt,
+            };
+        });
+    }
+
     async updateOrCreateChat({
         sender,
         reciever,
@@ -89,6 +114,7 @@ export class ChatsService {
             sender: newChat.sender,
             updateAt: DateTime.convertToLocal(newChat.updateAt),
         };
+        this.logger.log(formattedMessage);
         return formattedMessage;
     }
 

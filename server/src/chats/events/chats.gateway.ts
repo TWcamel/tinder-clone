@@ -19,6 +19,7 @@ import { ChatsService } from '../service/chats.service';
 interface ChatMessageI {
     text: string;
     recipients: string[];
+    updateAt: Date;
 }
 
 interface FormattedMessageI extends ChatMessageI {
@@ -82,8 +83,13 @@ export class ChatsGateway
             .to(formattedMsg.reciever)
             .emit('receive-message', formattedMsg);
         if (sended) {
-            const { text, sender, reciever } = formattedMsg;
-            this.chatsService.saveMessage({ message: text, sender, reciever });
+            const { text, sender, reciever, updateAt } = formattedMsg;
+            this.chatsService.saveMessage({
+                message: text,
+                sender,
+                reciever,
+                updateAt,
+            });
         }
     }
 
@@ -109,6 +115,7 @@ export class ChatsGateway
             sender: clientId,
             recipients: [recipient],
             reciever: clientId === recipient ? msgBody.recipients[0] : clientId,
+            updateAt: new Date(),
         };
     }
 

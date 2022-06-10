@@ -4,6 +4,19 @@ import { useConversations } from './provider';
 import { getLocalStorage } from '../../utils/localStorage';
 import IconButton from '@material-ui/core/IconButton';
 import SendIcon from '@material-ui/icons/Send';
+import {
+    convertToLocalTimeZone,
+    utcToCst,
+    getLocalTimeBrief,
+} from '../../utils/time';
+
+interface IConversationOpenProps {
+    fromMe: boolean;
+    senderName: string;
+    sender: string;
+    text: string;
+    updateAt: Date;
+}
 
 const OpenConversation: React.FC = () => {
     const [text, setText]: [string, Function] = React.useState('');
@@ -49,12 +62,7 @@ const OpenConversation: React.FC = () => {
                     <div className='d-flex flex-column align-items-start justify-content-end px-3'>
                         {selectedConversation.messages.map(
                             (
-                                conversation: {
-                                    fromMe: boolean;
-                                    senderName: string;
-                                    sender: string;
-                                    text: string;
-                                },
+                                conversation: IConversationOpenProps,
                                 idx: number,
                             ) => {
                                 const lastMessage =
@@ -63,6 +71,7 @@ const OpenConversation: React.FC = () => {
                                 const fromMe = conversation.fromMe;
                                 const text = conversation.text;
                                 const senderName = conversation.senderName;
+                                const updateAt = conversation.updateAt;
                                 return (
                                     <div
                                         ref={lastMessage ? sendMsgRef : null}
@@ -87,7 +96,15 @@ const OpenConversation: React.FC = () => {
                                                 fromMe ? 'text-right' : ''
                                             }`}
                                         >
-                                            {fromMe ? 'You' : senderName}
+                                            {lastMessage
+                                                ? fromMe
+                                                    ? `You ${getLocalTimeBrief(
+                                                          updateAt,
+                                                      )}`
+                                                    : `${senderName}  ${getLocalTimeBrief(
+                                                          updateAt,
+                                                      )}`
+                                                : ''}
                                         </div>
                                     </div>
                                 );

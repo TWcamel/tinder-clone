@@ -97,11 +97,14 @@ export const ConversationsProvider: React.FC<{
     );
 
     const addMessageToConversation: Function = useCallback(
-        ({ recipients, text, sender, updateAt }: INewConversation) => {
-            console.log('addMessageToConversation', updateAt);
+        ({ recipients, text, updateAt, sender }: INewConversation) => {
             setConversations((prevConversations: [IConversation]) => {
                 let madeChanges = false;
-                const newMessage = { sender, text };
+                const newMessage = {
+                    sender,
+                    text,
+                    updateAt: updateAt ? updateAt : new Date(),
+                };
                 const newConversations = prevConversations.map(
                     (conversation: IConversation) => {
                         if (arrayEqualty(conversation.recipients, recipients)) {

@@ -99,6 +99,14 @@ export class MatchesService {
                     },
                 },
                 {
+                    $lookup: {
+                        from: 'users',
+                        localField: 'matchedEmail',
+                        foreignField: 'email',
+                        as: 'matched',
+                    },
+                },
+                {
                     $project: {
                         _id: 0,
                         id: 1,
@@ -119,7 +127,13 @@ export class MatchesService {
                             },
                         },
                         name: {
-                            $arrayElemAt: ['$user.name', 0],
+                            $cond: {
+                                if: { $eq: ['$email', email] },
+                                then: {
+                                    $arrayElemAt: ['$matched.name', 0],
+                                },
+                                else: { $arrayElemAt: ['$user.name', 0] },
+                            },
                         },
                     },
                 },

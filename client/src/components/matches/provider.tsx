@@ -30,23 +30,24 @@ export const MatchesProvider: React.FC<{ children: React.ReactNode }> = ({
     const fetchMatches = React.useCallback(async () => {
         if (matches.length === 0 && userId) {
             const _matches = await MatchesService.getMatches(userId);
-
-            Array.prototype.forEach.call(_matches.data, (match: IMatch) => {
-                const promise = new Promise((resolve, reject) => {
-                    AwsService.getAvatarFromS3(match.avatar).then(
-                        (base64: string) => {
-                            setMatches((prevMatches: IMatches[]) => [
-                                ...prevMatches,
-                                {
-                                    id: match.email,
-                                    name: match.name,
-                                    avatar: base64,
-                                },
-                            ]);
-                        },
-                    );
+            if (_matches.ok) {
+                Array.prototype.forEach.call(_matches.data, (match: IMatch) => {
+                    const promise = new Promise((resolve, reject) => {
+                        AwsService.getAvatarFromS3(match.avatar).then(
+                            (base64: string) => {
+                                setMatches((prevMatches: IMatches[]) => [
+                                    ...prevMatches,
+                                    {
+                                        id: match.email,
+                                        name: match.name,
+                                        avatar: base64,
+                                    },
+                                ]);
+                            },
+                        );
+                    });
                 });
-            });
+            }
         }
     }, [userId, setMatches, matches]);
 
