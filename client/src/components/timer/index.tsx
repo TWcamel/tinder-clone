@@ -1,6 +1,7 @@
 import React from 'react';
 import moment from 'moment';
 import AccessTimeRoundedIcon from '@material-ui/icons/AccessTimeRounded';
+import LoadingEffect from '../loading/';
 
 interface IProps {
     className?: string;
@@ -24,18 +25,24 @@ export const CountDownTimer: React.FC<IProps> = (props: IProps) => {
 
     return (
         <div className={props.className ?? ''} style={props.style}>
-            <span>
-                <AccessTimeRoundedIcon />
-            </span>
-            <h1>
-                {moment
-                    .duration(time, 'seconds')
-                    .asHours()
-                    .toString()
-                    .substring(0, 2)}
-                : {moment.duration(time, 'seconds').minutes()} :{' '}
-                {moment.duration(time, 'seconds').seconds()}
-            </h1>
+            {time ? (
+                <>
+                    <span>
+                        <AccessTimeRoundedIcon />
+                    </span>
+                    <h1>
+                        {moment
+                            .duration(time, 'seconds')
+                            .asHours()
+                            .toString()
+                            .substring(0, 2)}
+                        : {moment.duration(time, 'seconds').minutes()} :{' '}
+                        {moment.duration(time, 'seconds').seconds()}
+                    </h1>
+                </>
+            ) : (
+                <LoadingEffect />
+            )}
         </div>
     );
 };
