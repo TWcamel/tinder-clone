@@ -2,6 +2,8 @@ import React from 'react';
 import { Form, InputGroup, Button, FloatingLabel } from 'react-bootstrap';
 import { useConversations } from './provider';
 import { getLocalStorage } from '../../utils/localStorage';
+import IconButton from '@material-ui/core/IconButton';
+import SendIcon from '@material-ui/icons/Send';
 
 const OpenConversation: React.FC = () => {
     const [text, setText]: [string, Function] = React.useState('');
@@ -13,7 +15,11 @@ const OpenConversation: React.FC = () => {
         }
     }, []);
 
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = (
+        e:
+            | React.FormEvent<HTMLFormElement>
+            | React.KeyboardEvent<HTMLTextAreaElement>,
+    ) => {
         e.preventDefault();
         sendMessage(
             selectedConversation.recipients.map((r: any) => r.id),
@@ -24,8 +30,22 @@ const OpenConversation: React.FC = () => {
 
     return (
         <>
-            <div className='d-flex flex-column flex-grow-1'>
-                <div className='flex-grow-1 overflow-auto'>
+            <div
+                className='d-flex flex-column flex-grow-1'
+                style={{
+                    backgroundColor: '#f5f5f5',
+                }}
+            >
+                <div
+                    className='flex-grow-1 overflow-auto'
+                    style={{
+                        boxShadow:
+                            '30px 60px 120px #4DE8F4, -30px 40px 80px #FD3E3E',
+                        borderRadius: '0.25rem',
+                        margin: '3.3rem',
+                        padding: '1rem',
+                    }}
+                >
                     <div className='d-flex flex-column align-items-start justify-content-end px-3'>
                         {selectedConversation.messages.map(
                             (
@@ -95,13 +115,32 @@ const OpenConversation: React.FC = () => {
                                         );
                                         setText(e.target.value);
                                     }}
-                                    style={{ resize: 'none' }}
-                                    className='rounded'
+                                    style={{
+                                        resize: 'none',
+                                        border: '#4DE8F4 solid 1px',
+                                        borderRadius:
+                                            '1.73rem 0.25rem 0.25rem 1.73rem',
+                                    }}
+                                    onKeyDown={(
+                                        e: React.KeyboardEvent<HTMLTextAreaElement>,
+                                    ) => {
+                                        if (e.key === 'Enter') {
+                                            handleSubmit(e);
+                                        }
+                                    }}
                                 />
                             </FloatingLabel>
-                            <Button type='submit' variant='outline-secondary'>
-                                Send
-                            </Button>
+                            <IconButton
+                                type='submit'
+                                className={`${
+                                    text ? 'bg-primary text-white' : 'bg-light'
+                                }`}
+                                style={{
+                                    border: '#4DE8F4 solid 1px',
+                                }}
+                            >
+                                <SendIcon />
+                            </IconButton>
                         </InputGroup>
                     </Form.Group>
                 </Form>

@@ -30,7 +30,6 @@ export const MatchesProvider: React.FC<{ children: React.ReactNode }> = ({
     const fetchMatches = React.useCallback(async () => {
         if (matches.length === 0 && userId) {
             const _matches = await MatchesService.getMatches(userId);
-            console.log(_matches);
 
             Array.prototype.forEach.call(_matches.data, (match: IMatch) => {
                 const promise = new Promise((resolve, reject) => {
@@ -75,29 +74,28 @@ export const MatchesProvider: React.FC<{ children: React.ReactNode }> = ({
         });
 
         (async () => {
-            const match = await LikesService.createLikesToken(
-                user,
-                person.email,
-                {
-                    [userDecision]: true,
-                },
-            );
-            console.log(match);
-            if (match.ok) {
-                setMatches((prevMatches: any) => {
-                    prevMatches = prevMatches.filter(
-                        ({ id }: IMatch) => id !== person.email,
-                    );
-                    return [
-                        ...prevMatches,
-                        {
-                            id: person.email,
-                            name: person.name,
-                            avatar: person.avatar,
-                        },
-                    ];
-                });
-            }
+            // const match = await LikesService.createLikesToken(
+            //     user,
+            //     person.email,
+            //     {
+            //         [userDecision]: true,
+            //     },
+            // );
+            // if (match.ok) {
+            //     setMatches((prevMatches: any) => {
+            //         prevMatches = prevMatches.filter(
+            //             ({ id }: IMatch) => id !== person.email,
+            //         );
+            //         return [
+            //             ...prevMatches,
+            //             {
+            //                 id: person.email,
+            //                 name: person.name,
+            //                 avatar: person.avatar,
+            //             },
+            //         ];
+            //     });
+            // }
         })();
     };
 

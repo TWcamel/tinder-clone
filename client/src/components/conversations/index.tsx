@@ -32,7 +32,7 @@ export const Conversations: React.FC = () => {
         if (m) {
             setMatches(m);
         }
-    }, [matches]);
+    }, []);
 
     //TODO: make messages scroll to top when new message is added
     //TODO: infinate scroll
@@ -65,11 +65,13 @@ export const Conversations: React.FC = () => {
                                 <Image
                                     src={match?.avatar || ''}
                                     roundedCircle
-                                    height='33'
-                                    width='38'
                                     style={{
-                                        marginRight: '10px',
-                                        border: '1px solid #ccc',
+                                        borderRadius: '50%',
+                                        objectFit: 'cover',
+                                        width: '3rem',
+                                        height: '3rem',
+                                        marginRight: '1rem',
+                                        border: '1px solid rgb(193 193 193)',
                                     }}
                                 />
                                 {match?.name}

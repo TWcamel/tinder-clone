@@ -148,4 +148,39 @@ export default {
     toArray(str: string): Array<any> {
         return str.replace(/[\[\]]/g, '').split(',');
     },
+
+    /**
+    * @description
+    * Returns the two array lengths are equal.
+    *
+    * @param {Array<any>} array1
+    * @param {Array<any>} array2
+    * @returns {boolean}
+
+    * @example
+    * const array1 = [1, 2, 3];
+    * const array2 = [1, 2, 3];
+    *
+    * array.isEqual(array1, array2); // true
+    */
+
+    isEqual(array1: Array<any>, array2: Array<any>): boolean {
+        return array1.length === array2.length;
+    },
+
+    /**
+    * @description
+    * Returns the array is empty.
+    *
+    * @param {Array<any>} array
+    * @returns {boolean}
+
+    * @example
+    * const array = [];
+    *
+    * array.isEmpty(); // true
+    */
+    isEmpty(array: Array<any>): boolean {
+        return array.length === 0;
+    },
 };

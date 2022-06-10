@@ -1,5 +1,6 @@
 import { Api } from './api';
 import AuthService from './authService';
+import AwsService from './awsService';
 
 interface IUserInfo {
     email: string;
@@ -35,6 +36,14 @@ const UserService = {
             Authorization: `Bearer ${AuthService.getBearerToken()}`,
         });
         return response.data.data;
+    },
+
+    getUserInfo: async (email: string) => {
+        const response = await Api.get(`user/people/${email}`, null, {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${AuthService.getBearerToken()}`,
+        });
+        return response.data;
     },
 };
 

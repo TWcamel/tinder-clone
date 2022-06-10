@@ -3,7 +3,6 @@ import {
     Injectable,
     HttpException,
     HttpStatus,
-    UseGuards,
     Res,
     Req,
 } from '@nestjs/common';
@@ -17,7 +16,6 @@ import { ConfigService } from '@nestjs/config';
 import DateTime from 'src/utils/time.utils';
 import * as LikesI from '../models/likes.interface';
 import { RedisCacheService } from 'src/cache/service/redis-cache.service';
-import { apigwGetRequest } from 'src/utils/request.utils';
 
 @Injectable()
 export class LikesService {
@@ -33,7 +31,9 @@ export class LikesService {
         // const cachedItem = await this.redisCacheService.get(`ppl-${id}`);
         // if (cachedItem) return cachedItem;
         // else {
-        const like = await this.interestsService.getPplWithMyInterests(id);
+        const like =
+            await this.interestsService.getPplWithMyInterestsWithoutMached(id);
+
         // await this.redisCacheService.set(`ppl-${id}`, like);
         return like;
         // }

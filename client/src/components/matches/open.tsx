@@ -53,60 +53,36 @@ const OpenMatches: React.FC<{ id: string }> = ({ id }) => {
     };
 
     React.useEffect(() => {
-        axios
-            .get(`${Api.backendUrl}/likes/${id}`, {
-                headers: {
-                    Authorization: `Bearer ${AuthService.getBearerToken()}`,
-                    'Content-Type': 'application/json',
-                    'Access-Control-Allow-Origin': '*',
-                },
-            })
-            .then((response) => {
-                if (response.data.ok) {
-                    Array.prototype.forEach.call(
-                        response.data.data,
-                        (swipe: any) => {
-                            AwsService.getAvatarFromS3(swipe.avatar)
-                                .then((url: string) => url)
-                                .then((url) => {
-                                    setImgs(
-                                        (
-                                            imgs: {
-                                                email: string;
-                                                url: string;
-                                            }[],
-                                        ) => {
-                                            if (
-                                                imgs.find(
-                                                    (img) =>
-                                                        img.email ===
-                                                        swipe.email,
-                                                )
-                                            ) {
-                                                return imgs;
-                                            }
-                                            return [
-                                                ...imgs,
-                                                { email: swipe.email, url },
-                                            ];
-                                        },
-                                    );
-                                });
+        const getPeople = async () => {
+            const res = await SwipeService.getSwipes(id);
+            if (res.error) toast.error(res.message);
+            if (res.ok && res.data.length > 0) {
+                const { data } = res;
+                setPeople(data);
+                Array.prototype.forEach.call(data, async (swipe: any) => {
+                    const base64 = await AwsService.getAvatarFromS3(
+                        swipe.avatar,
+                    );
+                    setImgs(
+                        (
+                            imgs: {
+                                email: string;
+                                url: string;
+                            }[],
+                        ) => {
+                            if (imgs.find((img) => img.email === swipe.email)) {
+                                return imgs;
+                            }
+                            return [
+                                ...imgs,
+                                { email: swipe.email, url: base64 },
+                            ];
                         },
                     );
-
-                    return response.data.data;
-                }
-                return;
-            })
-            .then((ppl) => {
-                if (ppl) {
-                    setPeople(ppl);
-                }
-            })
-            .catch((error) => {
-                toast.error(error.response.data.error);
-            });
+                });
+            }
+        };
+        getPeople();
     }, [id]);
 
     const closeModal = () => {
@@ -123,7 +99,10 @@ const OpenMatches: React.FC<{ id: string }> = ({ id }) => {
                     justifyContent: 'center',
                     textAlign: 'center',
                     width: '100%',
-                    paddingTop: '10rem',
+                    boxShadow: '20px 20px 50px #4DE8F4, -20px 0 50px #FD3E3E',
+                    paddingTop: '12rem',
+                    backgroundColor: '#f5f5f5',
+                    borderRadius: '30px',
                 }}
             >
                 <div
@@ -131,6 +110,7 @@ const OpenMatches: React.FC<{ id: string }> = ({ id }) => {
                     style={{
                         justifyContent: 'space-around',
                         borderRadius: '10px',
+                        padding: '1rem',
                     }}
                     ref={swiperBtnsRef}
                     id={'swiper-btns-header'}
@@ -190,33 +170,51 @@ const OpenMatches: React.FC<{ id: string }> = ({ id }) => {
                                     }}
                                 >
                                     <Card
-                                        border='warning'
+                                        className='text-white'
                                         style={{
-                                            backgroundColor: '#fcfafa',
+                                            backgroundColor: 'none',
                                             width: '100%',
                                             maxWidth: '377px',
+                                            height: '100%',
+                                            textAlign: 'left',
                                         }}
                                     >
-                                        <Card.Header>{person.name}</Card.Header>
-                                        <Card.Body>
-                                            {imgs != null &&
-                                            imgs.length &&
-                                            !arrayIsEmpty(imgs) &&
-                                            _img ? (
-                                                <Card.Img
-                                                    alt={`${uuidv4()}`}
-                                                    src={_img.url}
-                                                    style={{
-                                                        borderRadius: '10px',
-                                                        border: '1px solid white',
-                                                        height: '100%',
-                                                    }}
-                                                />
-                                            ) : (
-                                                <LoadingEffect />
-                                            )}
-                                        </Card.Body>
-                                        <Card.Text>{person.bio}</Card.Text>
+                                        {imgs != null &&
+                                        imgs.length &&
+                                        !arrayIsEmpty(imgs) &&
+                                        _img ? (
+                                            <Card.Img
+                                                alt={`${uuidv4()}`}
+                                                src={_img.url}
+                                                style={{
+                                                    borderRadius: '3px',
+                                                    border: '1px solid white',
+                                                    width: '377px',
+                                                    height: '477px',
+                                                    objectFit: 'cover',
+                                                }}
+                                            />
+                                        ) : (
+                                            <LoadingEffect />
+                                        )}
+                                        <Card.ImgOverlay
+                                            style={{
+                                                backgroundColor:
+                                                    'rgba(0,0,0,0.3)',
+                                            }}
+                                        >
+                                            <Card.Title>Card title</Card.Title>
+                                            <Card.Text>
+                                                This is a wider card with
+                                                supporting text below as a
+                                                natural lead-in to additional
+                                                content. This content is a
+                                                little bit longer.
+                                            </Card.Text>
+                                            <Card.Text>
+                                                Last updated 3 mins ago
+                                            </Card.Text>
+                                        </Card.ImgOverlay>
                                     </Card>
                                 </div>
                             }
@@ -228,6 +226,7 @@ const OpenMatches: React.FC<{ id: string }> = ({ id }) => {
                     style={{
                         borderRadius: '10px',
                         justifyContent: 'space-around',
+                        padding: '1rem',
                     }}
                     ref={swiperBtnsRef}
                 >

@@ -19,8 +19,12 @@ const AwsService = {
     },
 
     getAvatarFromS3: async (url: string) => {
-        const response = await axios.get(url);
-        return response.data;
+        try {
+            const response = await axios.get(url);
+            return response.data;
+        } catch (error) {
+            return error;
+        }
     },
 };
 

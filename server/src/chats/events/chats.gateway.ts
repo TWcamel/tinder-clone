@@ -40,19 +40,18 @@ export class ChatsGateway
     private readonly logger = new Logger(ChatsGateway.name); //TODO: enable logger
 
     afterInit(server: Server): void {
-        console.log(
-            'Init gateway, the server can has max listeners up to: ',
-            server.getMaxListeners(),
-        );
+        this.logger.log('Initialized');
+        this.logger.log(`Max listeners up to: ${server.getMaxListeners()}`);
     }
 
     handleConnection(@ConnectedSocket() client: Socket): void {
         this.removeOverlayConn(client);
         client.join(client.handshake.query.id);
+        this.logger.log(`Client connected: ${client.id}`);
     }
 
     handleDisconnect(@ConnectedSocket() client: Socket): void {
-        console.log('Client disconnected', client.id);
+        this.logger.log(`Client disconnected: ${client.id}`);
     }
 
     @SubscribeMessage('send-typing')
@@ -67,8 +66,6 @@ export class ChatsGateway
         );
         const reciever =
             clientId === recipient ? msgBody.recipients[0] : clientId;
-
-        console.log(reciever);
 
         this.server.sockets
             .to(reciever)
@@ -87,6 +84,7 @@ export class ChatsGateway
     }
 
     removeOverlayConn(client: Socket): void {
+        this.logger.log(`Removing duplicated connection: ${client.id}`);
         this.server.sockets.sockets.forEach(async (socket) => {
             if (await ckeckIfTwoSocketsAreTheSame(socket, client))
                 socket.disconnect();

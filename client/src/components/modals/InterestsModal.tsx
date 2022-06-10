@@ -109,8 +109,13 @@ const InterestsModal: React.FC<any> = ({
                             <option value='Lienchiang'>Lienchiang</option>
                         </Form.Control>
                     </Form.Group>
-                    <Button type='submit' className='mt-2'>
-                        Update
+                    <Button type='submit'>Update</Button>
+                    <Button
+                        className='m-2'
+                        variant='danger'
+                        onClick={closeModal}
+                    >
+                        Close
                     </Button>
                 </Form>
             </Modal.Body>

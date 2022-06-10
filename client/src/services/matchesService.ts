@@ -17,6 +17,7 @@ const MatchesService = {
         const response = await Api.get(`matches/${email}`, null, {
             Authorization: `Bearer ${AuthService.getBearerToken()}`,
         });
+        console.log(response);
         return response.data;
     },
 };

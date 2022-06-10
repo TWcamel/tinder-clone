@@ -2,8 +2,10 @@ import React from 'react';
 import { Tab, Nav, Button, Modal } from 'react-bootstrap';
 import Conversations from '../conversations/';
 import Matches from '../matches/';
-import NewLikesModal from '../modals/MatchesModal';
-import NewConversationModal from '../modals/ConversationsModal';
+import IconButton from '@material-ui/core/IconButton';
+import FaceIcon from '@material-ui/icons/Face';
+import ExitToApp from '@material-ui/icons/ExitToApp';
+import AuthService from '../../services/authService';
 
 const CONVERSATIONS_KEY = 'conversations';
 const MATCHES_KEY = 'matches';
@@ -18,7 +20,6 @@ const Sidebar: React.FC<{
         string,
         React.Dispatch<React.SetStateAction<string>>,
     ] = React.useState(MATCHES_KEY);
-    const conversationsOpen = activeKey === CONVERSATIONS_KEY;
 
     React.useEffect(() => {
         if (onSidebarSelected) {
@@ -26,8 +27,8 @@ const Sidebar: React.FC<{
         }
     }, [activeKey, onSidebarSelected]);
 
-    const closeModal = () => {
-        setModalShow(false);
+    const handleLogout = () => {
+        AuthService.logout();
     };
 
     return (
@@ -60,20 +61,16 @@ const Sidebar: React.FC<{
                     </Tab.Pane>
                 </Tab.Content>
                 <div
-                    className='p-2 small border'
+                    className='p-2 small border d-flex justify-content-between align-items-center'
                     style={{ backgroundColor: '#f5f5f5' }}
                 >
-                    Your Name: <span className='text-muted'>{id}</span>
+                    <FaceIcon style={{ fontSize: '2rem' }} />
+                    <span className='text-muted'>{id}</span>
+                    <IconButton onClick={() => handleLogout()}>
+                        <ExitToApp style={{ fontSize: '2rem' }} />
+                    </IconButton>
                 </div>
             </Tab.Container>
-
-            <Modal show={modalShow} onHide={closeModal}>
-                {conversationsOpen ? (
-                    <NewConversationModal closeModal={closeModal} />
-                ) : (
-                    <NewLikesModal closeModal={closeModal} />
-                )}
-            </Modal>
         </div>
     );
 };

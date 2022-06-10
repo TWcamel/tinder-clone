@@ -45,6 +45,7 @@ const SettingsModal: React.FC<any> = ({
         };
 
         const res = await UserService.updatePersonalInfo(user);
+        console.log(res);
 
         if (!res) {
             toast.error('Something went wrong while updating');
@@ -58,12 +59,12 @@ const SettingsModal: React.FC<any> = ({
         <>
             <Modal.Header className='m-2'>
                 <h3>Personal Info</h3>
-                <Image
-                    src='https://via.placeholder.com/150'
-                    roundedCircle
-                    width='100'
-                    height='100'
-                />
+                {/* <Image */}
+                {/*     src='https://via.placeholder.com/150' */}
+                {/*     roundedCircle */}
+                {/*     width='100' */}
+                {/*     height='100' */}
+                {/* /> */}
             </Modal.Header>
             <Modal.Body>
                 <Form onSubmit={handleSubmit}>
@@ -116,7 +117,7 @@ const SettingsModal: React.FC<any> = ({
                         variant='danger'
                         onClick={closeModal}
                     >
-                        Cancel
+                        Close
                     </Button>
                 </Form>
             </Modal.Body>

@@ -83,9 +83,16 @@ export class LikesController {
         @Res() res: Response,
         @Param('id') id: string,
     ): Promise<any> {
-        return res.send({
-            ok: true,
-            data: await this.likesService.getPeopleListForLikes(id),
-        });
+        try {
+            return res.send({
+                ok: true,
+                data: await this.likesService.getPeopleListForLikes(id),
+            });
+        } catch (error) {
+            return res.send({
+                error: true,
+                message: error.response || error._message,
+            });
+        }
     }
 }
