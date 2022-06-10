@@ -11,6 +11,10 @@ import { Interest, InterestsSchema } from './models/user-interests.schemas';
 import { AuthModule } from 'src/auth/auth.module';
 import { Matches, MatchesSchema } from 'src/matches/models/matches.schemas';
 import { Likes, LikesSchema } from 'src/likes/models/likes.schemas';
+import {
+    NextTimeToMatch,
+    NextTimeToMatchSchema,
+} from 'src/matches/models/next.time.match.schemas';
 
 @Module({
     imports: [
@@ -22,6 +26,9 @@ import { Likes, LikesSchema } from 'src/likes/models/likes.schemas';
             { name: Matches.name, schema: MatchesSchema },
         ]),
         MongooseModule.forFeature([{ name: Likes.name, schema: LikesSchema }]),
+        MongooseModule.forFeature([
+            { name: NextTimeToMatch.name, schema: NextTimeToMatchSchema },
+        ]),
         AuthModule,
     ],
     controllers: [UserController, UserInterestsController, PeopleController],

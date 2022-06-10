@@ -18,6 +18,8 @@ import { Api } from '../../services/api';
 import LoadingEffect from '../loading/';
 import { useMatches } from './provider';
 import { arrayIsEmpty } from '../../utils/array';
+import NextSwipeCountDownTimer from '../timer/';
+import moment from 'moment';
 
 const USER_SETTINGS_KEY = 'userSettings';
 const USER_INTERESTS_KEY = 'userInterests';
@@ -32,6 +34,10 @@ const OpenMatches: React.FC<{ id: string }> = ({ id }) => {
     const { userSwipBehavoir } = useMatches();
     const [modalShow, setModalShow] = React.useState(false);
     const [people, setPeople] = React.useState([]);
+    const [swiperNextTime, setSwiperNextTime] = React.useState({
+        canSwipe: true,
+        time: null,
+    });
     const swiperBtnsRef = React.useRef(null);
     const [activeKey, setActiveKey]: [string, Function] = React.useState('');
     const userSettingsOpen = activeKey === USER_SETTINGS_KEY;
@@ -55,7 +61,16 @@ const OpenMatches: React.FC<{ id: string }> = ({ id }) => {
     React.useEffect(() => {
         const getPeople = async () => {
             const res = await SwipeService.getSwipes(id);
-            if (res.error) toast.error(res.message);
+            if (res.ok && res.data?.nextTime) {
+                console.log(moment(res.data.nextTime).toDate());
+                setSwiperNextTime({
+                    canSwipe: true,
+                    time: res.data.nextTime,
+                });
+            } else if (res.error) {
+                toast.error(res.message);
+            }
+
             if (res.ok && res.data.length > 0) {
                 const { data } = res;
                 setPeople(data);
@@ -145,89 +160,98 @@ const OpenMatches: React.FC<{ id: string }> = ({ id }) => {
                         <SettingsIcon fontSize='large' />
                     </IconButton>
                 </div>
-                {people.map((person: any, idx: number) => {
-                    const _img = imgs.find((img) => img.email === person.email);
-                    return (
-                        <Swiper
-                            key={idx}
-                            className={
-                                'd-flex align-items-center justify-content-center'
-                            }
-                            style={{
-                                height: '100%',
-                            }}
-                            onSwipe={(e: string) => {
-                                if (_img)
-                                    handleSwipe(e, {
-                                        email: person.email,
-                                        name: person.name,
-                                        avatar: _img.url,
-                                    });
-                            }}
-                            detectingSize={50}
-                            contents={
-                                <div
-                                    style={{
-                                        width: '100%',
-                                        display: 'flex',
-                                        flexDirection: 'column',
-                                        alignItems: 'center',
-                                        textAlign: 'center',
-                                        position: 'absolute',
-                                    }}
-                                >
-                                    <Card
-                                        className='text-white'
+                {swiperNextTime.canSwipe ? (
+                    <div
+                        className={
+                            'd-flex align-items-center justify-content-center h-100'
+                        }
+                    >
+                        <NextSwipeCountDownTimer
+                            passInTime={moment(swiperNextTime.time).toDate()}
+                        />
+                    </div>
+                ) : (
+                    people.map((person: any, idx: number) => {
+                        const _img = imgs.find(
+                            (img) => img.email === person.email,
+                        );
+                        return (
+                            <Swiper
+                                key={idx}
+                                className={
+                                    'd-flex align-items-center justify-content-center'
+                                }
+                                style={{
+                                    height: '100%',
+                                }}
+                                onSwipe={(e: string) => {
+                                    if (_img)
+                                        handleSwipe(e, {
+                                            email: person.email,
+                                            name: person.name,
+                                            avatar: _img.url,
+                                        });
+                                }}
+                                detectingSize={50}
+                                contents={
+                                    <div
                                         style={{
-                                            backgroundColor: 'none',
                                             width: '100%',
-                                            maxWidth: '377px',
-                                            height: '100%',
-                                            textAlign: 'left',
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            alignItems: 'center',
+                                            textAlign: 'center',
+                                            position: 'absolute',
                                         }}
                                     >
-                                        {imgs != null &&
-                                        imgs.length &&
-                                        !arrayIsEmpty(imgs) &&
-                                        _img ? (
-                                            <Card.Img
-                                                alt={`${uuidv4()}`}
-                                                src={_img.url}
-                                                style={{
-                                                    borderRadius: '3px',
-                                                    border: '1px solid white',
-                                                    width: '377px',
-                                                    height: '477px',
-                                                    objectFit: 'cover',
-                                                }}
-                                            />
-                                        ) : (
-                                            <LoadingEffect />
-                                        )}
-                                        <Card.ImgOverlay
+                                        <Card
+                                            className='text-white'
                                             style={{
-                                                backgroundColor:
-                                                    'rgba(0,0,0,0.3)',
+                                                backgroundColor: 'none',
+                                                width: '100%',
+                                                maxWidth: '377px',
+                                                height: '100%',
+                                                textAlign: 'left',
                                             }}
                                         >
-                                            <Card.Title>Card title</Card.Title>
-                                            <Card.Text>
-                                                This is a wider card with
-                                                supporting text below as a
-                                                natural lead-in to additional
-                                                content. This content is a
-                                                little bit longer.
-                                            </Card.Text>
-                                            <Card.Text>
-                                                Last updated 3 mins ago
-                                            </Card.Text>
-                                        </Card.ImgOverlay>
-                                    </Card>
-                                </div>
-                            }
-                        />
-                    );
-                })}
+                                            {imgs != null &&
+                                            imgs.length &&
+                                            !arrayIsEmpty(imgs) &&
+                                            _img ? (
+                                                <Card.Img
+                                                    alt={`${uuidv4()}`}
+                                                    src={_img.url}
+                                                    style={{
+                                                        borderRadius: '3px',
+                                                        border: '1px solid white',
+                                                        width: '377px',
+                                                        height: '477px',
+                                                        objectFit: 'cover',
+                                                    }}
+                                                />
+                                            ) : (
+                                                <LoadingEffect />
+                                            )}
+                                            <Card.ImgOverlay
+                                                style={{
+                                                    backgroundColor:
+                                                        'rgba(0,0,0,0.3)',
+                                                }}
+                                            >
+                                                <Card.Title>
+                                                    {person.name}
+                                                </Card.Title>
+                                                <Card.Text>
+                                                    {person.bio}
+                                                </Card.Text>
+                                            </Card.ImgOverlay>
+                                        </Card>
+                                    </div>
+                                }
+                            />
+                        );
+                    })
+                )}
                 <div
                     className={'d-flex bottom-0 position-absolute w-100 '}
                     style={{

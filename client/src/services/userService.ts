@@ -45,6 +45,8 @@ const UserService = {
         });
         return response.data;
     },
+
+    
 };
 
 export default UserService;

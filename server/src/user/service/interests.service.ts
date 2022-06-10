@@ -9,6 +9,10 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { Interest, InterestDocument } from '../models/user-interests.schemas';
 import { Matches, MatchesDocument } from 'src/matches/models/matches.schemas';
+import {
+    NextTimeToMatch,
+    NextTimeToMatchDocument,
+} from 'src/matches/models/next.time.match.schemas';
 import { Likes, LikesDocument } from 'src/likes/models/likes.schemas';
 import { User, UserDocument } from '../models/user.schemas';
 import { AuthService } from 'src/auth/service/auth.service';
@@ -16,6 +20,7 @@ import { Response, Request } from 'express';
 import { ConfigService } from '@nestjs/config';
 import { CreateUserInterestsDto } from '../models/dto/CreateInterests.dto';
 import ArrayUtils from 'src/utils/array.utils';
+import DateTimeUtils from 'src/utils/time.utils';
 
 @Injectable()
 export class InterestsService {
@@ -28,6 +33,8 @@ export class InterestsService {
         private readonly matchesModel: Model<MatchesDocument>,
         @InjectModel(Likes.name)
         private readonly likesModel: Model<LikesDocument>,
+        @InjectModel(NextTimeToMatch.name)
+        private readonly nextTimeToMatchModel: Model<NextTimeToMatchDocument>,
         private readonly authService: AuthService,
         private readonly configService: ConfigService,
     ) {}
@@ -104,10 +111,20 @@ export class InterestsService {
             !ArrayUtils.isEmpty(matchedPpl) &&
             ArrayUtils.isEqual(formattedPplEmail, matchedPpl)
         ) {
-            throw new HttpException(
-                'You have already mached with all the people with your interests',
-                HttpStatus.BAD_REQUEST,
-            );
+            return await this.nextTimeToMatchModel
+                .findOneAndUpdate(
+                    { email: id },
+                    {
+                        email: id,
+                        nextTimeToMatch: DateTimeUtils.tomorrow(),
+                    },
+                    { upsert: true, new: true },
+                )
+                .catch((err) => {
+                    return Promise.reject(
+                        'Duplicate key error when trying to save next time to match',
+                    );
+                });
         }
 
         const notMatchedPpl = pplWithMyInterests.filter(

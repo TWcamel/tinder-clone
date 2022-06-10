@@ -51,7 +51,7 @@ export const Conversations: React.FC = () => {
                                 action
                                 onClick={() => selectConversationIndex(idx)}
                                 active={conversation.selected}
-                                className='d-flex align-items-center justify-content-between'
+                                className='d-flex align-items-center'
                                 style={{
                                     cursor: 'pointer',
                                     borderRadius: '0',
