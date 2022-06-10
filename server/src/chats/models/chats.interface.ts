@@ -1,5 +1,6 @@
 export interface ReceivedMessageI extends SenderAndRecieverI {
     message: string;
+    updateAt: Date;
 }
 
 export interface MessagesI extends MessageI {

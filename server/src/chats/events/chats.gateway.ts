@@ -23,7 +23,7 @@ interface ChatMessageI {
 
 interface FormattedMessageI extends ChatMessageI {
     sender: string;
-    receiver: string;
+    reciever: string;
 }
 
 @WebSocketGateway({
@@ -78,9 +78,13 @@ export class ChatsGateway
         @MessageBody() msgBody: ChatMessageI,
     ): Promise<void> {
         const formattedMsg = await this.getFormattedMsg(client, msgBody);
-        this.server.sockets
-            .to(formattedMsg.receiver)
+        const sended = this.server.sockets
+            .to(formattedMsg.reciever)
             .emit('receive-message', formattedMsg);
+        if (sended) {
+            const { text, sender, reciever } = formattedMsg;
+            this.chatsService.saveMessage({ message: text, sender, reciever });
+        }
     }
 
     removeOverlayConn(client: Socket): void {
@@ -104,7 +108,7 @@ export class ChatsGateway
             text: msgBody.text,
             sender: clientId,
             recipients: [recipient],
-            receiver: clientId === recipient ? msgBody.recipients[0] : clientId,
+            reciever: clientId === recipient ? msgBody.recipients[0] : clientId,
         };
     }
 

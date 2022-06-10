@@ -100,7 +100,6 @@ const OpenMatches: React.FC<{ id: string }> = ({ id }) => {
                     textAlign: 'center',
                     width: '100%',
                     boxShadow: '20px 20px 50px #4DE8F4, -20px 0 50px #FD3E3E',
-                    paddingTop: '12rem',
                     backgroundColor: '#f5f5f5',
                     borderRadius: '30px',
                 }}
@@ -121,6 +120,7 @@ const OpenMatches: React.FC<{ id: string }> = ({ id }) => {
                             color: 'grey',
                             boxShadow:
                                 '20px 20px 30px #bebebe, -20px -20px 60px #ffffff',
+                            zIndex: 1,
                         }}
                         onClick={() => {
                             setModalShow(true);
@@ -135,6 +135,7 @@ const OpenMatches: React.FC<{ id: string }> = ({ id }) => {
                             color: 'grey',
                             boxShadow:
                                 '20px 20px 30px #bebebe, -20px -20px 60px #ffffff',
+                            zIndex: 1,
                         }}
                         onClick={() => {
                             setModalShow(true);
@@ -149,6 +150,12 @@ const OpenMatches: React.FC<{ id: string }> = ({ id }) => {
                     return (
                         <Swiper
                             key={idx}
+                            className={
+                                'd-flex align-items-center justify-content-center'
+                            }
+                            style={{
+                                height: '100%',
+                            }}
                             onSwipe={(e: string) => {
                                 if (_img)
                                     handleSwipe(e, {

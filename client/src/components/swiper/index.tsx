@@ -5,6 +5,7 @@ interface IProps {
     contents: any;
     onSwipe?: Function;
     className?: string;
+    style?: React.CSSProperties;
     detectingSize?: number;
     throwLimit?: number;
     image?: string;
@@ -234,6 +235,9 @@ export const Swiper: React.FC<IProps> = (props: IProps) => {
         <div
             ref={target}
             className={props.className ?? ''}
+            style={{
+                ...props.style,
+            }}
             onTouchStart={handleTouchStart}
             onTouchMove={handleTouchMove}
             onTouchEnd={handleTouchEnd}

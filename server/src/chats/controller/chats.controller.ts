@@ -39,6 +39,7 @@ export class ChatsController {
                 sender,
                 reciever,
                 message,
+                updateAt: new Date(),
             });
             if (chat)
                 return res.send({
@@ -52,4 +53,5 @@ export class ChatsController {
             });
         }
     }
+
 }

@@ -27,6 +27,7 @@ interface INewConversation {
     recipients: [IMatch];
     text: string;
     sender: string;
+    updateAt?: Date;
 }
 
 const ConversationsContext = React.createContext({});
@@ -96,7 +97,8 @@ export const ConversationsProvider: React.FC<{
     );
 
     const addMessageToConversation: Function = useCallback(
-        ({ recipients, text, sender }: INewConversation) => {
+        ({ recipients, text, sender, updateAt }: INewConversation) => {
+            console.log('addMessageToConversation', updateAt);
             setConversations((prevConversations: [IConversation]) => {
                 let madeChanges = false;
                 const newMessage = { sender, text };

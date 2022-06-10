@@ -5,6 +5,7 @@ import {
     HttpStatus,
     Res,
     Req,
+    Logger,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Chats, ChatsDocument } from '../models/chats.schemas';
@@ -24,6 +25,7 @@ export class ChatsService {
         private readonly matchesService: MatchesService,
         private readonly likesService: LikesService,
     ) {}
+    private readonly logger = new Logger('ChatsService');
 
     async updateOrCreateChat({
         sender,
@@ -62,6 +64,32 @@ export class ChatsService {
                 ),
             );
         }
+    }
+
+    async saveMessage({
+        sender,
+        reciever,
+        message,
+        updateAt,
+    }: ChatsI.ReceivedMessageI): Promise<ChatsI.ChatI> {
+        let formattedMessage = {
+            message,
+            sender,
+            updateAt: updateAt || new Date(),
+        };
+        const newChat: any = await new this.chatModel({
+            ...formattedMessage,
+            matchedId: await this.matchesService.checkGenIdIsMatched({
+                email: sender,
+                matchedEmail: reciever,
+            }),
+        }).save();
+        formattedMessage = {
+            message: newChat.message,
+            sender: newChat.sender,
+            updateAt: DateTime.convertToLocal(newChat.updateAt),
+        };
+        return formattedMessage;
     }
 
     async getChatId({

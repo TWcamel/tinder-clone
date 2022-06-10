@@ -9,7 +9,7 @@ const OpenConversation: React.FC = () => {
     const [text, setText]: [string, Function] = React.useState('');
     const { sendMessage, selectedConversation, showTypingHint } =
         useConversations();
-    const setRef = React.useCallback((node: HTMLDivElement) => {
+    const sendMsgRef = React.useCallback((node: HTMLDivElement) => {
         if (node) {
             node.scrollIntoView({ behavior: 'smooth' });
         }
@@ -65,7 +65,7 @@ const OpenConversation: React.FC = () => {
                                 const senderName = conversation.senderName;
                                 return (
                                     <div
-                                        ref={lastMessage ? setRef : null}
+                                        ref={lastMessage ? sendMsgRef : null}
                                         key={idx}
                                         className={`my-1 d-flex flex-column ${
                                             fromMe
@@ -77,7 +77,7 @@ const OpenConversation: React.FC = () => {
                                             className={`rounded px-2 py-1 ${
                                                 fromMe
                                                     ? 'bg-primary text-white'
-                                                    : 'border'
+                                                    : 'bg-danger text-white border'
                                             }`}
                                         >
                                             {text}
