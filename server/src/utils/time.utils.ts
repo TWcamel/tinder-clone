@@ -21,6 +21,6 @@ export default {
     },
 
     tomorrow: () => {
-        return new Date(new Date().getTime() + 24 * 60 * 60 * 1000);
+        return new Date(new Date().setHours(24, 0, 0, 0));
     },
 };

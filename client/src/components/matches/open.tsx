@@ -20,6 +20,7 @@ import { useMatches } from './provider';
 import { arrayIsEmpty } from '../../utils/array';
 import NextSwipeCountDownTimer from '../timer/';
 import moment from 'moment';
+import { getLocalTimeBrief } from '../../utils/time';
 
 const USER_SETTINGS_KEY = 'userSettings';
 const USER_INTERESTS_KEY = 'userInterests';
@@ -62,11 +63,15 @@ const OpenMatches: React.FC<{ id: string }> = ({ id }) => {
         const getPeople = async () => {
             const res = await SwipeService.getSwipes(id);
             if (res.ok && res.data?.nextTime) {
-                console.log(moment(res.data.nextTime).toDate());
                 setSwiperNextTime({
                     canSwipe: true,
                     time: res.data.nextTime,
                 });
+                toast.info(
+                    `You can swipe again at ${getLocalTimeBrief(
+                        res.data.nextTime,
+                    )}`,
+                );
             } else if (res.error) {
                 toast.error(res.message);
             }
