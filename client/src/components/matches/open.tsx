@@ -57,11 +57,11 @@ const OpenMatches: React.FC<{ id: string }> = ({ id }) => {
         userSwipBehavoir(id, p, e);
         setSwipeCounts(p.index);
         if (!checkIfImageStillLeft(p.index)) {
-            // const remainTimes = await LikesService.getRemainTimeNextSwipe(id);
-            // if (remainTimes.ok) {
-            //     showSwiperNextTime(remainTimes.data.nextTime);
-            //     return toast.error('No more matches to like');
-            // }
+            const remainTimes = await LikesService.getRemainTimeNextSwipe(id);
+            if (remainTimes.ok) {
+                showSwiperNextTime(remainTimes.data.nextTime);
+                return toast.error('No more matches to like');
+            }
         }
     };
 
