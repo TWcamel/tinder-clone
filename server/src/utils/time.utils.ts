@@ -19,4 +19,8 @@ export default {
     getCurrentTime: () => {
         return new Date().toLocaleString();
     },
+
+    tomorrow: () => {
+        return new Date(new Date().setHours(24, 0, 0, 0));
+    },
 };

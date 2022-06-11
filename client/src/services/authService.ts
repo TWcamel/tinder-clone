@@ -1,6 +1,14 @@
 import { Api } from './api';
+import { clearAllLocalStorage } from '../utils/localStorage';
+import { refreshPage } from '../utils/page';
 
 const AuthService = {
+    logout: async () => {
+        Api.delete('user/logout');
+        AuthService.clearCookie();
+        clearAllLocalStorage();
+        refreshPage();
+    },
     login: async (email: string, password: string) => {
         const res = await Api.patch('user/login', {
             email: email,

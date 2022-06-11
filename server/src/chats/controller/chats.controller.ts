@@ -39,11 +39,37 @@ export class ChatsController {
                 sender,
                 reciever,
                 message,
+                updateAt: new Date(),
             });
             if (chat)
                 return res.send({
                     ok: true,
                     data: chat,
+                });
+        } catch (error) {
+            return res.send({
+                error: true,
+                message: error.response || error._message,
+            });
+        }
+    }
+
+    @Post('/history')
+    @UseGuards(JwtAuthGuard)
+    async getChatsHistory(
+        @Res() res: Response,
+        @Req() req: Request,
+    ): Promise<Response<ChatI[]>> {
+        const { sender, reciever }: ReceivedMessageI = req.body;
+        try {
+            const chats = await this.chatsService.getChatsHistory({
+                sender,
+                reciever,
+            });
+            if (chats)
+                return res.send({
+                    ok: true,
+                    data: chats,
                 });
         } catch (error) {
             return res.send({

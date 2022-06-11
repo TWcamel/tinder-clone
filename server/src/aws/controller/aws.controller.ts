@@ -33,21 +33,27 @@ export class AwsController {
         @Res() res: Response,
         @Body() _data: AwsI.S3BucketI,
     ): Promise<Response> {
-        const { email } = await this.userService.findOne(_data.user);
-        if ((_data.user = email)) {
-            this.awsService.saveToS3Bucket(_data);
+        try {
+            const { email } = await this.userService.findOne(_data.user);
+            if ((_data.user = email)) {
+                this.awsService.saveToS3Bucket(_data);
+                return res.send({
+                    ok: true,
+                    data: await this.awsService.saveToMongoDb({
+                        url: _data.url,
+                        email,
+                    }),
+                });
+            }
+        } catch (error) {
             return res.send({
-                ok: true,
-                data: await this.awsService.saveToMongoDb({
-                    url: _data.url,
-                    email,
-                }),
+                error: true,
+                data:
+                    error ||
+                    error.message ||
+                    'Error while uploading to S3 Bucket',
             });
         }
-        return res.send({
-            error: true,
-            data: 'Error while uploading to S3 Bucket',
-        });
     }
 
     @Get('s3')

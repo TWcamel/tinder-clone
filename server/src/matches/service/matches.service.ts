@@ -20,11 +20,19 @@ import {
 import { GetIdLikeI } from 'src/likes/models/likes.interface';
 import { LikesService } from 'src/likes/service/likes.service';
 import ArrayUtils from 'src/utils/array.utils';
+import {
+    NextTimeToMatch,
+    NextTimeToMatchDocument,
+} from '../models/next.time.match.schemas';
+import DateTimeUtils from 'src/utils/time.utils';
 
 @Injectable()
 export class MatchesService {
     constructor(
-        @InjectModel(Matches.name) private matchesModel: Model<MatchesDocument>,
+        @InjectModel(Matches.name)
+        private readonly matchesModel: Model<MatchesDocument>,
+        @InjectModel(NextTimeToMatch.name)
+        private readonly nextTimeToMatchModel: Model<NextTimeToMatchDocument>,
         private readonly userService: UserService,
         private readonly configService: ConfigService,
         private readonly likesService: LikesService,
@@ -33,7 +41,7 @@ export class MatchesService {
     async createMatchPair({
         email,
         matchedEmail,
-    }: CreateMatchesDto): Promise<MatchI> {
+    }: CreateMatchesDto): Promise<void> {
         const matchId = await this.checkGenIdIsMatched({
             email,
             matchedEmail,
@@ -45,20 +53,31 @@ export class MatchesService {
                     HttpStatus.BAD_REQUEST,
                 ),
             );
+
         const matchedPair = await new this.matchesModel({
             id: await this.genMatchId({ email, matchedEmail }),
             email,
             matchedEmail,
         }).save();
 
-        return matchedPair
-            ? matchedPair
-            : Promise.reject(
-                  new HttpException(
-                      'Error creating match pair',
-                      HttpStatus.INTERNAL_SERVER_ERROR,
-                  ),
-              );
+        if (!matchedPair)
+            Promise.reject(
+                new HttpException(
+                    'Error creating match pair',
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                ),
+            );
+    }
+
+    async getNextSwipe({ email }): Promise<any> {
+        return await this.nextTimeToMatchModel.findOneAndUpdate(
+            { email },
+            {
+                email,
+                nextTimeToMatch: DateTimeUtils.tomorrow(),
+            },
+            { upsert: true, new: true, setDefaultsOnInsert: true },
+        );
     }
 
     async findMatchedPair({ id }: FindMatchedI): Promise<MatchI> {
@@ -76,10 +95,18 @@ export class MatchesService {
                 },
                 {
                     $lookup: {
-                        from: 'users',
+                        from: 'avatars',
+                        localField: 'email',
+                        foreignField: 'email',
+                        as: 'userAvatar',
+                    },
+                },
+                {
+                    $lookup: {
+                        from: 'avatars',
                         localField: 'matchedEmail',
                         foreignField: 'email',
-                        as: 'matchedUser',
+                        as: 'matchedAvatar',
                     },
                 },
                 {
@@ -91,16 +118,41 @@ export class MatchesService {
                     },
                 },
                 {
+                    $lookup: {
+                        from: 'users',
+                        localField: 'matchedEmail',
+                        foreignField: 'email',
+                        as: 'matched',
+                    },
+                },
+                {
                     $project: {
-                        matchedUser: {
-                            email: 1,
-                            name: 1,
-                            photo: 1,
+                        _id: 0,
+                        id: 1,
+                        email: {
+                            $cond: {
+                                if: { $eq: ['$email', email] },
+                                then: '$matchedEmail',
+                                else: '$email',
+                            },
                         },
-                        user: {
-                            email: 1,
-                            name: 1,
-                            photo: 1,
+                        avatar: {
+                            $cond: {
+                                if: { $eq: ['$email', email] },
+                                then: {
+                                    $arrayElemAt: ['$matchedAvatar.url', 0],
+                                },
+                                else: { $arrayElemAt: ['$userAvatar.url', 0] },
+                            },
+                        },
+                        name: {
+                            $cond: {
+                                if: { $eq: ['$email', email] },
+                                then: {
+                                    $arrayElemAt: ['$matched.name', 0],
+                                },
+                                else: { $arrayElemAt: ['$user.name', 0] },
+                            },
                         },
                     },
                 },
@@ -120,10 +172,10 @@ export class MatchesService {
     async checkGenIdIsMatched({
         email,
         matchedEmail,
-    }: GetIdMatchedI): Promise<boolean> {
+    }: GetIdMatchedI): Promise<any> {
         const matchId = await this.genMatchId({ email, matchedEmail });
         const IsMatched = await this.findMatchedPair({ id: matchId });
-        return IsMatched ? true : false;
+        return IsMatched ? IsMatched.id : false;
     }
 
     async checkIsAMatch({ email, matchEmail }: GetIdLikeI): Promise<boolean> {

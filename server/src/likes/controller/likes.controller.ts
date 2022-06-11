@@ -5,6 +5,10 @@ import {
     HttpCode,
     Res,
     Req,
+    Get,
+    Param,
+    CacheKey,
+    CacheTTL,
 } from '@nestjs/common';
 import { AuthService } from 'src/auth/service/auth.service';
 import { MatchesService } from 'src/matches/service/matches.service';
@@ -60,11 +64,7 @@ export class LikesController {
                         ok: true,
                         data: await this.likesService.formatRetMsg(likeToken),
                     });
-            } else
-                return res.send({
-                    ok: true,
-                    data: "You dont't have provided a like field",
-                });
+            }
         } catch (error) {
             return res.send({
                 error: true,
@@ -73,7 +73,22 @@ export class LikesController {
         }
     }
 
-    searchForLikes(@Req() req: Request, @Res() res: Response): Promise<any> {
-        return this.likesService.searchForLikes(req);
+    @Get('/:id')
+    @UseGuards(JwtAuthGuard)
+    async getPeopleForLikes(
+        @Res() res: Response,
+        @Param('id') id: string,
+    ): Promise<any> {
+        try {
+            return res.send({
+                ok: true,
+                data: await this.likesService.getPeopleListForLikes(id),
+            });
+        } catch (error) {
+            return res.send({
+                error: true,
+                message: error.response || error._message,
+            });
+        }
     }
 }

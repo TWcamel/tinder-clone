@@ -6,6 +6,7 @@ interface IUser {
     password: string;
     gender: string;
     age: number;
+    location: string;
 }
 
 const SignupService = {

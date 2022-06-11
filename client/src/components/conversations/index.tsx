@@ -2,48 +2,79 @@ import React, { useEffect } from 'react';
 import { io, Manager } from 'socket.io-client';
 import { Button, ListGroup, Form, Image } from 'react-bootstrap';
 import { useConversations } from './provider';
+import useLocalStorage from '../../hooks/useLocalStorage';
+import { getLocalStorage } from '../../utils/localStorage';
+
+interface IConversation {
+    sender: string;
+    recipients: [
+        {
+            id: string;
+            name: string;
+        },
+    ];
+    mesaages: object[];
+    selected: boolean;
+}
+
+interface IMatch {
+    id: string;
+    name: string;
+    avatar: string;
+}
 
 export const Conversations: React.FC = () => {
     const { conversations, selectConversationIndex } = useConversations();
+    const [matches, setMatches] = React.useState<IMatch[]>([]);
+
+    useEffect(() => {
+        const m: any = getLocalStorage('matches');
+        if (m) {
+            setMatches(m);
+        }
+    }, []);
 
     //TODO: make messages scroll to top when new message is added
     //TODO: infinate scroll
-    //TODO: add avatar to the message vieww
     return (
         <>
             <ListGroup variant='flush'>
                 {conversations.map(
-                    (
-                        conversation: {
-                            sender: string;
-                            recipients: [
-                                {
-                                    id: string;
-                                    name: string;
-                                },
-                            ];
-                            mesaages: [{}];
-                            selected: boolean;
-                        },
-                        idx: number,
-                    ) => {
+                    (conversation: IConversation, idx: number) => {
+                        const match = matches.find(
+                            (match: IMatch) =>
+                                match.id === conversation.recipients[0].id,
+                        );
                         return (
                             <ListGroup.Item
                                 key={idx}
                                 action
                                 onClick={() => selectConversationIndex(idx)}
                                 active={conversation.selected}
+                                className='d-flex align-items-center'
+                                style={{
+                                    cursor: 'pointer',
+                                    borderRadius: '0',
+                                    borderBottom: '1px solid rgb(193 193 193)',
+                                    padding: '0.75rem 1.25rem',
+                                    backgroundColor: conversation.selected
+                                        ? 'rgb(14 110 253)'
+                                        : 'rgb(242 242 242)',
+                                }}
                             >
                                 <Image
-                                    src='https://via.placeholder.com/150'
+                                    src={match?.avatar || ''}
                                     roundedCircle
-                                    width='33'
+                                    style={{
+                                        borderRadius: '50%',
+                                        objectFit: 'cover',
+                                        width: '3rem',
+                                        height: '3rem',
+                                        marginRight: '1rem',
+                                        border: '1px solid rgb(193 193 193)',
+                                    }}
                                 />
-                                {conversation.recipients
-                                    .map((r) => {
-                                        return r.id;
-                                    })
-                                    .join(', ')}
+                                {match?.name}
                             </ListGroup.Item>
                         );
                     },

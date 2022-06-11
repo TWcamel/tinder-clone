@@ -37,6 +37,7 @@ export class AuthService {
             expires: new Date(0),
             httpOnly: false,
             secure: false,
+            domain: this.configService.get('FRONTEND_DOMAIN'),
         });
         return HttpStatus.OK;
     }

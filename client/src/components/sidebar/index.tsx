@@ -2,8 +2,10 @@ import React from 'react';
 import { Tab, Nav, Button, Modal } from 'react-bootstrap';
 import Conversations from '../conversations/';
 import Matches from '../matches/';
-import NewLikesModal from '../modals/MatchesModal';
-import NewConversationModal from '../modals/ConversationsModal';
+import IconButton from '@material-ui/core/IconButton';
+import FaceIcon from '@material-ui/icons/Face';
+import ExitToApp from '@material-ui/icons/ExitToApp';
+import AuthService from '../../services/authService';
 
 const CONVERSATIONS_KEY = 'conversations';
 const MATCHES_KEY = 'matches';
@@ -14,9 +16,10 @@ const Sidebar: React.FC<{
     onSidebarSelected?: (activeKey: any) => void;
 }> = ({ id, name, onSidebarSelected }) => {
     const [modalShow, setModalShow] = React.useState(false);
-    const [activeKey, setActiveKey]: [string, Function] =
-        React.useState(CONVERSATIONS_KEY);
-    const conversationsOpen = activeKey === CONVERSATIONS_KEY;
+    const [activeKey, setActiveKey]: [
+        string,
+        React.Dispatch<React.SetStateAction<string>>,
+    ] = React.useState(MATCHES_KEY);
 
     React.useEffect(() => {
         if (onSidebarSelected) {
@@ -24,14 +27,14 @@ const Sidebar: React.FC<{
         }
     }, [activeKey, onSidebarSelected]);
 
-    const closeModal = () => {
-        setModalShow(false);
+    const handleLogout = () => {
+        AuthService.logout();
     };
 
     return (
         <div style={{ width: '273px' }} className='d-flex flex-column '>
             <Tab.Container
-                defaultActiveKey='conversations'
+                defaultActiveKey='matches'
                 activeKey={activeKey}
                 onSelect={(eventKey: any) => setActiveKey(eventKey)}
             >
@@ -54,27 +57,20 @@ const Sidebar: React.FC<{
                         <Conversations />
                     </Tab.Pane>
                     <Tab.Pane eventKey={MATCHES_KEY}>
-                        <Matches />
+                        <Matches onSidebarSelcet={setActiveKey} />
                     </Tab.Pane>
                 </Tab.Content>
-                <div className='p-2 small border'>
-                    Your Name: <span className='text-muted'>{id}</span>
-                </div>
-                <Button
-                    onClick={() => setModalShow(true)}
-                    className='rounded-0'
+                <div
+                    className='p-2 small border d-flex justify-content-between align-items-center'
+                    style={{ backgroundColor: '#f5f5f5' }}
                 >
-                    New {conversationsOpen ? 'Conversation' : 'Like'}
-                </Button>
+                    <FaceIcon style={{ fontSize: '2rem' }} />
+                    <span className='text-muted'>{id}</span>
+                    <IconButton onClick={() => handleLogout()}>
+                        <ExitToApp style={{ fontSize: '2rem' }} />
+                    </IconButton>
+                </div>
             </Tab.Container>
-
-            <Modal show={modalShow} onHide={closeModal}>
-                {conversationsOpen ? (
-                    <NewConversationModal closeModal={closeModal} />
-                ) : (
-                    <NewLikesModal closeModal={closeModal} />
-                )}
-            </Modal>
         </div>
     );
 };

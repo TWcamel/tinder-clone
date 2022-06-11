@@ -10,21 +10,35 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Likes, LikesDocument } from '../models/likes.schemas';
 import { CreateLikesDto } from '../models/dto/CreateLikes.dto';
 import { UserService } from 'src/user/service/user.service';
+import { InterestsService } from 'src/user/service/interests.service';
 import { v5 as uuidv5 } from 'uuid';
 import { ConfigService } from '@nestjs/config';
 import DateTime from 'src/utils/time.utils';
 import * as LikesI from '../models/likes.interface';
+import { RedisCacheService } from 'src/cache/service/redis-cache.service';
+import * as NextTimeMatchI from 'src/matches/models/next.time.match.interface';
 
 @Injectable()
 export class LikesService {
     constructor(
         @InjectModel(Likes.name) private likesModel: Model<LikesDocument>,
         private readonly userService: UserService,
+        private readonly interestsService: InterestsService,
+        private readonly redisCacheService: RedisCacheService,
         private readonly configService: ConfigService,
     ) {}
 
-    async searchForLikes({ email }: any): Promise<string> {
-        return email;
+    //TODO: refactor this method for message queue implementation
+    async getPeopleListForLikes(id: string): Promise<string> {
+        // const cachedItem = await this.redisCacheService.get(`ppl-${id}`);
+        // if (cachedItem) return cachedItem;
+        // else {
+        const like =
+            await this.interestsService.getPplWithMyInterestsWithoutMached(id);
+
+        await this.redisCacheService.set(`ppl-${id}`, like, 10);
+        return like;
+        // }
     }
 
     async userAActsUserB({
