@@ -64,11 +64,7 @@ export class LikesController {
                         ok: true,
                         data: await this.likesService.formatRetMsg(likeToken),
                     });
-            } else
-                return res.send({
-                    ok: true,
-                    data: "You dont't have provided a like field",
-                });
+            }
         } catch (error) {
             return res.send({
                 error: true,

@@ -1,5 +1,7 @@
 import React, { useContext, useState, useEffect, useCallback } from 'react';
 import useLocalStorage from '../../hooks/useLocalStorage';
+import { getLocalStorage } from '../../utils/localStorage';
+import ChatService from '../../services/chatService';
 import { useMatches } from '../matches/provider';
 import { useSocket } from '../socket/provider';
 import { arrayEqualty, removeItem } from '../../utils/array';
@@ -50,22 +52,61 @@ export const ConversationsProvider: React.FC<{
     const { matches } = useMatches();
     const socket = useSocket();
 
+    const createConversationHistory = (recipients: [IMatch]) => {
+        const r: any = recipients[0]?.id ?? recipients[0];
+        if (r && r.length && r !== 'undefined' && conversations.length === 0) {
+            (async () => {
+                const chats = await ChatService.getChatsHistory({
+                    sender: id,
+                    reciever: r,
+                });
+
+                if (chats.ok) {
+                    const formattMsgHis = chats.data.map((msg: any) => {
+                        return {
+                            text: msg.message,
+                            sender: msg.sender,
+                            senderName:
+                                msg.sender === id ? msg.sender : msg.reciever,
+                            fromMe: msg.sender === id,
+                        };
+                    });
+                    setConversations((prev: [IConversation]) => [
+                        ...prev,
+                        {
+                            recipients,
+                            messages: formattMsgHis,
+                        },
+                    ]);
+                }
+            })();
+            return true;
+        }
+        return false;
+    };
+
     const createConversation = (recipients: [IMatch]) => {
-        setConversations((prevConversations: [IConversation]) => {
-            const prev = prevConversations.find(
-                (conversation: IConversation) =>
-                    arrayEqualty(recipients, conversation.recipients) &&
-                    toast.info(`You can start a conversation now :)`),
-            );
-            if (prev) return prevConversations;
-            return [
-                ...prevConversations,
-                {
-                    recipients,
-                    messages: [],
-                },
-            ];
-        });
+        if (!createConversationHistory(recipients))
+            setConversations((prevConversations: [IConversation]) => {
+                const prev = prevConversations.find(
+                    (conversation: IConversation) => {
+                        return (
+                            arrayEqualty(recipients, conversation.recipients) &&
+                            toast.info(`You can start a conversation now :)`)
+                        );
+                    },
+                );
+                if (prev) {
+                    return prevConversations;
+                }
+                return [
+                    ...prevConversations,
+                    {
+                        recipients,
+                        messages: [],
+                    },
+                ];
+            });
     };
 
     const showAnimatedToast = useCallback((text: string) => {
@@ -185,6 +226,7 @@ export const ConversationsProvider: React.FC<{
         showTypingHint,
         selectConversationIndex: setSelectedConversationIndex,
         createConversation,
+        createConversationHistory,
     };
 
     return (

@@ -11,14 +11,22 @@ const LikesService = {
     createLikesToken: async (
         email: string,
         recipientEmail: string,
-        choice: IChoice,
+        choice: boolean,
     ) => {
         const payload = JSON.stringify({
             user: email,
             recipient: recipientEmail,
-            isLiked: true,
+            isLiked: choice,
         });
-        const response = await Api.post(`likes`, payload, {
+        let response = await Api.post(`likes`, payload, {
+            Authorization: `Bearer ${AuthService.getBearerToken()}`,
+        });
+
+        return response;
+    },
+
+    getRemainTimeNextSwipe: async (email: string) => {
+        const response = await Api.get(`matches/nextSwipe/${email}`, {
             Authorization: `Bearer ${AuthService.getBearerToken()}`,
         });
         return response.data;

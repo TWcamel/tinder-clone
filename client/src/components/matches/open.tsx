@@ -21,6 +21,7 @@ import { arrayIsEmpty } from '../../utils/array';
 import NextSwipeCountDownTimer from '../timer/';
 import moment from 'moment';
 import { getLocalTimeBrief } from '../../utils/time';
+import LikesService from '../../services/likesService';
 
 const USER_SETTINGS_KEY = 'userSettings';
 const USER_INTERESTS_KEY = 'userInterests';
@@ -29,6 +30,7 @@ interface IPerson {
     email: string;
     name: string;
     avatar: string;
+    index: number;
 }
 
 const OpenMatches: React.FC<{ id: string }> = ({ id }) => {
@@ -40,70 +42,80 @@ const OpenMatches: React.FC<{ id: string }> = ({ id }) => {
         time: null,
     });
     const swiperBtnsRef = React.useRef(null);
+    const swiperRef = React.useRef(null);
     const [activeKey, setActiveKey]: [string, Function] = React.useState('');
     const userSettingsOpen = activeKey === USER_SETTINGS_KEY;
     const [imgs, setImgs]: [{ email: string; url: string }[], Function] =
         React.useState([]);
+    const [swipeCounts, setSwipeCounts] = React.useState(0);
 
-    const handleSwipe = (e: string, p: IPerson) => {
+    const checkIfImageStillLeft = (index: number) => {
+        return index === 0 ? false : true;
+    };
+
+    const handleSwipe = async (e: string, p: IPerson) => {
         userSwipBehavoir(id, p, e);
+        setSwipeCounts(p.index);
+        if (!checkIfImageStillLeft(p.index)) {
+            // const remainTimes = await LikesService.getRemainTimeNextSwipe(id);
+            // if (remainTimes.ok) {
+            //     showSwiperNextTime(remainTimes.data.nextTime);
+            //     return toast.error('No more matches to like');
+            // }
+        }
     };
 
     const handleBtnClick = (e: any) => {
-        const current: any = swiperBtnsRef.current;
-        const imgContainer: any = current.previousElementSibling;
-        if (imgContainer.id !== 'swiper-btns-header') {
-            return imgContainer.remove();
-        }
-        //TODO: count down 24hrs later for more likes
-        return toast.error('No more matches to like');
+        if (!checkIfImageStillLeft(swipeCounts))
+            return toast.error('No more matches to like');
     };
 
-    React.useEffect(() => {
-        const getPeople = async () => {
-            const res = await SwipeService.getSwipes(id);
-            if (res.ok && res.data?.nextTime) {
-                setSwiperNextTime({
-                    canSwipe: true,
-                    time: res.data.nextTime,
-                });
-                toast.info(
-                    `You can swipe again at ${getLocalTimeBrief(
-                        res.data.nextTime,
-                    )}`,
-                );
-            } else if (res.error) {
-                toast.error(res.message);
-            }
+    const showSwiperNextTime = (_time: any) => {
+        setSwiperNextTime({
+            canSwipe: false,
+            time: _time,
+        });
+        toast.info(`You can swipe again at ${getLocalTimeBrief(_time)}`, {
+            toastId: 'swipe-timer',
+        });
+    };
 
-            if (res.ok && res.data.length > 0) {
-                const { data } = res;
-                setPeople(data);
-                Array.prototype.forEach.call(data, async (swipe: any) => {
-                    const base64 = await AwsService.getAvatarFromS3(
-                        swipe.avatar,
-                    );
-                    setImgs(
-                        (
-                            imgs: {
-                                email: string;
-                                url: string;
-                            }[],
-                        ) => {
-                            if (imgs.find((img) => img.email === swipe.email)) {
-                                return imgs;
-                            }
-                            return [
-                                ...imgs,
-                                { email: swipe.email, url: base64 },
-                            ];
-                        },
-                    );
-                });
-            }
-        };
-        getPeople();
+    const getPeopleImages = (ppl: any) => {
+        Array.prototype.forEach.call(ppl, async (swipe: any) => {
+            const base64 = await AwsService.getAvatarFromS3(swipe.avatar);
+            setImgs(
+                (
+                    imgs: {
+                        email: string;
+                        url: string;
+                    }[],
+                ) => {
+                    if (imgs.find((img) => img.email === swipe.email)) {
+                        return imgs;
+                    }
+                    return [...imgs, { email: swipe.email, url: base64 }];
+                },
+            );
+        });
+    };
+
+    const getPeople = React.useCallback(async () => {
+        const res = await SwipeService.getSwipes(id);
+        if (res.ok && res.data?.nextTime) {
+            showSwiperNextTime(res.data.nextTime);
+        } else if (res.ok && res.data.length > 0) {
+            const { data } = res;
+            setPeople(data);
+            getPeopleImages(data);
+            setSwipeCounts(data.length);
+        } else if (res.error) {
+            toast.error(res.message);
+        }
     }, [id]);
+
+    React.useEffect(() => {
+        getPeople();
+    }, [id, getPeople]);
 
     const closeModal = () => {
         setModalShow(false);
@@ -165,7 +177,7 @@ const OpenMatches: React.FC<{ id: string }> = ({ id }) => {
                         <SettingsIcon fontSize='large' />
                     </IconButton>
                 </div>
-                {swiperNextTime.canSwipe ? (
+                {!swiperNextTime.canSwipe ? (
                     <div
                         className={
                             'd-flex align-items-center justify-content-center h-100'
@@ -187,19 +199,24 @@ const OpenMatches: React.FC<{ id: string }> = ({ id }) => {
                                     'd-flex align-items-center justify-content-center'
                                 }
                                 style={{
-                                    height: '100%',
+                                    position: 'relative',
+                                    top: '50%',
+                                    objectFit: 'cover',
                                 }}
-                                onSwipe={(e: string) => {
+                                onSwipe={async (e: string) => {
                                     if (_img)
-                                        handleSwipe(e, {
+                                        await handleSwipe(e, {
                                             email: person.email,
                                             name: person.name,
                                             avatar: _img.url,
+                                            index: idx,
                                         });
                                 }}
                                 detectingSize={50}
                                 contents={
                                     <div
+                                        ref={swiperRef}
+                                        id={`swiper-container-${idx}`}
                                         style={{
                                             width: '100%',
                                             display: 'flex',

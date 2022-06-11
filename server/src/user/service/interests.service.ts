@@ -5,6 +5,7 @@ import {
     HttpStatus,
     Res,
     Req,
+    Logger,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Interest, InterestDocument } from '../models/user-interests.schemas';
@@ -39,7 +40,14 @@ export class InterestsService {
         private readonly configService: ConfigService,
     ) {}
 
+    private readonly logger = new Logger('InterestsService');
+
     async getPplWithMyInterestsWithoutMached(id: string): Promise<any> {
+        const hasNextTime = await this.findNextTimeToMatch(id);
+        if (hasNextTime) {
+            this.logger.log('hasNextTime', hasNextTime.email);
+            return hasNextTime;
+        }
         const interests = await this.interestsModel.findOne({ id }).exec();
         const pplWithMyInterests = await this.userModel.aggregate([
             {
@@ -111,20 +119,7 @@ export class InterestsService {
             !ArrayUtils.isEmpty(matchedPpl) &&
             ArrayUtils.isEqual(formattedPplEmail, matchedPpl)
         ) {
-            return await this.nextTimeToMatchModel
-                .findOneAndUpdate(
-                    { email: id },
-                    {
-                        email: id,
-                        nextTimeToMatch: DateTimeUtils.tomorrow(),
-                    },
-                    { upsert: true, new: true },
-                )
-                .catch((err) => {
-                    return Promise.reject(
-                        'Duplicate key error when trying to save next time to match',
-                    );
-                });
+            return await this.getNextTimeSwipe(id);
         }
 
         const notMatchedPpl = pplWithMyInterests.filter(
@@ -147,7 +142,29 @@ export class InterestsService {
                 ),
         );
 
+        if (
+            notLikedAndNotMatchedPpl.length === 0 &&
+            pplWithMyInterests.length > 0
+        ) {
+            return await this.getNextTimeSwipe(id);
+        }
+
         return notLikedAndNotMatchedPpl;
+    }
+
+    async getNextTimeSwipe(id: string): Promise<NextTimeToMatch> {
+        return await this.nextTimeToMatchModel.findOneAndUpdate(
+            { email: id },
+            {
+                email: id,
+                nextTimeToMatch: DateTimeUtils.tomorrow(),
+            },
+            { upsert: true, new: true, setDefaultsOnInsert: true },
+        );
+    }
+
+    async findNextTimeToMatch(id: string): Promise<NextTimeToMatch> {
+        return await this.nextTimeToMatchModel.findOne({ email: id }).exec();
     }
 
     async findOneOrCreate(

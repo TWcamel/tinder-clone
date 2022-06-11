@@ -4,6 +4,7 @@ import MatchesService from '../../services/matchesService';
 import LikesService from '../../services/likesService';
 import { getLocalStorage } from '../../utils/localStorage';
 import AwsService from '../../services/awsService';
+import { toast } from 'react-toastify';
 
 interface IMatch {
     name: string;
@@ -62,41 +63,28 @@ export const MatchesProvider: React.FC<{ children: React.ReactNode }> = ({
         person: { email: string; name: string; avatar: string },
         choice: string,
     ) => {
-        const options = {
-            like: false,
-            dislike: false,
-            superLike: false,
-        };
-
-        let userDecision = '';
-
-        Object.keys(options).forEach((key: string) => {
-            if (key === choice) userDecision = key;
-        });
-
         (async () => {
-            // const match = await LikesService.createLikesToken(
-            //     user,
-            //     person.email,
-            //     {
-            //         [userDecision]: true,
-            //     },
-            // );
-            // if (match.ok) {
-            //     setMatches((prevMatches: any) => {
-            //         prevMatches = prevMatches.filter(
-            //             ({ id }: IMatch) => id !== person.email,
-            //         );
-            //         return [
-            //             ...prevMatches,
-            //             {
-            //                 id: person.email,
-            //                 name: person.name,
-            //                 avatar: person.avatar,
-            //             },
-            //         ];
-            //     });
-            // }
+            const match = await LikesService.createLikesToken(
+                user,
+                person.email,
+                choice === 'right',
+            );
+            if (match.data.ok && match.data.message === 'its a match!') {
+                toast.success(`${person.name} also likes you, it's a match!`);
+                setMatches((prevMatches: any) => {
+                    prevMatches = prevMatches.filter(
+                        ({ id }: IMatch) => id !== person.email,
+                    );
+                    return [
+                        ...prevMatches,
+                        {
+                            id: person.email,
+                            name: person.name,
+                            avatar: person.avatar,
+                        },
+                    ];
+                });
+            }
         })();
     };
 

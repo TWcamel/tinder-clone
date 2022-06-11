@@ -1,7 +1,6 @@
 import React from 'react';
 import { Form, InputGroup, Button, FloatingLabel } from 'react-bootstrap';
 import { useConversations } from './provider';
-import { getLocalStorage } from '../../utils/localStorage';
 import IconButton from '@material-ui/core/IconButton';
 import SendIcon from '@material-ui/icons/Send';
 import {

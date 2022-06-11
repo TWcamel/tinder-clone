@@ -1,12 +1,14 @@
 import React, { useRef } from 'react';
 import { Modal, Form, Button, Image } from 'react-bootstrap';
 import useLocalStorage from '../../hooks/useLocalStorage';
-import ImageUploader from '../images/';
 import UserService from '../../services/userService';
 import AwsService from '../../services/awsService';
 import { toast } from 'react-toastify';
 import { v4 as uuidv4 } from 'uuid';
 import RotateLeftRounded from '@material-ui/icons/RotateLeftRounded';
+import AuthService from '../../services/authService';
+import { refreshPage } from '../../utils/page';
+import LoadingEffect from '../loading/';
 
 const SettingsModal: React.FC<any> = ({
     closeModal,
@@ -18,6 +20,8 @@ const SettingsModal: React.FC<any> = ({
     const [userName] = useLocalStorage('userName');
     const passwordRef = useRef<HTMLInputElement>(null);
     const bioRef = useRef<HTMLTextAreaElement>(null);
+    const [userInfo, setUserInfo] = React.useState<any>({});
+    const [img, setImg] = React.useState<any>(null);
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -45,7 +49,6 @@ const SettingsModal: React.FC<any> = ({
         };
 
         const res = await UserService.updatePersonalInfo(user);
-        console.log(res);
 
         if (!res) {
             toast.error('Something went wrong while updating');
@@ -53,18 +56,54 @@ const SettingsModal: React.FC<any> = ({
         }
 
         toast.success('Successfully updated');
+
+        refreshPage();
     };
+
+    React.useEffect(() => {
+        UserService.getUserInfo(id)
+            .then((res) => {
+                if (!res.ok) {
+                    toast.error('Something went wrong while fetching');
+                    return;
+                }
+
+                setUserInfo({ ...res.data[0] });
+                return res.data[0].avatar;
+            })
+            .then((avatar) => {
+                if (avatar) {
+                    AwsService.getAvatarFromS3(avatar).then((base64) => {
+                        if (!base64) {
+                            toast.error(
+                                'Something went wrong while fetching from s3',
+                            );
+                            return;
+                        }
+                        setImg(base64);
+                    });
+                }
+            });
+    }, [id, img]);
 
     return (
         <>
             <Modal.Header className='m-2'>
                 <h3>Personal Info</h3>
-                {/* <Image */}
-                {/*     src='https://via.placeholder.com/150' */}
-                {/*     roundedCircle */}
-                {/*     width='100' */}
-                {/*     height='100' */}
-                {/* /> */}
+                {img ? (
+                    <Image
+                        src={img}
+                        roundedCircle
+                        style={{
+                            borderRadius: '50%',
+                            objectFit: 'cover',
+                            width: '7rem',
+                            height: '7rem',
+                        }}
+                    />
+                ) : (
+                    <LoadingEffect />
+                )}
             </Modal.Header>
             <Modal.Body>
                 <Form onSubmit={handleSubmit}>

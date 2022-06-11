@@ -98,4 +98,23 @@ export class MatchesController {
             });
         }
     }
+
+    @Get('/nextSwipe/:id')
+    async getNextSwipe(
+        @Req() req: Request,
+        @Res() res: Response,
+        @Param('id') id: string,
+    ): Promise<Response> {
+        try {
+            return res.send({
+                ok: true,
+                data: 'tes', //await this.matchesService.getNextSwipe({ email: id }),
+            });
+        } catch (error) {
+            return res.send({
+                error: true,
+                message: error.response || error._message,
+            });
+        }
+    }
 }

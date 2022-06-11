@@ -54,14 +54,13 @@ export class ChatsController {
         }
     }
 
-    @Post('/messages')
+    @Post('/history')
     @UseGuards(JwtAuthGuard)
     async getChatsHistory(
         @Res() res: Response,
         @Req() req: Request,
     ): Promise<Response<ChatI[]>> {
         const { sender, reciever }: ReceivedMessageI = req.body;
-        console.log(sender, reciever);
         try {
             const chats = await this.chatsService.getChatsHistory({
                 sender,

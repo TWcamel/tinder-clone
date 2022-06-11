@@ -67,6 +67,16 @@ export class RedisCacheService {
         return this.redisClient;
     }
 
+    async mset(key: string, value: any): Promise<any> {
+        this.logger.log(`MSET ${key}`);
+        return this.cache.store.mset(key, value);
+    }
+
+    async mget(key: string): Promise<any> {
+        this.logger.log(`MGET ${key}`);
+        return this.cache.store.mget(key);
+    }
+
     //BUG: always return true
     async zRange(key: string, start: number, stop: number): Promise<any> {
         return this.redisClient.zrange(key, start, stop);

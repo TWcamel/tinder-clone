@@ -3,6 +3,7 @@ import { Modal, Form, Button } from 'react-bootstrap';
 import InterestsService from '../../services/interestsService';
 import { toast } from 'react-toastify';
 import MultiRangeSlider from '../sliders/';
+import { refreshPage } from '../../utils/page';
 
 const InterestsModal: React.FC<any> = ({
     closeModal,
@@ -32,6 +33,7 @@ const InterestsModal: React.FC<any> = ({
             if (res.ok) {
                 setIsUpdated(true);
                 toast.success(`update successed!`);
+                refreshPage();
                 return true;
             } else {
                 toast.error(`Something went wrong: ${res.message}`);

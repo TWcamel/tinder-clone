@@ -17,7 +17,8 @@ export const Matches: React.FC<{
     onSidebarSelcet: (tab: string) => void;
 }> = ({ onSidebarSelcet }) => {
     const { matches, selectMatchIndex } = useMatches();
-    const { createConversation } = useConversations();
+    const { createConversation } =
+        useConversations();
 
     const handleOnSelect = (index: number, id: string) => {
         selectMatchIndex(index);

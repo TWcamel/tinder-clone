@@ -15,6 +15,8 @@ import {
     NextTimeToMatch,
     NextTimeToMatchSchema,
 } from 'src/matches/models/next.time.match.schemas';
+import { MatchesModule } from 'src/matches/matches.module';
+import { MatchesService } from 'src/matches/service/matches.service';
 
 @Module({
     imports: [
