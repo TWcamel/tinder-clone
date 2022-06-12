@@ -16,6 +16,7 @@ services:
             target: prod
         volumes:
             - ./.env:/app/server/.env
+            - ../client/build:/app/client/build
         command: yarn run debug
         ports:
             - 3000:3000

@@ -6,7 +6,7 @@ import { ChatsModule } from './chats/chats.module';
 import { MatchesModule } from './matches/matches.module';
 import { AwsModule } from './aws/aws.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
-import { CacheModule } from './cache/cache.module';
+// import { CacheModule } from './cache/cache.module';
 import { join } from 'path';
 
 @Module({
@@ -23,7 +23,7 @@ import { join } from 'path';
         ServeStaticModule.forRoot({
             rootPath: join(__dirname, '../../', 'client/build'),
         }),
-        CacheModule,
+        // CacheModule,
         MatchesModule,
         UserModule,
         ChatsModule,
