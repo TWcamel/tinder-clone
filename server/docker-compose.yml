@@ -1,14 +1,27 @@
 version: '3.9'
 services:
+    cache_db:
+        image: redis:7.0.1
+        ports:
+            - ${REDIS_PORT}:${REDIS_PORT}
+        volumes:
+            - ./redis.conf:/tmp/redis.conf
+        command: ['redis-server', '/tmp/redis.conf']
+        restart: unless-stopped
     api:
+        image: ${IMAGE_NAME}
         build:
-            dockerfile: Dockerfile
             context: .
+            dockerfile: nestjs.dockerfile
             target: prod
         volumes:
-            - .:/app
-        command: yarn run start
+            - ./.env:/app/server/.env
+        command: yarn run debug
         ports:
             - 3000:3000
-            - 9229:9229
+        depends_on:
+            - cache_db
         restart: always
+
+volumes:
+    TINDER_CLONER_DATA_DIR:

@@ -7,18 +7,19 @@ import { MatchesModule } from 'src/matches/matches.module';
 import { LikesModule } from 'src/likes/likes.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Chats, ChatsSchema } from './models/chats.schemas';
-import { CacheModule as RedisCacheModule } from '../cache/cache.module';
-import { RedisCacheService } from '../cache/service/redis-cache.service';
+// import { CacheModule as RedisCacheModule } from '../cache/cache.module';
+// import { RedisCacheService } from '../cache/service/redis-cache.service';
 
 @Module({
     imports: [
         MongooseModule.forFeature([{ name: Chats.name, schema: ChatsSchema }]),
         AuthModule,
         MatchesModule,
-        RedisCacheModule,
+        // RedisCacheModule,
         LikesModule,
     ],
-    providers: [ChatsGateway, ChatsService, RedisCacheService],
+    // providers: [ChatsGateway, ChatsService, RedisCacheService],
+    providers: [ChatsGateway, ChatsService],
     controllers: [ChatsController],
     exports: [ChatsService],
 })

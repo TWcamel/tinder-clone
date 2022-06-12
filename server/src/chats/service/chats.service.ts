@@ -16,14 +16,14 @@ import { v5 as uuidv5 } from 'uuid';
 import { ConfigService } from '@nestjs/config';
 import DateTime from 'src/utils/time.utils';
 import * as ChatsI from '../models/chats.interface';
-import { RedisCacheService } from 'src/cache/service/redis-cache.service';
+// import { RedisCacheService } from 'src/cache/service/redis-cache.service';
 
 @Injectable()
 export class ChatsService {
     constructor(
         @InjectModel(Chats.name) private chatModel: Model<ChatsDocument>,
         private readonly configService: ConfigService,
-        private readonly redisCacheService: RedisCacheService,
+        // private readonly redisCacheService: RedisCacheService,
         private readonly matchesService: MatchesService,
         private readonly likesService: LikesService,
     ) {}
@@ -33,11 +33,11 @@ export class ChatsService {
         sender,
         reciever,
     }: ChatsI.SenderAndRecieverI): Promise<ChatsI.ChatI[]> {
-        const cacheItem = await this.redisCacheService.get(
-            `chat-${sender}-${reciever}`,
-        );
+        // const cacheItem = await this.redisCacheService.get(
+        //     `chat-${sender}-${reciever}`,
+        // );
 
-        if (cacheItem) return cacheItem;
+        // if (cacheItem) return cacheItem;
 
         const chatId = await this.getChatId({ sender, reciever });
 
@@ -57,11 +57,11 @@ export class ChatsService {
             };
         });
 
-        await this.redisCacheService.set(
-            `chat-${sender}-${reciever}`,
-            formattedMessage,
-            10,
-        );
+        // await this.redisCacheService.set(
+        //     `chat-${sender}-${reciever}`,
+        //     formattedMessage,
+        //     10,
+        // );
 
         return chats;
     }

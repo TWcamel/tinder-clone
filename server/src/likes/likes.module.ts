@@ -6,19 +6,20 @@ import { UserModule } from 'src/user/user.module';
 import { MatchesModule } from 'src/matches/matches.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Likes, LikesSchema } from './models/likes.schemas';
-import { CacheModule as RedisCacheModule } from '../cache/cache.module';
-import { RedisCacheService } from '../cache/service/redis-cache.service';
+// import { CacheModule as RedisCacheModule } from '../cache/cache.module';
+// import { RedisCacheService } from '../cache/service/redis-cache.service';
 
 @Module({
     imports: [
         MongooseModule.forFeature([{ name: Likes.name, schema: LikesSchema }]),
         AuthModule,
         UserModule,
-        RedisCacheModule,
+        // RedisCacheModule,
         forwardRef(() => MatchesModule),
     ],
     controllers: [LikesController],
-    providers: [LikesService, RedisCacheService],
+    // providers: [LikesService, RedisCacheService],
+    providers: [LikesService],
     exports: [LikesService],
 })
 export class LikesModule {}

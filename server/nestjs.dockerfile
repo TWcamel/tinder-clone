@@ -21,6 +21,4 @@ RUN ln -snf /usr/share/zoneinfo/TZ\
 
 RUN yarn build
 
-EXPOSE 3000
-
-ENTRYPOINT ["sh", "-c", "cd /app/server && yarn start"]
+ENTRYPOINT ["sh", "-c", "cd /app/server && yarn run debug"]
