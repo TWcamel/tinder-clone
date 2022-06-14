@@ -2,6 +2,7 @@ import React from 'react';
 import { ListGroup, Image, Form } from 'react-bootstrap';
 import { useMatches } from './provider';
 import { useConversations } from '../conversations/provider';
+import { refreshPage } from '../../utils/page';
 
 interface IMatch {
     id: string;
@@ -20,7 +21,7 @@ export const Matches: React.FC<{
     const { createConversation } = useConversations();
 
     const handleOnSelect = (index: number, id: string) => {
-        selectMatchIndex(index);
+        selectMatchIndex(index+1);
         onSidebarSelcet(CONVERSATIONS_KEY);
         createConversation([id]);
     };

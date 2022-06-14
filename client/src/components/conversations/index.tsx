@@ -4,6 +4,7 @@ import { Button, ListGroup, Form, Image } from 'react-bootstrap';
 import { useConversations } from './provider';
 import useLocalStorage from '../../hooks/useLocalStorage';
 import { getLocalStorage } from '../../utils/localStorage';
+import { useMatches } from '../matches/provider';
 
 interface IConversation {
     sender: string;
@@ -26,13 +27,15 @@ interface IMatch {
 export const Conversations: React.FC = () => {
     const { conversations, selectConversationIndex } = useConversations();
     const [matches, setMatches] = React.useState<IMatch[]>([]);
+    const { selectMatchIndex } = useMatches();
 
     useEffect(() => {
         const m: any = getLocalStorage('matches');
+        console.log(selectConversationIndex);
         if (m) {
             setMatches(m);
         }
-    }, []);
+    }, [selectConversationIndex, selectMatchIndex]);
 
     //TODO: make messages scroll to top when new message is added
     //TODO: infinate scroll

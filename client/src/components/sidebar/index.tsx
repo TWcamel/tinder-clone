@@ -15,7 +15,6 @@ const Sidebar: React.FC<{
     name: any;
     onSidebarSelected?: (activeKey: any) => void;
 }> = ({ id, name, onSidebarSelected }) => {
-    const [modalShow, setModalShow] = React.useState(false);
     const [activeKey, setActiveKey]: [
         string,
         React.Dispatch<React.SetStateAction<string>>,

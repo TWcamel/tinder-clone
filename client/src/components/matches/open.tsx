@@ -249,8 +249,7 @@ const OpenMatches: React.FC<{ id: string }> = ({ id }) => {
                                                         width: '377px',
                                                         height: '477px',
                                                         objectFit: 'cover',
-                                                    }}
-                                                />
+                                                    }} />
                                             ) : (
                                                 <LoadingEffect />
                                             )}
