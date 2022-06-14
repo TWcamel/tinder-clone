@@ -14,6 +14,7 @@ export interface ChatI extends MessageI {
 export interface SenderAndRecieverI {
     sender: string;
     reciever: string;
+    fetch?: boolean;
 }
 
 export interface MessageI {

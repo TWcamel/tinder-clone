@@ -27,10 +27,10 @@ export const CountDownTimer: React.FC<IProps> = (props: IProps) => {
         <div className={props.className ?? ''} style={props.style}>
             {time ? (
                 <>
-                    <span>
-                        <AccessTimeRoundedIcon />
-                    </span>
                     <h1>
+                        <span className={'m-2'}>
+                            <AccessTimeRoundedIcon />
+                        </span>
                         {moment
                             .duration(time, 'seconds')
                             .asHours()

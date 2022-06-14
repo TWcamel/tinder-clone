@@ -35,6 +35,7 @@ export class LikesService {
         // else {
         const like =
             await this.interestsService.getPplWithMyInterestsWithoutMached(id);
+        console.log(like);
 
         // await this.redisCacheService.set(`ppl-${id}`, like, 10);
         return like;

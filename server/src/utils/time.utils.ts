@@ -23,4 +23,8 @@ export default {
     tomorrow: () => {
         return new Date(new Date().setHours(24, 0, 0, 0));
     },
+
+    now: () => {
+        return new Date();
+    },
 };

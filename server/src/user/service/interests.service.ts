@@ -44,7 +44,10 @@ export class InterestsService {
 
     async getPplWithMyInterestsWithoutMached(id: string): Promise<any> {
         const hasNextTime = await this.findNextTimeToMatch(id);
-        if (hasNextTime) {
+        if (
+            hasNextTime &&
+            new Date(hasNextTime.nextTime) > DateTimeUtils.now()
+        ) {
             this.logger.log('hasNextTime', hasNextTime.email);
             return hasNextTime;
         }
@@ -119,6 +122,10 @@ export class InterestsService {
             !ArrayUtils.isEmpty(matchedPpl) &&
             ArrayUtils.isEqual(formattedPplEmail, matchedPpl)
         ) {
+            this.logger.log(
+                `${id}'s matches are out of box today`,
+                DateTimeUtils.tomorrow(),
+            );
             return await this.getNextTimeSwipe(id);
         }
 
@@ -146,6 +153,10 @@ export class InterestsService {
             notLikedAndNotMatchedPpl.length === 0 &&
             pplWithMyInterests.length > 0
         ) {
+            this.logger.log(
+                `${id} don't have enough ppl to like`,
+                DateTimeUtils.tomorrow(),
+            );
             return await this.getNextTimeSwipe(id);
         }
 
@@ -156,8 +167,9 @@ export class InterestsService {
         return await this.nextTimeToMatchModel.findOneAndUpdate(
             { email: id },
             {
-                email: id,
-                nextTimeToMatch: DateTimeUtils.tomorrow(),
+                $set: {
+                    nextTime: DateTimeUtils.tomorrow(),
+                },
             },
             { upsert: true, new: true, setDefaultsOnInsert: true },
         );

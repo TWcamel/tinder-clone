@@ -16,6 +16,7 @@ import { v5 as uuidv5 } from 'uuid';
 import { ConfigService } from '@nestjs/config';
 import DateTime from 'src/utils/time.utils';
 import * as ChatsI from '../models/chats.interface';
+import TimeDateUtils from 'src/utils/time.utils';
 // import { RedisCacheService } from 'src/cache/service/redis-cache.service';
 
 @Injectable()
@@ -32,6 +33,7 @@ export class ChatsService {
     async getChatsHistory({
         sender,
         reciever,
+        fetch,
     }: ChatsI.SenderAndRecieverI): Promise<ChatsI.ChatI[]> {
         // const cacheItem = await this.redisCacheService.get(
         //     `chat-${sender}-${reciever}`,
@@ -41,11 +43,20 @@ export class ChatsService {
 
         const chatId = await this.getChatId({ sender, reciever });
 
-        const chats = await this.chatModel
-            .find({ matchedId: chatId })
-            .sort({ updateAt: -1 })
-            .limit(10)
-            .exec();
+        const chats = fetch
+            ? await this.chatModel
+                  .find({
+                      matchedId: chatId,
+                      updateAt: { $gt: TimeDateUtils.now() },
+                  })
+                  .sort({ updateAt: 1 })
+                  // .limit(10)
+                  .exec()
+            : await this.chatModel
+                  .find({ matchedId: chatId })
+                  .sort({ updateAt: 1 })
+                  // .limit(10)
+                  .exec();
 
         const formattedMessage = chats.map((chat) => {
             const fromMe = chat.sender === sender;
@@ -63,7 +74,7 @@ export class ChatsService {
         //     10,
         // );
 
-        return chats;
+        return formattedMessage;
     }
 
     async updateOrCreateChat({

@@ -5,6 +5,8 @@ import { useConversations } from './provider';
 import useLocalStorage from '../../hooks/useLocalStorage';
 import { getLocalStorage } from '../../utils/localStorage';
 import { useMatches } from '../matches/provider';
+import LoadingEffect from '../loading/';
+import { refreshPage } from '../../utils/page';
 
 interface IConversation {
     sender: string;
@@ -31,7 +33,6 @@ export const Conversations: React.FC = () => {
 
     useEffect(() => {
         const m: any = getLocalStorage('matches');
-        console.log(selectConversationIndex);
         if (m) {
             setMatches(m);
         }
@@ -65,18 +66,24 @@ export const Conversations: React.FC = () => {
                                         : 'rgb(242 242 242)',
                                 }}
                             >
-                                <Image
-                                    src={match?.avatar || ''}
-                                    roundedCircle
-                                    style={{
-                                        borderRadius: '50%',
-                                        objectFit: 'cover',
-                                        width: '3rem',
-                                        height: '3rem',
-                                        marginRight: '1rem',
-                                        border: '1px solid rgb(193 193 193)',
-                                    }}
-                                />
+                                {
+
+                match?.avatar ? (
+                                    <Image
+                                        src={match?.avatar}
+                                        roundedCircle
+                                        style={{
+                                            borderRadius: '50%',
+                                            objectFit: 'cover',
+                                            width: '3rem',
+                                            height: '3rem',
+                                            marginRight: '1rem',
+                                            border: '1px solid rgb(193 193 193)',
+                                        }}
+                                    />
+                                ) : (
+                                    <LoadingEffect />
+                                )}
                                 {match?.name}
                             </ListGroup.Item>
                         );

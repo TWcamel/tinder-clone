@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import type * as CSS from 'csstype';
+import React from 'react';
 
 export type LoadingSpinProps = {
     size?: CSS.Property.Width & CSS.Property.Height;
@@ -10,6 +11,8 @@ export type LoadingSpinProps = {
     animationTimingFunction?: CSS.Property.AnimationTimingFunction;
     animationDirection?: CSS.Property.AnimationDirection;
     numberOfRotationsInAnimation?: number;
+    refreshPageTimeInterval?: number;
+    refreshPage?: boolean;
 };
 
 export const DEFAULT_VALUES = {
@@ -21,6 +24,8 @@ export const DEFAULT_VALUES = {
     animationTimingFunction: 'ease-in-out',
     animationDirection: 'normal',
     numberOfRotationsInAnimation: 2,
+    refreshPageTimeInterval: 1500,
+    refreshPage: false,
 };
 
 const LoadingSpin = (props: LoadingSpinProps): ReactElement => {
@@ -33,6 +38,8 @@ const LoadingSpin = (props: LoadingSpinProps): ReactElement => {
         animationTimingFunction = DEFAULT_VALUES.animationTimingFunction,
         animationDirection = DEFAULT_VALUES.animationDirection,
         numberOfRotationsInAnimation = DEFAULT_VALUES.numberOfRotationsInAnimation,
+        refreshPageTimeInterval = DEFAULT_VALUES.refreshPageTimeInterval,
+        refreshPage = DEFAULT_VALUES.refreshPage,
     } = props;
 
     return (

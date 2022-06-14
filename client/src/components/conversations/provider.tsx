@@ -18,6 +18,7 @@ interface IMessages {
     sender: string;
     senderName: string;
     fromMe: boolean;
+    updateAt?: string;
 }
 
 interface IConversation {
@@ -30,6 +31,14 @@ interface INewConversation {
     text: string;
     sender: string;
     updateAt?: Date;
+}
+
+interface IFetchConversation {
+    message: string;
+    reciever: string;
+    sender: string;
+    updateAt: String;
+    senderName?: string;
 }
 
 const ConversationsContext = React.createContext({});
@@ -52,9 +61,65 @@ export const ConversationsProvider: React.FC<{
     const { matches } = useMatches();
     const socket = useSocket();
 
+    const fetchConversations = useCallback(
+        (matches: any) => {
+            matches.map(async (match: IMatch) => {
+                const conversations = await ChatService.fetchChats({
+                    sender: id,
+                    reciever: match.id,
+                });
+                if (conversations.ok && conversations.data.length) {
+                    const recipient = conversations.data.find(
+                        (conversation: IFetchConversation) => {
+                            return conversation.reciever !== id;
+                        },
+                    );
+                    const msg = conversations.data.map(
+                        (conversation: IFetchConversation) => {
+                            return {
+                                text: conversation.message,
+                                sender: conversation.sender,
+                                senderName:
+                                    conversation?.senderName ||
+                                    conversation.sender,
+                                fromMe: conversation.sender === id,
+                                updateAt: conversation.updateAt,
+                            };
+                        },
+                    );
+                    const formattedConversation: IConversation = {
+                        recipients: [recipient.reciever],
+                        messages: msg,
+                    };
+
+                    setConversations((prevConversations: any) => {
+                        const _newConversation = prevConversations.map(
+                            (conversation: IConversation) => {
+                                if (
+                                    arrayEqualty(
+                                        conversation.recipients,
+                                        formattedConversation.recipients,
+                                    )
+                                ) {
+                                    conversation.messages =
+                                        formattedConversation.messages;
+                                }
+                                return conversation;
+                            },
+                        );
+                        return _newConversation.length === 0
+                            ? [...prevConversations, formattedConversation]
+                            : _newConversation;
+                    });
+                }
+            });
+        },
+        [id],
+    );
+
     const createConversationHistory = (recipients: [IMatch]) => {
         const r: any = recipients[0]?.id ?? recipients[0];
-        if (r && r.length && r !== 'undefined' && conversations.length === 0) {
+        if (r && r.length && r !== 'undefined') {
             (async () => {
                 const chats = await ChatService.getChatsHistory({
                     sender: id,
@@ -71,13 +136,22 @@ export const ConversationsProvider: React.FC<{
                             fromMe: msg.sender === id,
                         };
                     });
-                    setConversations((prev: [IConversation]) => [
-                        ...prev,
-                        {
-                            recipients,
-                            messages: formattMsgHis,
-                        },
-                    ]);
+                    setConversations((prev: [IConversation]) => {
+                        const index = prev.findIndex((c: IConversation) => {
+                            return arrayEqualty(c.recipients, recipients);
+                        });
+                        if (index !== -1) {
+                            prev[index].messages = formattMsgHis;
+                            return prev;
+                        }
+                        return [
+                            ...prev,
+                            {
+                                recipients,
+                                messages: formattMsgHis,
+                            },
+                        ];
+                    });
                 }
             })();
             return true;
@@ -176,6 +250,9 @@ export const ConversationsProvider: React.FC<{
     );
 
     useEffect(() => {
+        if (matches != null && matches.length > 0) {
+            fetchConversations(matches);
+        }
         if (socket == null) return;
         socket.on('receive-message', addMessageToConversation);
         socket.on('receive-typing', showTyping);
@@ -183,7 +260,13 @@ export const ConversationsProvider: React.FC<{
             socket.off('receive-message');
             socket.off('receive-typing');
         };
-    }, [socket, addMessageToConversation, showTyping]);
+    }, [
+        socket,
+        addMessageToConversation,
+        showTyping,
+        matches,
+        fetchConversations,
+    ]);
 
     const sendMessage: Function = (recipients: [IMatch], text: string) => {
         socket.emit('send-message', { recipients, text });
@@ -210,7 +293,14 @@ export const ConversationsProvider: React.FC<{
                 });
                 const name = (match && match.name) || message.sender;
                 const fromMe = id === message.sender;
-                return { ...message, senderName: name, fromMe };
+                return {
+                    ...message,
+                    senderName: name,
+                    fromMe,
+                    updateAt: message.updateAt
+                        ? new Date(message.updateAt)
+                        : new Date(),
+                };
             });
 
             const selected = index === selectedConversationIndex;

@@ -183,9 +183,14 @@ const OpenMatches: React.FC<{ id: string }> = ({ id }) => {
                             'd-flex align-items-center justify-content-center h-100'
                         }
                     >
-                        <NextSwipeCountDownTimer
-                            passInTime={moment(swiperNextTime.time).toDate()}
-                        />
+                        <div>
+                            You can swipe again
+                            <NextSwipeCountDownTimer
+                                passInTime={moment(
+                                    swiperNextTime.time,
+                                ).toDate()}
+                            />
+                        </div>
                     </div>
                 ) : (
                     people.map((person: any, idx: number) => {
@@ -249,7 +254,8 @@ const OpenMatches: React.FC<{ id: string }> = ({ id }) => {
                                                         width: '377px',
                                                         height: '477px',
                                                         objectFit: 'cover',
-                                                    }} />
+                                                    }}
+                                                />
                                             ) : (
                                                 <LoadingEffect />
                                             )}

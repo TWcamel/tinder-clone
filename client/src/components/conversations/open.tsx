@@ -88,7 +88,7 @@ const OpenConversation: React.FC = () => {
                                                     : 'bg-danger text-white border'
                                             }`}
                                             style={{
-                                                maxWidth: '10em',
+                                                maxWidth: '25em',
                                                 height: '100%',
                                                 inlineSize: 'max-content',
                                                 wordBreak: 'break-all',
