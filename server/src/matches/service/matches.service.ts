@@ -42,31 +42,45 @@ export class MatchesService {
         email,
         matchedEmail,
     }: CreateMatchesDto): Promise<void> {
-        const matchId = await this.checkGenIdIsMatched({
-            email,
-            matchedEmail,
+        const users = await this.userService.findAll();
+        const userList = users.reverse().map(async (user) => {
+            // this.createOrUpdateLike({
+            //     email: user.email,
+            //     matchEmail: 'crispyfriedabc@crispyfriedabc.com',
+            //     isLiked,
+            //     updateAt: new Date(),
+            // });
+
+            // const matchId = await this.checkGenIdIsMatched({
+            //     email: user.email,
+            //     // matchedEmail,
+            //     matchedEmail: 'crispyfriedabc@crispyfriedabc.com',
+            // });
+            // if (matchId)
+            //     return Promise.reject(
+            //         new HttpException(
+            //             `Match already exists`,
+            //             HttpStatus.BAD_REQUEST,
+            //         ),
+            //     );
+
+            const matchedPair = await new this.matchesModel({
+                id: await this.genMatchId({
+                    email: user.email,
+                    matchedEmail: 'tzuyu@tzuyu.com',
+                }),
+                email: user.email,
+                matchedEmail: 'tzuyu@tzuyu.com',
+            }).save();
+
+            if (!matchedPair)
+                Promise.reject(
+                    new HttpException(
+                        'Error creating match pair',
+                        HttpStatus.INTERNAL_SERVER_ERROR,
+                    ),
+                );
         });
-        if (matchId)
-            return Promise.reject(
-                new HttpException(
-                    `Match already exists`,
-                    HttpStatus.BAD_REQUEST,
-                ),
-            );
-
-        const matchedPair = await new this.matchesModel({
-            id: await this.genMatchId({ email, matchedEmail }),
-            email,
-            matchedEmail,
-        }).save();
-
-        if (!matchedPair)
-            Promise.reject(
-                new HttpException(
-                    'Error creating match pair',
-                    HttpStatus.INTERNAL_SERVER_ERROR,
-                ),
-            );
     }
 
     async getNextSwipe({ email }): Promise<any> {

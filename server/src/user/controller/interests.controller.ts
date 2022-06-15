@@ -81,4 +81,13 @@ export class UserInterestsController {
             data: await this.interestsService.findOne(id),
         });
     }
+
+    @Get('interests')
+    async mock(@Res() res: Response): Promise<Response> {
+        await this.interestsService.mock();
+        return res.send({
+            ok: true,
+            data: 'ok',
+        });
+    }
 }
