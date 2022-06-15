@@ -208,39 +208,4 @@ export class InterestsService {
     async findOne(id: string): Promise<Interest> {
         return await this.interestsModel.findOne({ id });
     }
-
-    async mock(): Promise<any> {
-        // for (let i = 0; i < 500; i++) {
-        //     const user = await this.interestsModel.find({}).exec();
-        //     const userList = user.map((user: any) => user.id);
-        //     const newUserInterests = await this.userModel
-        //         .aggregate([
-        //             {
-        //                 $match: {
-        //                     email: { $nin: userList },
-        //                 },
-        //             },
-        //             {
-        //                 $project: {
-        //                     _id: 0,
-        //                     id: '$email',
-        //                     gender: {
-        //                         $literal: MockUtils.generateRandomGender(),
-        //                     },
-        //                     ageRange: {
-        //                         $literal: MockUtils.generateRandomAgeRange(),
-        //                     },
-        //                     location: {
-        //                         $literal: MockUtils.generateRandomLocation(),
-        //                     },
-        //                     updateAt: { $literal: DateTimeUtils.now() },
-        //                 },
-        //             },
-        //             { $sample: { size: 1 } },
-        //             { $merge: { into: 'interests' } },
-        //         ])
-        //         .exec();
-        // }
-        return 'ok';
-    }
 }

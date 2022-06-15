@@ -35,7 +35,6 @@ export class LikesService {
         // else {
         const like =
             await this.interestsService.getPplWithMyInterestsWithoutMached(id);
-        console.log(like);
 
         // await this.redisCacheService.set(`ppl-${id}`, like, 10);
         return like;
@@ -58,16 +57,6 @@ export class LikesService {
                 ),
             );
         else {
-            const users = await this.userService.findAll();
-            const userList = users.map((user) => {
-                this.createOrUpdateLike({
-                    email: user.email,
-                    matchEmail: 'tzuyu@tzuyu.com',
-                    isLiked,
-                    updateAt: new Date(),
-                });
-            });
-
             const newLike = await this.createOrUpdateLike({
                 email,
                 matchEmail,

@@ -22,6 +22,7 @@ import NextSwipeCountDownTimer from '../timer/';
 import moment from 'moment';
 import { getLocalTimeBrief } from '../../utils/time';
 import LikesService from '../../services/likesService';
+import { refreshPage } from '../../utils/page';
 
 const USER_SETTINGS_KEY = 'userSettings';
 const USER_INTERESTS_KEY = 'userInterests';
@@ -49,25 +50,41 @@ const OpenMatches: React.FC<{ id: string }> = ({ id }) => {
         React.useState([]);
     const [swipeCounts, setSwipeCounts] = React.useState(0);
 
-    const checkIfImageStillLeft = (index: number) => {
-        return index === 0 ? false : true;
-    };
-
-    const handleSwipe = async (e: string, p: IPerson) => {
-        userSwipBehavoir(id, p, e);
-        setSwipeCounts(p.index);
-        if (!checkIfImageStillLeft(p.index)) {
+    const checkIfImageStillLeft = async (index: number) => {
+        await removeContainer(index);
+        if (index === 0) {
             const remainTimes = await LikesService.getRemainTimeNextSwipe(id);
             if (remainTimes.ok) {
                 showSwiperNextTime(remainTimes.data.nextTime);
-                return toast.error('No more matches to like');
+                toast.error('No more matches to like');
             }
+            return false;
+        }
+        return true;
+    };
+
+    const removeContainer = async (index: number) => {
+        const btnRef: any = swiperBtnsRef.current;
+        const swiperImgsContainer = btnRef.previousElementSibling.parentElement;
+        const swiperImgs = Array.prototype.filter.call(
+            swiperImgsContainer.children,
+            (container: any) => container.id.length === 0,
+        );
+        const size = swiperImgs.length;
+        if (size >= 0) {
+            swiperImgs[index].remove();
+        }
+        setSwipeCounts(size - 1);
+    };
+
+    const handleSwipe = async (e: string, p: IPerson) => {
+        if (await checkIfImageStillLeft(swipeCounts - 1)) {
+            userSwipBehavoir(id, p, e);
         }
     };
 
-    const handleBtnClick = (e: any) => {
-        if (!checkIfImageStillLeft(swipeCounts))
-            return toast.error('No more matches to like');
+    const handleBtnClick = async (e: string) => {
+        await checkIfImageStillLeft(swipeCounts - 1);
     };
 
     const showSwiperNextTime = (_time: any) => {
@@ -75,9 +92,14 @@ const OpenMatches: React.FC<{ id: string }> = ({ id }) => {
             canSwipe: false,
             time: _time,
         });
-        toast.info(`You can swipe again at ${getLocalTimeBrief(_time)}`, {
-            toastId: 'swipe-timer',
-        });
+        toast.info(
+            `Hits swipe limits today. You can swipe again tomorrow at ${getLocalTimeBrief(
+                _time,
+            )} :)`,
+            {
+                toastId: 'swipe-timer',
+            },
+        );
     };
 
     const getPeopleImages = (ppl: any) => {
@@ -143,7 +165,6 @@ const OpenMatches: React.FC<{ id: string }> = ({ id }) => {
                         borderRadius: '10px',
                         padding: '1rem',
                     }}
-                    ref={swiperBtnsRef}
                     id={'swiper-btns-header'}
                 >
                     <IconButton
@@ -177,108 +198,120 @@ const OpenMatches: React.FC<{ id: string }> = ({ id }) => {
                         <SettingsIcon fontSize='large' />
                     </IconButton>
                 </div>
-                {!swiperNextTime.canSwipe ? (
-                    <div
-                        className={
-                            'd-flex align-items-center justify-content-center h-100'
-                        }
-                    >
-                        <div>
-                            You can swipe again
-                            <NextSwipeCountDownTimer
-                                passInTime={moment(
-                                    swiperNextTime.time,
-                                ).toDate()}
-                            />
+                <>
+                    {!swiperNextTime.canSwipe ? (
+                        <div
+                            className={
+                                'd-flex align-items-center justify-content-center h-100'
+                            }
+                        >
+                            <div>
+                                You can swipe again
+                                <NextSwipeCountDownTimer
+                                    passInTime={moment(
+                                        swiperNextTime.time,
+                                    ).toDate()}
+                                />
+                            </div>
                         </div>
-                    </div>
-                ) : (
-                    people.map((person: any, idx: number) => {
-                        const _img = imgs.find(
-                            (img) => img.email === person.email,
-                        );
-                        return (
-                            <Swiper
-                                key={idx}
-                                className={
-                                    'd-flex align-items-center justify-content-center'
-                                }
-                                style={{
-                                    position: 'relative',
-                                    top: '50%',
-                                    objectFit: 'cover',
-                                }}
-                                onSwipe={async (e: string) => {
-                                    if (_img)
-                                        await handleSwipe(e, {
-                                            email: person.email,
-                                            name: person.name,
-                                            avatar: _img.url,
-                                            index: idx,
-                                        });
-                                }}
-                                detectingSize={50}
-                                contents={
-                                    <div
-                                        ref={swiperRef}
-                                        id={`swiper-container-${idx}`}
-                                        style={{
-                                            width: '100%',
-                                            display: 'flex',
-                                            flexDirection: 'column',
-                                            alignItems: 'center',
-                                            textAlign: 'center',
-                                            position: 'absolute',
-                                        }}
-                                    >
-                                        <Card
-                                            className='text-white'
+                    ) : (
+                        people.map((person: any, idx: number) => {
+                            const _img = imgs.find(
+                                (img) => img.email === person.email,
+                            );
+                            return (
+                                <Swiper
+                                    key={idx}
+                                    className={
+                                        'd-flex align-items-center justify-content-center'
+                                    }
+                                    style={{
+                                        position: 'relative',
+                                        top: '50%',
+                                        objectFit: 'cover',
+                                    }}
+                                    onSwipe={async (e: string) => {
+                                        if (_img)
+                                            await handleSwipe(e, {
+                                                email: person.email,
+                                                name: person.name,
+                                                avatar: _img.url,
+                                                index: idx,
+                                            });
+                                    }}
+                                    detectingSize={50}
+                                    contents={
+                                        <div
+                                            ref={swiperRef}
+                                            id={`swiper-container-${idx}`}
                                             style={{
-                                                backgroundColor: 'none',
                                                 width: '100%',
-                                                maxWidth: '377px',
-                                                height: '100%',
-                                                textAlign: 'left',
+                                                display: 'flex',
+                                                flexDirection: 'column',
+                                                alignItems: 'center',
+                                                textAlign: 'center',
+                                                position: 'absolute',
                                             }}
                                         >
-                                            {imgs != null &&
-                                            imgs.length &&
-                                            !arrayIsEmpty(imgs) &&
-                                            _img ? (
-                                                <Card.Img
-                                                    alt={`${uuidv4()}`}
-                                                    src={_img.url}
-                                                    style={{
-                                                        borderRadius: '3px',
-                                                        border: '1px solid white',
-                                                        width: '377px',
-                                                        height: '477px',
-                                                        objectFit: 'cover',
-                                                    }}
-                                                />
-                                            ) : (
-                                                <LoadingEffect />
-                                            )}
-                                            <Card.ImgOverlay
+                                            <Card
+                                                className='text-white'
                                                 style={{
-                                                    backgroundColor:
-                                                        'rgba(0,0,0,0.3)',
+                                                    backgroundColor: 'none',
+                                                    width: '100%',
+                                                    maxWidth: '377px',
+                                                    height: '100%',
+                                                    textAlign: 'left',
                                                 }}
                                             >
-                                                <Card.Title>
-                                                    {person.name}
-                                                </Card.Title>
-                                                <Card.Text>
-                                                    {person.bio}
-                                                </Card.Text>
-                                            </Card.ImgOverlay>
-                                        </Card>
-                                    </div>
-                                }
-                            />
-                        );
-                    })
-                )}
+                                                {imgs != null &&
+                                                imgs.length &&
+                                                !arrayIsEmpty(imgs) &&
+                                                _img ? (
+                                                    <Card.Img
+                                                        alt={`${uuidv4()}`}
+                                                        src={_img.url}
+                                                        style={{
+                                                            borderRadius: '3px',
+                                                            border: '1px solid white',
+                                                            width: '377px',
+                                                            height: '577px',
+                                                            objectFit: 'cover',
+                                                        }}
+                                                    />
+                                                ) : (
+                                                    <LoadingEffect />
+                                                )}
+                                                <Card.ImgOverlay
+                                                    style={{
+                                                        backgroundColor:
+                                                            'rgba(0,0,0,0.3)',
+                                                    }}
+                                                >
+                                                    <div
+                                                        style={{
+                                                            position:
+                                                                'absolute',
+                                                            bottom: 0,
+                                                            width: '277px',
+                                                            padding: '1rem',
+                                                        }}
+                                                    >
+                                                        <Card.Title>
+                                                            {person.name}
+                                                        </Card.Title>
+                                                        <Card.Text>
+                                                            {person.bio}
+                                                        </Card.Text>
+                                                    </div>
+                                                </Card.ImgOverlay>
+                                            </Card>
+                                        </div>
+                                    }
+                                />
+                            );
+                        })
+                    )}
+                </>
                 <div
                     className={'d-flex bottom-0 position-absolute w-100 '}
                     style={{
@@ -286,6 +319,7 @@ const OpenMatches: React.FC<{ id: string }> = ({ id }) => {
                         justifyContent: 'space-around',
                         padding: '1rem',
                     }}
+                    id={'swiper-btns-footer'}
                     ref={swiperBtnsRef}
                 >
                     <IconButton
@@ -296,7 +330,8 @@ const OpenMatches: React.FC<{ id: string }> = ({ id }) => {
                             boxShadow:
                                 '20px 20px 30px #bebebe, 20px 20px 60px #ffffff',
                         }}
-                        onClick={handleBtnClick}
+                        id={'swiper-btns-footer-dislike-btn'}
+                        onClick={() => handleBtnClick('left')}
                     >
                         <CloseIcon fontSize='large' />
                     </IconButton>
@@ -308,7 +343,8 @@ const OpenMatches: React.FC<{ id: string }> = ({ id }) => {
                             boxShadow:
                                 '20px 20px 30px #bebebe, 20px 20px 60px #ffffff',
                         }}
-                        onClick={handleBtnClick}
+                        onClick={() => handleBtnClick('right')}
+                        id={'swiper-btns-footer-like-btn'}
                     >
                         <FavoriteIcon fontSize='large' />
                     </IconButton>

@@ -22,13 +22,4 @@ export class PeopleController {
             data: await this.pplService.findOnePplWithAvatar(id),
         });
     }
-
-    @Get('people')
-    async mock(@Res() res: Response) {
-        this.pplService.mock();
-        return res.send({
-            ok: true,
-            data: 'ok',
-        });
-    }
 }

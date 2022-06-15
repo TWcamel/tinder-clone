@@ -108,7 +108,7 @@ export class MatchesController {
         try {
             return res.send({
                 ok: true,
-                data: 'tes', //await this.matchesService.getNextSwipe({ email: id }),
+                data: await this.matchesService.getNextSwipe({ email: id }),
             });
         } catch (error) {
             return res.send({
@@ -117,4 +117,5 @@ export class MatchesController {
             });
         }
     }
+
 }

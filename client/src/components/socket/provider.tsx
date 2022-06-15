@@ -3,6 +3,8 @@ import io, { Socket } from 'socket.io-client';
 import Config from '../../config/config';
 import useLocalStorage from '../../hooks/useLocalStorage';
 import AuthService from '../../services/authService';
+import { toast } from 'react-toastify';
+import { refreshPage } from '../../utils/page';
 
 const SocketContext: React.Context<Socket | null> =
     React.createContext<Socket | null>(null);
@@ -25,7 +27,8 @@ export const SocketProvider: React.FC<{
         });
         setSocket(newSocket);
         newSocket.on('disconnect', () => {
-            alert('You have been disconnected');
+            toast.info('Disconnected');
+            refreshPage();
         });
         return (): any => newSocket.close();
     }, [id]);
