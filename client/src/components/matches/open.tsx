@@ -84,7 +84,9 @@ const OpenMatches: React.FC<{ id: string }> = ({ id }) => {
     };
 
     const handleBtnClick = async (e: string) => {
-        await checkIfImageStillLeft(swipeCounts - 1);
+        if (await checkIfImageStillLeft(swipeCounts - 1)) {
+            userSwipBehavoir(id, people[swipeCounts], e);
+        }
     };
 
     const showSwiperNextTime = (_time: any) => {
