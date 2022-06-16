@@ -5,12 +5,17 @@ import { FbLogin } from './FbLogin';
 import { GoogleLogin } from './GoogleLogin';
 import SignupModal from '../modals/SignupModal';
 import { toast } from 'react-toastify';
+import MocksModal from '../modals/MocksModal';
+
+const SIGN_UP_KEY = 'signup';
+const MOCKS_KEY = 'mocks';
 
 export const Login: React.FC<{
     onUserIdSubmit: (userId: string) => void;
     onUserNameSubmit: (userName: string) => void;
 }> = ({ onUserIdSubmit, onUserNameSubmit }) => {
     const [modalShow, setModalShow] = React.useState(false);
+    const [activeKey, setActiveKey] = React.useState('');
 
     useEffect(() => {
         (async () => {
@@ -129,29 +134,46 @@ export const Login: React.FC<{
                         <Button
                             id='login-button'
                             className='mt-2 me-2 rounded'
-                            variant='primary'
+                            variant='outline-primary'
                             type='submit'
                             onClick={handleSubmit}
                         >
                             Sign in
                         </Button>
                         <Button
-                            onClick={() => setModalShow(true)}
+                            onClick={() => {
+                                setActiveKey(SIGN_UP_KEY);
+                                setModalShow(true);
+                            }}
                             className='mt-2 me-2 rounded'
-                            variant='secondary'
+                            variant='outline-secondary'
                         >
                             Sign up
                         </Button>
-
-                        <Modal show={modalShow} onHide={closeModal}>
-                            <SignupModal closeModal={closeModal} />
-                        </Modal>
+                        <Button
+                            onClick={() => {
+                                setActiveKey(MOCKS_KEY);
+                                setModalShow(true);
+                            }}
+                            className='mt-2 me-2 rounded'
+                            variant='outline-info'
+                        >
+                            Check Testing Accounts
+                        </Button>
 
                         {/* <FbLogin /> */}
                         {/* <GoogleLogin /> */}
                     </Form>
                 </div>
             </Container>
+
+            <Modal show={modalShow} onHide={closeModal}>
+                {activeKey === SIGN_UP_KEY ? (
+                    <SignupModal closeModal={closeModal} />
+                ) : (
+                    <MocksModal closeModal={closeModal} />
+                )}
+            </Modal>
         </>
     );
 };

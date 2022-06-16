@@ -1,8 +1,8 @@
 const Config = {
-    SERVER_URL: 'http://localhost:3000',
-    SERVER_API_URL: 'http://localhost:3000/api',
-    // SERVER_URL: 'https://pineapple.tw-camel.com',
-    // SERVER_API_URL: 'https://pineapple.tw-camel.com/api',
+    // SERVER_URL: 'http://localhost:3000',
+    // SERVER_API_URL: 'http://localhost:3000/api',
+    SERVER_URL: 'https://pineapple.tw-camel.com',
+    SERVER_API_URL: 'https://pineapple.tw-camel.com/api',
     PROXY_URL: '/api',
     APP_PREFIX: 'tinder-clone-',
     APIGW_S3_BUCKET_ADDR:
