@@ -15,7 +15,25 @@ const ChatService = {
         reciever: string;
     }) => {
         const response = await Api.post(
-            'chats/history',
+            'chats/histories',
+            { sender, reciever },
+            {
+                authorization: `Bearer ${AuthService.getBearerToken()}`,
+            },
+        );
+
+        return response.data;
+    },
+
+    fetchChats: async ({
+        sender,
+        reciever,
+    }: {
+        sender: string;
+        reciever: string;
+    }) => {
+        const response = await Api.post(
+            'chats/histories',
             { sender, reciever },
             {
                 authorization: `Bearer ${AuthService.getBearerToken()}`,

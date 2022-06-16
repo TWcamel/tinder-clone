@@ -15,7 +15,7 @@ import { v5 as uuidv5 } from 'uuid';
 import { ConfigService } from '@nestjs/config';
 import DateTime from 'src/utils/time.utils';
 import * as LikesI from '../models/likes.interface';
-import { RedisCacheService } from 'src/cache/service/redis-cache.service';
+// import { RedisCacheService } from 'src/cache/service/redis-cache.service';
 import * as NextTimeMatchI from 'src/matches/models/next.time.match.interface';
 
 @Injectable()
@@ -24,7 +24,7 @@ export class LikesService {
         @InjectModel(Likes.name) private likesModel: Model<LikesDocument>,
         private readonly userService: UserService,
         private readonly interestsService: InterestsService,
-        private readonly redisCacheService: RedisCacheService,
+        // private readonly redisCacheService: RedisCacheService,
         private readonly configService: ConfigService,
     ) {}
 
@@ -36,7 +36,7 @@ export class LikesService {
         const like =
             await this.interestsService.getPplWithMyInterestsWithoutMached(id);
 
-        await this.redisCacheService.set(`ppl-${id}`, like, 10);
+        // await this.redisCacheService.set(`ppl-${id}`, like, 10);
         return like;
         // }
     }

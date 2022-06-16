@@ -2,6 +2,7 @@ import React from 'react';
 import { ListGroup, Image, Form } from 'react-bootstrap';
 import { useMatches } from './provider';
 import { useConversations } from '../conversations/provider';
+import { refreshPage } from '../../utils/page';
 
 interface IMatch {
     id: string;
@@ -20,7 +21,7 @@ export const Matches: React.FC<{
     const { createConversation } = useConversations();
 
     const handleOnSelect = (index: number, id: string) => {
-        selectMatchIndex(index);
+        selectMatchIndex(index+1);
         onSidebarSelcet(CONVERSATIONS_KEY);
         createConversation([id]);
     };
@@ -43,7 +44,7 @@ export const Matches: React.FC<{
                             borderBottom: '1px solid rgb(193 193 193)',
                             padding: '0.75rem 1.25rem',
                             backgroundColor: match.isSelected
-                                ? 'rgb(14 110 253)'
+                                ? 'rgb(233 81 113)'
                                 : 'rgb(242 242 242)',
                         }}
                     >

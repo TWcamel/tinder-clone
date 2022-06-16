@@ -64,7 +64,11 @@ export class LikesController {
                         ok: true,
                         data: await this.likesService.formatRetMsg(likeToken),
                     });
-            }
+            } else if (!likeToken.isLiked)
+                return res.send({
+                    ok: true,
+                    data: await this.likesService.formatRetMsg(likeToken),
+                });
         } catch (error) {
             return res.send({
                 error: true,

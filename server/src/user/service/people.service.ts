@@ -8,12 +8,17 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Response, Request } from 'express';
+import { AuthService } from 'src/auth/service/auth.service';
 import { User, UserDocument } from '../models/user.schemas';
+import { Avatar, AvatarDocument } from 'src/aws/models/aws.schemas';
+import MockUtils from 'src/utils/mock.utils';
 
 @Injectable()
 export class PeopleService {
     constructor(
         @InjectModel(User.name) private userModel: Model<UserDocument>,
+        @InjectModel(Avatar.name) private avatarModel: Model<AvatarDocument>,
+        private authService: AuthService,
     ) {}
 
     async findOnePplWithAvatar(id: string): Promise<any> {

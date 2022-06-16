@@ -7,6 +7,7 @@ import { UserController } from './controller/user.controller';
 import { UserInterestsController } from './controller/interests.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { User, UserSchema } from './models/user.schemas';
+import { Avatar, AvatarSchema } from 'src/aws/models/aws.schemas';
 import { Interest, InterestsSchema } from './models/user-interests.schemas';
 import { AuthModule } from 'src/auth/auth.module';
 import { Matches, MatchesSchema } from 'src/matches/models/matches.schemas';
@@ -30,6 +31,9 @@ import { MatchesService } from 'src/matches/service/matches.service';
         MongooseModule.forFeature([{ name: Likes.name, schema: LikesSchema }]),
         MongooseModule.forFeature([
             { name: NextTimeToMatch.name, schema: NextTimeToMatchSchema },
+        ]),
+        MongooseModule.forFeature([
+            { name: Avatar.name, schema: AvatarSchema },
         ]),
         AuthModule,
     ],

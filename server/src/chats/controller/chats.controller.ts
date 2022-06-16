@@ -54,7 +54,7 @@ export class ChatsController {
         }
     }
 
-    @Post('/history')
+    @Post('/histories')
     @UseGuards(JwtAuthGuard)
     async getChatsHistory(
         @Res() res: Response,
@@ -65,7 +65,35 @@ export class ChatsController {
             const chats = await this.chatsService.getChatsHistory({
                 sender,
                 reciever,
+                fetch: false,
             });
+            if (chats)
+                return res.send({
+                    ok: true,
+                    data: chats,
+                });
+        } catch (error) {
+            return res.send({
+                error: true,
+                message: error.response || error._message,
+            });
+        }
+    }
+
+    @Post('/history')
+    @UseGuards(JwtAuthGuard)
+    async fetchChats(
+        @Res() res: Response,
+        @Req() req: Request,
+    ): Promise<Response<ChatI[]>> {
+        const { sender, reciever }: ReceivedMessageI = req.body;
+        try {
+            const chats = await this.chatsService.getChatsHistory({
+                sender,
+                reciever,
+                fetch: true,
+            });
+
             if (chats)
                 return res.send({
                     ok: true,

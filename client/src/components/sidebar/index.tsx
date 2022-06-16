@@ -15,7 +15,6 @@ const Sidebar: React.FC<{
     name: any;
     onSidebarSelected?: (activeKey: any) => void;
 }> = ({ id, name, onSidebarSelected }) => {
-    const [modalShow, setModalShow] = React.useState(false);
     const [activeKey, setActiveKey]: [
         string,
         React.Dispatch<React.SetStateAction<string>>,
@@ -54,18 +53,20 @@ const Sidebar: React.FC<{
                     }
                 >
                     <Tab.Pane eventKey={CONVERSATIONS_KEY}>
-                        <Conversations />
+                        <Conversations onSidebarSelcet={setActiveKey} />
                     </Tab.Pane>
                     <Tab.Pane eventKey={MATCHES_KEY}>
                         <Matches onSidebarSelcet={setActiveKey} />
                     </Tab.Pane>
                 </Tab.Content>
                 <div
-                    className='p-2 small border d-flex justify-content-between align-items-center'
-                    style={{ backgroundColor: '#f5f5f5' }}
+                    className='small border d-flex justify-content-between align-items-center '
+                    style={{
+                        backgroundColor: '#f5f5f5',
+                    }}
                 >
                     <FaceIcon style={{ fontSize: '2rem' }} />
-                    <span className='text-muted'>{id}</span>
+                    <span className='text-muted'>{name}</span>
                     <IconButton onClick={() => handleLogout()}>
                         <ExitToApp style={{ fontSize: '2rem' }} />
                     </IconButton>

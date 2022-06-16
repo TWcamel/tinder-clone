@@ -70,14 +70,16 @@ export class MatchesService {
     }
 
     async getNextSwipe({ email }): Promise<any> {
-        return await this.nextTimeToMatchModel.findOneAndUpdate(
-            { email },
-            {
-                email,
-                nextTimeToMatch: DateTimeUtils.tomorrow(),
-            },
-            { upsert: true, new: true, setDefaultsOnInsert: true },
-        );
+        return await this.nextTimeToMatchModel
+            .findOneAndUpdate(
+                { email },
+                {
+                    email,
+                    nextTimeToMatch: DateTimeUtils.tomorrow(),
+                },
+                { upsert: true, new: true, setDefaultsOnInsert: true },
+            )
+            .exec();
     }
 
     async findMatchedPair({ id }: FindMatchedI): Promise<MatchI> {

@@ -1,14 +1,23 @@
 version: '3.9'
 services:
     api:
+        image: ${IMAGE_NAME}
         build:
-            dockerfile: Dockerfile
             context: .
+            dockerfile: nestjs.dockerfile
             target: prod
         volumes:
-            - .:/app
-        command: yarn run start
+            - ./.env:/app/server/.env
+            - ../client/build:/app/client/build
+        command: yarn run debug
         ports:
             - 3000:3000
-            - 9229:9229
+        networks:
+            - 'TINDER_CLONE_NETWORK'
         restart: always
+
+volumes:
+    TINDER_CLONER_DATA_DIR:
+
+networks:
+    TINDER_CLONE_NETWORK:

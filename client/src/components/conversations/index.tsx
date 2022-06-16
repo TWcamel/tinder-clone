@@ -1,9 +1,11 @@
 import React, { useEffect } from 'react';
-import { io, Manager } from 'socket.io-client';
 import { Button, ListGroup, Form, Image } from 'react-bootstrap';
 import { useConversations } from './provider';
 import useLocalStorage from '../../hooks/useLocalStorage';
 import { getLocalStorage } from '../../utils/localStorage';
+import { useMatches } from '../matches/provider';
+import LoadingEffect from '../loading/';
+import { refreshPage } from '../../utils/page';
 
 interface IConversation {
     sender: string;
@@ -23,16 +25,11 @@ interface IMatch {
     avatar: string;
 }
 
-export const Conversations: React.FC = () => {
+export const Conversations: React.FC<{
+    onSidebarSelcet: (tab: string) => void;
+}> = ({ onSidebarSelcet }) => {
     const { conversations, selectConversationIndex } = useConversations();
-    const [matches, setMatches] = React.useState<IMatch[]>([]);
-
-    useEffect(() => {
-        const m: any = getLocalStorage('matches');
-        if (m) {
-            setMatches(m);
-        }
-    }, []);
+    const { matches } = useMatches();
 
     //TODO: make messages scroll to top when new message is added
     //TODO: infinate scroll
@@ -58,22 +55,26 @@ export const Conversations: React.FC = () => {
                                     borderBottom: '1px solid rgb(193 193 193)',
                                     padding: '0.75rem 1.25rem',
                                     backgroundColor: conversation.selected
-                                        ? 'rgb(14 110 253)'
+                                        ? 'rgb(233 81 113)'
                                         : 'rgb(242 242 242)',
                                 }}
                             >
-                                <Image
-                                    src={match?.avatar || ''}
-                                    roundedCircle
-                                    style={{
-                                        borderRadius: '50%',
-                                        objectFit: 'cover',
-                                        width: '3rem',
-                                        height: '3rem',
-                                        marginRight: '1rem',
-                                        border: '1px solid rgb(193 193 193)',
-                                    }}
-                                />
+                                {match?.avatar ? (
+                                    <Image
+                                        src={match.avatar}
+                                        roundedCircle
+                                        style={{
+                                            borderRadius: '50%',
+                                            objectFit: 'cover',
+                                            width: '3rem',
+                                            height: '3rem',
+                                            marginRight: '1rem',
+                                            border: '1px solid rgb(193 193 193)',
+                                        }}
+                                    />
+                                ) : (
+                                    <LoadingEffect />
+                                )}
                                 {match?.name}
                             </ListGroup.Item>
                         );

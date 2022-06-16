@@ -19,7 +19,7 @@ export const GoogleLogin: React.FC = () => {
                 variant='danger'
                 className='mt-2 me-2 rounded'
                 type='submit'
-                disabled={true}
+                disabled={false}
                 onClick={handleClick}
             >
                 google login
