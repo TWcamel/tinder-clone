@@ -3,9 +3,8 @@ import { Container, Form, Button, Modal } from 'react-bootstrap';
 import AuthService from '../../services/authService';
 import { FbLogin } from './FbLogin';
 import { GoogleLogin } from './GoogleLogin';
-import { v4 as uuidV4 } from 'uuid';
-import useLocalStorage from '../../hooks/useLocalStorage';
 import SignupModal from '../modals/SignupModal';
+import { toast } from 'react-toastify';
 
 export const Login: React.FC<{
     onUserIdSubmit: (userId: string) => void;
@@ -16,7 +15,7 @@ export const Login: React.FC<{
     useEffect(() => {
         (async () => {
             const isLoggedIn: boolean = await checkLogin();
-            if (!isLoggedIn) userRegister();
+            if (!isLoggedIn) toast.info('Welcome! Login to continue.');
         })();
     }, []);
 
@@ -35,7 +34,7 @@ export const Login: React.FC<{
         e.preventDefault();
         const _target: HTMLFormElement = e.target as HTMLFormElement;
 
-        _target.id === 'login-button' ? userLogin() : userRegister();
+        _target.id === 'login-button' ? userLogin() : (() => {})(); //userRegister();
     };
 
     const checkLogin = async (): Promise<boolean> => {
@@ -55,9 +54,15 @@ export const Login: React.FC<{
         const password = passwordRef.current!.value;
 
         if (email && password && email.length > 0 && password.length > 0) {
-            const res = await AuthService.login(email, password);
-            onUserIdSubmit(res.email);
-            onUserNameSubmit(res.name);
+            try {
+                const res = await AuthService.login(email, password);
+                onUserIdSubmit(res.email);
+                onUserNameSubmit(res.name);
+            } catch (err: any) {
+                toast.error('Login in failed, please try again', {
+                    autoClose: 7000,
+                });
+            }
         }
     };
 
@@ -101,6 +106,7 @@ export const Login: React.FC<{
                     <Button
                         onClick={() => setModalShow(true)}
                         className='mt-2 me-2 rounded'
+                        variant='secondary'
                     >
                         Signup
                     </Button>
