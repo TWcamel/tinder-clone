@@ -44,7 +44,7 @@ export const Matches: React.FC<{
                             borderBottom: '1px solid rgb(193 193 193)',
                             padding: '0.75rem 1.25rem',
                             backgroundColor: match.isSelected
-                                ? 'rgb(14 110 253)'
+                                ? 'rgb(233 81 113)'
                                 : 'rgb(242 242 242)',
                         }}
                     >

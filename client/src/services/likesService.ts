@@ -25,12 +25,6 @@ const LikesService = {
         return response;
     },
 
-    getRemainTimeNextSwipe: async (email: string) => {
-        const response = await Api.get(`matches/nextSwipe/${email}`, {
-            Authorization: `Bearer ${AuthService.getBearerToken()}`,
-        });
-        return response.data;
-    },
 };
 
 export default LikesService;

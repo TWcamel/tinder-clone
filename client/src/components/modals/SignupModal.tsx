@@ -143,8 +143,7 @@ const SignupModal: React.FC<any> = ({
                             value='M'
                             name='user-gender'
                             onChange={updateGender}
-                        />
-                        <Form.Check
+                        /> <Form.Check
                             type='radio'
                             label='Female'
                             value='F'
@@ -187,6 +186,7 @@ const SignupModal: React.FC<any> = ({
                             placeholder='Introduce yourself'
                             className='mb-2'
                             ref={bioRef}
+                            maxLength={200}
                         />
                         <Form.Label>Upload Images</Form.Label>
                         <ImageUploader onParentSubmit={setImgs} />

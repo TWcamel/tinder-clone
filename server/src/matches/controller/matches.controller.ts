@@ -1,6 +1,7 @@
 import {
     Controller,
     Post,
+    Patch,
     Get,
     Param,
     UseGuards,
@@ -99,16 +100,19 @@ export class MatchesController {
         }
     }
 
-    @Get('/nextSwipe/:id')
+    @Patch('/nextSwipe')
     async getNextSwipe(
         @Req() req: Request,
         @Res() res: Response,
-        @Param('id') id: string,
     ): Promise<Response> {
+        const { id } = req.body;
+        const remainTime = await this.matchesService.getNextSwipe({
+            email: id,
+        });
         try {
             return res.send({
                 ok: true,
-                data: await this.matchesService.getNextSwipe({ email: id }),
+                data: remainTime,
             });
         } catch (error) {
             return res.send({
@@ -117,5 +121,4 @@ export class MatchesController {
             });
         }
     }
-
 }

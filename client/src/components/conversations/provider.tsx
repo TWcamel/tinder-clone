@@ -71,7 +71,12 @@ export const ConversationsProvider: React.FC<{
                 if (conversations.ok && conversations.data.length) {
                     const recipient = conversations.data.find(
                         (conversation: IFetchConversation) => {
-                            return conversation.reciever !== id;
+                            return (
+                                (conversation.reciever !== id &&
+                                    conversation.sender === id) ||
+                                (conversation.reciever === id &&
+                                    conversation.sender !== id)
+                            );
                         },
                     );
                     const msg = conversations.data.map(
@@ -88,7 +93,11 @@ export const ConversationsProvider: React.FC<{
                         },
                     );
                     const formattedConversation: IConversation = {
-                        recipients: [recipient.reciever],
+                        recipients: [
+                            recipient.reciever === id
+                                ? recipient.sender
+                                : recipient.reciever,
+                        ],
                         messages: msg,
                     };
 

@@ -58,34 +58,32 @@ export const MatchesProvider: React.FC<{ children: React.ReactNode }> = ({
         fetchMatches();
     }, [fetchMatches]);
 
-    const userSwipBehavoir: Function = (
+    const userSwipBehavoir: Function = async (
         user: string,
         person: { email: string; name: string; avatar: string },
         choice: string,
     ) => {
-        (async () => {
-            const match = await LikesService.createLikesToken(
-                user,
-                person.email,
-                choice === 'right',
-            );
-            if (match.data.ok && match.data.message === 'its a match!') {
-                toast.success(`${person.name} also likes you, it's a match!`);
-                setMatches((prevMatches: any) => {
-                    prevMatches = prevMatches.filter(
-                        ({ id }: IMatch) => id !== person.email,
-                    );
-                    return [
-                        ...prevMatches,
-                        {
-                            id: person.email,
-                            name: person.name,
-                            avatar: person.avatar,
-                        },
-                    ];
-                });
-            }
-        })();
+        const match = await LikesService.createLikesToken(
+            user,
+            person.email,
+            choice === 'right',
+        );
+        if (match.data.ok && match.data.message === 'its a match!') {
+            toast.success(`${person.name} also likes you, it's a match!`);
+            setMatches((prevMatches: any) => {
+                prevMatches = prevMatches.filter(
+                    ({ id }: IMatch) => id !== person.email,
+                );
+                return [
+                    ...prevMatches,
+                    {
+                        id: person.email,
+                        name: person.name,
+                        avatar: person.avatar,
+                    },
+                ];
+            });
+        }
     };
 
     const formattedMatches = matches.map((match: any, index: number) => {

@@ -46,6 +46,10 @@ const twoObjOfArrayEqualty = (a: object[], b: object[]) => {
     return true;
 };
 
+const arrayFull = (array: any[], size: number) => {
+    return Array.isArray(array) && array.length === size;
+};
+
 export {
     arrayEqualty,
     removeItem,
@@ -53,4 +57,5 @@ export {
     arrayIsEmpty,
     fileArrayIsEmpty,
     twoObjOfArrayEqualty,
+    arrayFull,
 };

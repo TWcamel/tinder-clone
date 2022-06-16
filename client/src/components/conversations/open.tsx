@@ -8,6 +8,8 @@ import {
     utcToCst,
     getLocalTimeBrief,
 } from '../../utils/time';
+import Picker from 'emoji-picker-react';
+import EmojiEmotionsIcon from '@material-ui/icons/EmojiEmotions';
 
 interface IConversationOpenProps {
     fromMe: boolean;
@@ -26,6 +28,14 @@ const OpenConversation: React.FC = () => {
             node.scrollIntoView({ behavior: 'smooth' });
         }
     }, []);
+    const [chosenEmoji, setChosenEmoji]: [any, any] = React.useState(null);
+    const [showEmojiPicker, setShowEmojiPicker]: [boolean, any] =
+        React.useState(false);
+
+    const onEmojiClick = (event: any, emojiObject: any) => {
+        setChosenEmoji(emojiObject);
+        setText(text + emojiObject.emoji);
+    };
 
     const handleSubmit = (
         e:
@@ -116,6 +126,17 @@ const OpenConversation: React.FC = () => {
                             },
                         )}
                     </div>
+                    <div
+                        style={{
+                            position: 'absolute',
+                            right: 0,
+                            bottom: '5rem',
+                            zIndex: 1,
+                            display: showEmojiPicker ? 'block' : 'none',
+                        }}
+                    >
+                        <Picker onEmojiClick={onEmojiClick} />
+                    </div>
                 </div>
                 <Form onSubmit={handleSubmit}>
                     <Form.Group className='form-floating m-3'>
@@ -139,9 +160,7 @@ const OpenConversation: React.FC = () => {
                                     }}
                                     style={{
                                         resize: 'none',
-                                        border: '#4DE8F4 solid 1px',
-                                        borderRadius:
-                                            '1.73rem 0.25rem 0.25rem 1.73rem',
+                                        borderRadius: '1.73rem 0 0 1.73rem',
                                     }}
                                     onKeyDown={(
                                         e: React.KeyboardEvent<HTMLTextAreaElement>,
@@ -153,12 +172,29 @@ const OpenConversation: React.FC = () => {
                                 />
                             </FloatingLabel>
                             <IconButton
+                                style={{
+                                    borderColor:
+                                        'rgb(206 212 218) rgb(206 212 218) rgb(206 212 218) rgb(206 212 218)',
+                                    borderStyle: 'solid solid solid solid',
+                                    borderWidth: '1px 1px 1px 0px',
+                                    backgroundColor: 'rgb(255 255 255)',
+                                }}
+                                onClick={() => {
+                                    setShowEmojiPicker(!showEmojiPicker);
+                                }}
+                            >
+                                <EmojiEmotionsIcon />
+                            </IconButton>
+                            <IconButton
                                 type='submit'
                                 className={`${
                                     text ? 'bg-primary text-white' : 'bg-light'
                                 }`}
                                 style={{
-                                    border: '#4DE8F4 solid 1px',
+                                    borderColor:
+                                        '#4DE8F4 #4DE8F4 #4DE8F4 #4DE8F4',
+                                    borderStyle: 'solid solid solid solid',
+                                    borderWidth: '1px 1px 1px 0px',
                                 }}
                             >
                                 <SendIcon />

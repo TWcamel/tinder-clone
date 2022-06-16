@@ -11,13 +11,14 @@ import { toast } from 'react-toastify';
 import InterestsModal from '../modals/InterestsModal';
 import Settings from '../modals/SettingsModal';
 import SwipeService from '../../services/swipeService';
+import MatchesService from '../../services/matchesService';
 import AwsService from '../../services/awsService';
 import AuthService from '../../services/authService';
 import { v4 as uuidv4 } from 'uuid';
 import { Api } from '../../services/api';
 import LoadingEffect from '../loading/';
 import { useMatches } from './provider';
-import { arrayIsEmpty } from '../../utils/array';
+import { arrayIsEmpty, arrayFull } from '../../utils/array';
 import NextSwipeCountDownTimer from '../timer/';
 import moment from 'moment';
 import { getLocalTimeBrief } from '../../utils/time';
@@ -51,15 +52,16 @@ const OpenMatches: React.FC<{ id: string }> = ({ id }) => {
     const [swipeCounts, setSwipeCounts] = React.useState(0);
 
     const checkIfImageStillLeft = async (index: number) => {
-        await removeContainer(index);
         if (index === 0) {
-            const remainTimes = await LikesService.getRemainTimeNextSwipe(id);
+            toast.error('No more matches to like');
+            const remainTimes = await MatchesService.getRemainTimeNextSwipe(id);
+
             if (remainTimes.ok) {
                 showSwiperNextTime(remainTimes.data.nextTime);
-                toast.error('No more matches to like');
             }
             return false;
         }
+        await removeContainer(index);
         return true;
     };
 
@@ -71,7 +73,7 @@ const OpenMatches: React.FC<{ id: string }> = ({ id }) => {
             (container: any) => container.id.length === 0,
         );
         const size = swiperImgs.length;
-        if (size >= 0) {
+        if (size > 0) {
             swiperImgs[index].remove();
         }
         setSwipeCounts(size - 1);
@@ -100,6 +102,8 @@ const OpenMatches: React.FC<{ id: string }> = ({ id }) => {
             )} :)`,
             {
                 toastId: 'swipe-timer',
+                theme: 'colored',
+                autoClose: 15000,
             },
         );
     };
@@ -281,7 +285,25 @@ const OpenMatches: React.FC<{ id: string }> = ({ id }) => {
                                                         }}
                                                     />
                                                 ) : (
-                                                    <LoadingEffect />
+                                                    <div
+                                                        style={{
+                                                            width: '377px',
+                                                            height: '577px',
+                                                            backgroundColor:
+                                                                '#f5f5f5',
+                                                            borderRadius: '3px',
+                                                            border: '1px solid white',
+                                                            justifyContent:
+                                                                'center',
+                                                            alignItems:
+                                                                'center',
+                                                            display: 'flex',
+                                                        }}
+                                                    >
+                                                        <LoadingEffect
+                                                            size={'120px'}
+                                                        />
+                                                    </div>
                                                 )}
                                                 <Card.ImgOverlay
                                                     style={{

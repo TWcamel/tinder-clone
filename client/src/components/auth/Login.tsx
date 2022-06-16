@@ -109,8 +109,8 @@ export const Login: React.FC<{
                         <SignupModal closeModal={closeModal} />
                     </Modal>
 
-                    <FbLogin />
-                    <GoogleLogin />
+                    {/* <FbLogin /> */}
+                    {/* <GoogleLogin /> */}
                 </Form>
             </Container>
         </>

@@ -1,5 +1,4 @@
 import React, { useEffect } from 'react';
-import { io, Manager } from 'socket.io-client';
 import { Button, ListGroup, Form, Image } from 'react-bootstrap';
 import { useConversations } from './provider';
 import useLocalStorage from '../../hooks/useLocalStorage';
@@ -26,17 +25,11 @@ interface IMatch {
     avatar: string;
 }
 
-export const Conversations: React.FC = () => {
+export const Conversations: React.FC<{
+    onSidebarSelcet: (tab: string) => void;
+}> = ({ onSidebarSelcet }) => {
     const { conversations, selectConversationIndex } = useConversations();
-    const [matches, setMatches] = React.useState<IMatch[]>([]);
-    const { selectMatchIndex } = useMatches();
-
-    useEffect(() => {
-        const m: any = getLocalStorage('matches');
-        if (m) {
-            setMatches(m);
-        }
-    }, [selectConversationIndex, selectMatchIndex]);
+    const { matches } = useMatches();
 
     //TODO: make messages scroll to top when new message is added
     //TODO: infinate scroll
@@ -62,15 +55,13 @@ export const Conversations: React.FC = () => {
                                     borderBottom: '1px solid rgb(193 193 193)',
                                     padding: '0.75rem 1.25rem',
                                     backgroundColor: conversation.selected
-                                        ? 'rgb(14 110 253)'
+                                        ? 'rgb(233 81 113)'
                                         : 'rgb(242 242 242)',
                                 }}
                             >
-                                {
-
-                match?.avatar ? (
+                                {match?.avatar ? (
                                     <Image
-                                        src={match?.avatar}
+                                        src={match.avatar}
                                         roundedCircle
                                         style={{
                                             borderRadius: '50%',

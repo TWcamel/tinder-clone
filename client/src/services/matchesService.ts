@@ -19,6 +19,17 @@ const MatchesService = {
         });
         return response.data;
     },
+
+    getRemainTimeNextSwipe: async (email: string) => {
+        const response = await Api.patch(
+            'matches/nextSwipe',
+            { id: email },
+            {
+                Authorization: `Bearer ${AuthService.getBearerToken()}`,
+            },
+        );
+        return response.data;
+    },
 };
 
 export default MatchesService;
