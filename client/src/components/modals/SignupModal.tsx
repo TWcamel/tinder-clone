@@ -143,7 +143,8 @@ const SignupModal: React.FC<any> = ({
                             value='M'
                             name='user-gender'
                             onChange={updateGender}
-                        /> <Form.Check
+                        />{' '}
+                        <Form.Check
                             type='radio'
                             label='Female'
                             value='F'
@@ -192,7 +193,7 @@ const SignupModal: React.FC<any> = ({
                         <ImageUploader onParentSubmit={setImgs} />
                     </Form.Group>
                     <Button type='submit' className='mt-2'>
-                        Signup
+                        Submit
                     </Button>
                 </Form>
             </Modal.Body>

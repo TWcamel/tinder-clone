@@ -26,15 +26,17 @@ const App = () => {
 
     return (
         <>
-            <ToastContainer position='top-right'/>
-            {userId ? (
-                dashboard
-            ) : (
-                <Login
-                    onUserIdSubmit={setUserId}
-                    onUserNameSubmit={setUserName}
-                />
-            )}
+            <ToastContainer position='top-right' />
+            <div style={{ backgroundColor: '#f5f5f5' }}>
+                {userId ? (
+                    dashboard
+                ) : (
+                    <Login
+                        onUserIdSubmit={setUserId}
+                        onUserNameSubmit={setUserName}
+                    />
+                )}
+            </div>
         </>
     );
 };

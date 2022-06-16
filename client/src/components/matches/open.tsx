@@ -350,7 +350,7 @@ const OpenMatches: React.FC<{ id: string }> = ({ id }) => {
                         className='close mt-2'
                         style={{
                             background: '#fcfafa',
-                            color: 'red',
+                            color: 'grey',
                             boxShadow:
                                 '20px 20px 30px #bebebe, 20px 20px 60px #ffffff',
                         }}
@@ -363,7 +363,7 @@ const OpenMatches: React.FC<{ id: string }> = ({ id }) => {
                         className='favorite'
                         style={{
                             background: '#fcfafa',
-                            color: 'green',
+                            color: 'red',
                             boxShadow:
                                 '20px 20px 30px #bebebe, 20px 20px 60px #ffffff',
                         }}
